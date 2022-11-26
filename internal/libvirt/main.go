@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
-	"github.com/ericzty/eve/lib/db"
+	"github.com/ericzty/eve/internal/db"
 )
 
 func Init(HV *db.HV) (err error) {

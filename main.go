@@ -6,11 +6,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ericzty/eve/lib/db"
-	"github.com/ericzty/eve/lib/libvirt"
-	"github.com/ericzty/eve/lib/routes"
+	"github.com/ericzty/eve/internal/db"
+	"github.com/ericzty/eve/internal/libvirt"
+	"github.com/ericzty/eve/internal/routes"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"
 	"github.com/knadh/koanf/providers/file"
@@ -27,19 +29,16 @@ const (
 var (
 	k      = koanf.New(".")
 	parser = toml.Parser()
-	config = Config{}
 )
 
 func init() {
-	stopwatch := time.Now()
-
 	// Init logger
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
-	log.Info().Msg("+----------------------------------+")
-	log.Info().Msg("|     EVE Virtural Environment     |")
-	log.Info().Msg("|              v" + version + "              |")
-	log.Info().Msg("+----------------------------------+")
+	log.Info().Msg("+-----------------------------------+")
+	log.Info().Msg("|      EVE Virtual Environment      |")
+	log.Info().Msg("|               v" + version + "               |")
+	log.Info().Msg("+-----------------------------------+")
 	log.Info().Msg("Loading configuration")
 
 	// Load configuration
@@ -49,25 +48,12 @@ func init() {
 		log.Info().Msg("Loaded configuration from " + configPath)
 	}
 
-	// Unmarshal configuration
-	if err := k.Unmarshal("", &config); err != nil {
-		log.Fatal().Err(err).Msg("Failed to parse configuration")
+	// Check config
+	log.Info().Msg("Checking config")
+	if err := checkConfig(); err != nil {
+		log.Fatal().Err(err).Msg("Invalid configuration")
 	} else {
-		log.Info().Msg("Parsed configuration")
-	}
-
-	// Check for required configuration
-	if config.Name == "" {
-		log.Fatal().Msg("Configuration: name is required")
-	}
-	if config.API.Host == "" {
-		log.Fatal().Msg("Configuration: api.host is required")
-	}
-	if config.API.Port == 0 {
-		log.Fatal().Msg("Configuration: api.port is required")
-	}
-	if config.Database.URL == "" {
-		log.Fatal().Msg("Configuration: database.url is required")
+		log.Info().Msg("Configuration is valid")
 	}
 
 	// Init database
@@ -78,6 +64,9 @@ func init() {
 		log.Info().Msg("Connected to database")
 	}
 
+}
+
+func main() {
 	// Get HVs
 	log.Info().Msg("Getting HVs")
 	hvs, hvErr := db.GetHVs()
@@ -109,17 +98,47 @@ func init() {
 		}
 	}
 	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(hvs)))
-
-	log.Info().Msg("EVE database and libvirt initialized in " + time.Since(stopwatch).String())
-}
-
-func main() {
 	// Init router
 	r := chi.NewRouter()
 
-	// Register routes
-	r.Get("/health", routes.Health)
+	// Middlewares
+	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
 
+	// Rate limiter
+	r.Use(httprate.LimitByIP(100, 1*time.Minute))
+
+	// Public routes
+	r.Get("/health", routes.Health)
+	r.Post("/login", routes.Login)
+	/*
+
+		// Admin routes
+		r.Group(func(r chi.Router) {
+			r.Use(routes.AdminAuth)
+			r.Get("/admin/hvs", routes.GetHVs)
+			r.Get("/admin/hvs/{id}", routes.GetHV)
+			r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
+			r.Get("/admin/hvs/{id}/vms/{vmid}", routes.GetVM)
+			r.Post("/admin/hvs/{id}/vms", routes.CreateVM)
+			r.Put("/admin/hvs/{id}/vms/{vmid}", routes.UpdateVM)
+			r.Delete("/admin/hvs/{id}/vms/{vmid}", routes.DeleteVM)
+			r.Post("/admin/users", routes.CreateUser)
+			r.Get("/admin/users", routes.GetUsers)
+			r.Get("/admin/users/{id}", routes.GetUser)
+			r.Put("/admin/users/{id}", routes.UpdateUser)
+			r.Delete("/admin/users/{id}", routes.DeleteUser)
+		})
+
+		// User routes
+		r.Group(func(r chi.Router) {
+			r.Use(routes.UserAuth)
+			r.Get("/users/me", routes.GetUser)
+			r.Put("/users/me", routes.UpdateUser)
+			r.Get("/users/me/vms", routes.GetVMs)
+			r.Get("/users/me/vms/{id}", routes.GetVM)
+		})
+	*/
 	// Start server
 	listenAddress := k.String("api.host") + ":" + strconv.Itoa(k.Int("api.port"))
 	log.Info().Msg("Starting the web server at " + listenAddress)
