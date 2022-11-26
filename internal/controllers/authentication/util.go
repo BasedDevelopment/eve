@@ -1,10 +1,9 @@
-package routes
+package authentication
 
 import (
 	"crypto/rand"
 	"fmt"
 	"log"
-	"net/http"
 	"strings"
 
 	"golang.org/x/crypto/bcrypt"
@@ -15,11 +14,6 @@ type Token struct {
 	Public  string
 	Secret  string
 	Salt    string
-}
-
-type credentials struct {
-	Password string `json:"password"`
-	Username string `json:"username"`
 }
 
 func hashAndSalt(pwd []byte) string {
@@ -80,9 +74,4 @@ func parseToken(token string) (Token, error) {
 
 func makeToken(token Token) string {
 	return fmt.Sprintf("%s.%s.%s.%s", token.Version, token.Public, token.Secret, token.Salt)
-}
-
-func Health(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
 }

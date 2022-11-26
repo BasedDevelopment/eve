@@ -1,4 +1,4 @@
-package routes
+package middlewares
 
 import (
 	"net/http"
@@ -6,10 +6,10 @@ import (
 
 func AdminAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		user := r.Context().Value("user").(User)
+		user := r.Context().Value("user")
 
 		if user.Role != "admin" {
-			r.WriteHeader(http.StatusUnauthorized)
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
