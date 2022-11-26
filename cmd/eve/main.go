@@ -49,44 +49,46 @@ func init() {
 }
 
 func main() {
+	// Creating the Cloud
+	cloud := new(controllers.Cloud)
+
 	// Get HVs
 	log.Info().Msg("Getting HVs")
 
-	hvs, hvErr := controllers.GetHVs()
-
-	if hvErr != nil {
-		log.Fatal().Err(hvErr).Msg("Failed to get HVs")
+	if err := controllers.GetHVs(cloud); err != nil {
+		log.Fatal().Err(err).Msg("Failed to get HVs")
 	} else {
-		hvCount := len(hvs)
+		hvCount := len(cloud.HVs)
 		log.Info().Msg("Got " + strconv.Itoa(hvCount) + " HVs")
 	}
+	// TODO: Get VMs
 
 	// Init libvirt
 	log.Info().Msg("Connecting to HVs via libvirt")
 
-	for i := range hvs {
-		hv := hvs[i]
+	for i := range cloud.HVs {
+		hv := cloud.HVs[i]
 
 		log.Info().Msg("Connecting to " + hv.Hostname)
 
-		if err := libvirt.Init(&hvs[i]); err != nil {
+		if err := libvirt.Init(cloud.HVs[i]); err != nil {
 			log.Warn().Err(err).Msg("Failed to connect to HV " + hv.Hostname)
 		} else {
-			hv := hvs[i]
+			hv := cloud.HVs[i]
 			log.Info().Msg("Connected to " + hv.Hostname + ",libvirt version: " + hv.Version)
 		}
 	}
 
 	// Report amount of online HVs
 	var c int
-	for i := range hvs {
-		hv := hvs[i]
+	for i := range cloud.HVs {
+		hv := cloud.HVs[i]
 		if hv.Status == "online" {
 			c++
 		}
 	}
 
-	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(hvs)))
+	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(cloud.HVs)))
 
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
