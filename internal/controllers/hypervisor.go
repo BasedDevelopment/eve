@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/ericzty/eve/internal/db"
@@ -12,6 +13,7 @@ import (
 )
 
 type HV struct {
+	Mutex    sync.Mutex `db:"-"`
 	ID       uuid.UUID
 	Hostname string
 	IP       net.IP
@@ -28,6 +30,7 @@ type HV struct {
 }
 
 type HVNic struct {
+	Mutex   sync.Mutex `db:"-"`
 	ID      uuid.UUID
 	Name    string
 	Mac     net.HardwareAddr
@@ -40,6 +43,7 @@ type HVNic struct {
 // TODO: Impl bridges
 
 type HVStorage struct {
+	Mutex     sync.Mutex `db:"-"`
 	ID        uuid.UUID
 	Size      int
 	Used      int `db:"-"`
@@ -49,18 +53,26 @@ type HVStorage struct {
 	Remarks   string
 }
 
-func GetHVs() (HVs []HV, err error) {
+func GetHVs(cloud *Cloud) (err error) {
 	// Reading HVs
 	rows, queryErr := db.Pool.Query(context.Background(), "SELECT * FROM hv")
 
 	if queryErr != nil {
-		return nil, fmt.Errorf("Error reading hv: %w", queryErr)
+		return fmt.Errorf("Error reading hv: %w", queryErr)
 	}
 
 	HVs, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[HV])
 
+	cloud.Mutex.Lock()
+	cloud.HVs = make(map[string]*HV)
+	for i := range HVs {
+		hvid := HVs[i].ID.String()
+		cloud.HVs[hvid] = &HVs[i]
+	}
+	cloud.Mutex.Unlock()
+
 	if collectErr != nil {
-		return nil, fmt.Errorf("Error collecting hv: %w", collectErr)
+		return fmt.Errorf("Error collecting hv: %w", collectErr)
 	}
 
 	return

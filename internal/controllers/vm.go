@@ -13,8 +13,8 @@ type VM struct {
 	User     *Profile `db:"-"`
 	CPU      int
 	Memory   int
-	Nics     []VMNic     `db:"-"`
-	Storages []VMStorage `db:"-"`
+	Nics     map[string]VMNic     `db:"-"`
+	Storages map[string]VMStorage `db:"-"`
 	Created  time.Time
 	Updated  time.Time
 	Remarks  string
