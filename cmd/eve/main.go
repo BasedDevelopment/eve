@@ -28,7 +28,7 @@ func init() {
 
 	log.Info().Msg("+-----------------------------------+")
 	log.Info().Msg("|      EVE Virtual Environment      |")
-	log.Info().Msg("|               v" + version + "               |")
+	log.Info().Msg("|               v" + version + "              |")
 	log.Info().Msg("+-----------------------------------+")
 
 	// Load configuration
@@ -72,7 +72,7 @@ func main() {
 			log.Warn().Err(err).Msg("Failed to connect to HV " + hv.Hostname)
 		} else {
 			hv := cloud.HVs[i]
-			log.Info().Msg("Connected to " + hv.Hostname + ",libvirt version: " + hv.Version)
+			log.Info().Msg("Connected to " + hv.Hostname + ", libvirt version: " + hv.Version)
 		}
 	}
 
@@ -84,6 +84,8 @@ func main() {
 			c++
 		}
 	}
+
+	// TODO: Report amount of VMs found
 
 	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(cloud.HVs)))
 

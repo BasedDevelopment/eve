@@ -14,6 +14,7 @@ func Start() *chi.Mux {
 
 	// Middlewares
 	r.Use(middleware.RealIP)
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
 	r.Use(middleware.Heartbeat("/health"))

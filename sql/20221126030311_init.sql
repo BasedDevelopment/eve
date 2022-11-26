@@ -94,4 +94,5 @@ DROP TABLE public.hv_nic;
 DROP TABLE public.hv_storage;
 DROP TABLE public.hv;
 DROP TABLE public.profile;
+DROP TABLE public.token;
 -- +goose StatementEnd
