@@ -34,7 +34,9 @@ func init() {
 	// Load configuration
 	log.Info().Msg("Loading configuration")
 
-	config.Load()
+	if err := config.Load(); err != nil {
+		log.Fatal().Err(err).Msg("Failed to load configuration")
+	}
 
 	// Init database
 	log.Info().Msg("Connecting to database")
@@ -85,8 +87,6 @@ func main() {
 	}
 
 	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(hvs)))
-	// Init router
-	// Public routes
 
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)

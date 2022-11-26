@@ -19,6 +19,5 @@ func validate() error {
 	if Config.Database.URL == "" {
 		return fmt.Errorf("Configuration: database.url is required")
 	}
-
 	return nil
 }

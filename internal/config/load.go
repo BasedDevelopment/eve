@@ -26,9 +26,14 @@ var (
 	}
 )
 
-func Load() error {
+func Load() (err error) {
 	// Load from toml
 	if err := k.Load(file.Provider(configPath), toml.Parser()); err != nil {
+		return err
+	}
+
+	// Marshal into struct
+	if err := k.Unmarshal("", &Config); err != nil {
 		return err
 	}
 
@@ -36,7 +41,5 @@ func Load() error {
 	if err := validate(); err != nil {
 		return err
 	}
-
-	// Marshal into struct
-	return k.Unmarshal("", &Config)
+	return
 }
