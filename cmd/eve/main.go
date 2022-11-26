@@ -63,9 +63,6 @@ func main() {
 	}
 	// TODO: Get VMs
 
-	// Init libvirt
-	log.Info().Msg("Connecting to HVs via libvirt")
-
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
 
