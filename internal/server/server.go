@@ -29,7 +29,7 @@ func Start() *chi.Mux {
 		r.Use(middlewares.MustBeAdmin)
 
 		r.Get("/admin/health", routes.Health)
-		// r.Get("/admin/hvs", routes.GetHVs)
+		r.Get("/admin/hvs", routes.GetHVs)
 		// r.Get("/admin/hvs/{id}", routes.GetHV)
 		// r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
 		// r.Get("/admin/hvs/{id}/vms/{vmid}", routes.GetVM)

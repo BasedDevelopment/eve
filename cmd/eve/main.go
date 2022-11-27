@@ -50,18 +50,10 @@ func init() {
 
 func main() {
 	// Creating the Cloud
-	cloud := new(controllers.Cloud)
+	cloud := controllers.InitCloud()
 
 	// Get HVs
 	log.Info().Msg("Getting HVs")
-
-	if err := controllers.GetHVs(cloud); err != nil {
-		log.Fatal().Err(err).Msg("Failed to get HVs")
-	} else {
-		hvCount := len(cloud.HVs)
-		log.Info().Msg("Got " + strconv.Itoa(hvCount) + " HVs")
-	}
-	// TODO: Get VMs
 
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
