@@ -56,3 +56,12 @@ func IsAdmin(ctx context.Context, id string) (isAdmin bool, err error) {
 	err = db.Pool.QueryRow(ctx, "SELECT is_admin FROM profile WHERE id = $1", id).Scan(&isAdmin)
 	return
 }
+
+func Logout(ctx context.Context, reqToken string) (err error) {
+	publicPart, err := authentication.GetPublicPart(reqToken)
+	if err != nil {
+		return
+	}
+	_, err = db.Pool.Exec(ctx, "DELETE FROM token WHERE token_public = $1", publicPart)
+	return
+}

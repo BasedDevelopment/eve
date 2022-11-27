@@ -81,3 +81,8 @@ func VerifyToken(ctx context.Context, token string) (string, error) {
 
 	return id, nil
 }
+
+func GetPublicPart(token string) (publicPart string, err error) {
+	userToken, err := parseToken(token)
+	return userToken.Public, err
+}

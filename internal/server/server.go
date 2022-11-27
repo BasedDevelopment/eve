@@ -47,6 +47,7 @@ func Start() *chi.Mux {
 	r.Group(func(r chi.Router) {
 		r.Use(middlewares.Auth)
 
+		r.Post("/logout", routes.Logout)
 		r.Get("/user/health", routes.Health)
 		// r.Get("/users/me", routes.GetUser)
 		// r.Put("/users/me", routes.UpdateUser)
