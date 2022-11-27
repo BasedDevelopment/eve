@@ -53,7 +53,7 @@ type HVStorage struct {
 	Remarks   string
 }
 
-func getHVs(cloud *Cloud) (err error) {
+func getHVs(cloud *HVList) (err error) {
 	// Reading HVs
 	rows, queryErr := db.Pool.Query(context.Background(), "SELECT * FROM hv")
 

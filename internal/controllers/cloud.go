@@ -6,20 +6,20 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Cloud struct {
+type HVList struct {
 	Mutex sync.Mutex
 	HVs   map[string]*HV
 }
 
-var C *Cloud
+var Cloud *HVList
 
-func InitCloud() *Cloud {
-	C = new(Cloud)
-	if err := getHVs(C); err != nil {
+func InitCloud() *HVList {
+	Cloud = new(HVList)
+	if err := getHVs(Cloud); err != nil {
 		log.Fatal().Err(err).Msg("Failed to get HVs")
 	} else {
-		count := len(C.HVs)
+		count := len(Cloud.HVs)
 		log.Info().Msgf("Found %d HVs", count)
 	}
-	return C
+	return Cloud
 }
