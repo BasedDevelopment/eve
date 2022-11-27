@@ -51,3 +51,8 @@ func (p *Profile) IssueToken(ctx context.Context) (userToken string, err error) 
 	_, err = db.Pool.Exec(ctx, "INSERT INTO token (token_public, token_private, profile_id, expires) VALUES ($1, $2, $3, $4)", publicPart, serverToken, id.String(), expirey)
 	return
 }
+
+func IsAdmin(ctx context.Context, id string) (isAdmin bool, err error) {
+	err = db.Pool.QueryRow(ctx, "SELECT is_admin FROM profile WHERE id = $1", id).Scan(&isAdmin)
+	return
+}

@@ -1,0 +1,91 @@
+package middlewares
+
+import (
+	"context"
+	"crypto/subtle"
+	"encoding/base64"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/ericzty/eve/internal/controllers"
+	"golang.org/x/crypto/sha3"
+)
+
+func AdminAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		reqToken := r.Header.Get("Authorization")
+		splitToken := strings.Split(reqToken, "Bearer ")
+		reqToken = splitToken[1]
+		if !strings.HasPrefix(reqToken, "v1") {
+			token, err := parseToken(r.Header.Get("Auth-Token"))
+
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("Bad Request"))
+				return
+			}
+
+			id, entry, expirey, err := controllers.GetToken(ctx, token.Public)
+			if err != nil {
+				w.WriteHeader(http.InternalServerError)
+				w.Write([]byte("Internal Server Error"))
+				return
+			}
+
+			if entry != "" {
+				entryToken, err := parseToken(entry)
+
+				if err != nil {
+					w.WriteHeader(http.StatusBadRequest)
+					w.Write([]byte("Invalid Token"))
+					return
+				}
+
+				unb64dSecret, err := base64.URLEncoding.DecodeString(token.Secret)
+
+				if err != nil {
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte("Internal Server Error"))
+					w.Write([]byte(err.Error()))
+					return
+				}
+
+				buf := []byte(string(unb64dSecret) + token.Salt)
+				secret := make([]byte, 64)
+				sha3.ShakeSum256(secret, buf)
+
+				if subtle.ConstantTimeCompare(
+					[]byte(entryToken.Secret),         // secret from the database (already in hex)
+					[]byte(fmt.Sprintf("%x", secret)), // secret from the request (now salted & hashed, and converted to hex)
+				) != 1 {
+					w.WriteHeader(http.StatusUnauthorized)
+					w.Write([]byte("Unauthorized"))
+					return
+				}
+			} else {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				return
+			}
+
+			// Check expirey
+			if expirey.Before(time.Now()) {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Unauthorized"))
+				return
+			}
+
+			// Auth successful
+			ctx = context.WithValue(ctx, "id", id)
+			next.ServeHTTP(w, r.WithContext(ctx))
+
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Invalid Token"))
+			return
+		}
+	})
+}

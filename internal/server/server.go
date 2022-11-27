@@ -3,6 +3,7 @@ package server
 import (
 	"time"
 
+	"github.com/ericzty/eve/internal/server/middlewares"
 	"github.com/ericzty/eve/internal/server/routes"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -23,22 +24,23 @@ func Start() *chi.Mux {
 	r.Post("/login", routes.Login)
 
 	// Admin endpoints
-	//r.Group(func(r chi.Router) {
-	//	r.Use(middlewares.AdminAuth)
+	r.Group(func(r chi.Router) {
+		r.Use(middlewares.AdminAuth)
+		r.Use(middleware.Heartbeat("/admin/health"))
 
-	// r.Get("/admin/hvs", routes.GetHVs)
-	// r.Get("/admin/hvs/{id}", routes.GetHV)
-	// r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
-	// r.Get("/admin/hvs/{id}/vms/{vmid}", routes.GetVM)
-	// r.Post("/admin/hvs/{id}/vms", routes.CreateVM)
-	// r.Put("/admin/hvs/{id}/vms/{vmid}", routes.UpdateVM)
-	// r.Delete("/admin/hvs/{id}/vms/{vmid}", routes.DeleteVM)
-	// r.Post("/admin/users", routes.CreateUser)
-	// r.Get("/admin/users", routes.GetUsers)
-	// r.Get("/admin/users/{id}", routes.GetUser)
-	// r.Put("/admin/users/{id}", routes.UpdateUser)
-	// r.Delete("/admin/users/{id}", routes.DeleteUser)
-	//})
+		// r.Get("/admin/hvs", routes.GetHVs)
+		// r.Get("/admin/hvs/{id}", routes.GetHV)
+		// r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
+		// r.Get("/admin/hvs/{id}/vms/{vmid}", routes.GetVM)
+		// r.Post("/admin/hvs/{id}/vms", routes.CreateVM)
+		// r.Put("/admin/hvs/{id}/vms/{vmid}", routes.UpdateVM)
+		// r.Delete("/admin/hvs/{id}/vms/{vmid}", routes.DeleteVM)
+		// r.Post("/admin/users", routes.CreateUser)
+		// r.Get("/admin/users", routes.GetUsers)
+		// r.Get("/admin/users/{id}", routes.GetUser)
+		// r.Put("/admin/users/{id}", routes.UpdateUser)
+		// r.Delete("/admin/users/{id}", routes.DeleteUser)
+	})
 
 	// User endpoints
 	r.Group(func(r chi.Router) {
