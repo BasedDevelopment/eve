@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func AdminAuth(next http.Handler) http.Handler {
+func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		reqToken := r.Header.Get("Authorization")
@@ -48,7 +48,21 @@ func AdminAuth(next http.Handler) http.Handler {
 			w.Write([]byte("Internal Server Error"))
 			return
 		}
-		fmt.Println(id)
-		fmt.Println(isAdmin)
+		ctx = context.WithValue(ctx, "id", id)
+		ctx = context.WithValue(ctx, "isAdmin", isAdmin)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func MustBeAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		isAdmin := ctx.Value("isAdmin").(bool)
+		if !isAdmin {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }

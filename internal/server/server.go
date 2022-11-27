@@ -25,9 +25,10 @@ func Start() *chi.Mux {
 
 	// Admin endpoints
 	r.Group(func(r chi.Router) {
-		r.Use(middlewares.AdminAuth)
-		r.Use(middleware.Heartbeat("/admin/health"))
+		r.Use(middlewares.Auth)
+		r.Use(middlewares.MustBeAdmin)
 
+		r.Get("/admin/health", routes.Health)
 		// r.Get("/admin/hvs", routes.GetHVs)
 		// r.Get("/admin/hvs/{id}", routes.GetHV)
 		// r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
@@ -44,8 +45,9 @@ func Start() *chi.Mux {
 
 	// User endpoints
 	r.Group(func(r chi.Router) {
-		// r.Use(middlewares.UserAuth)
+		r.Use(middlewares.Auth)
 
+		r.Get("/user/health", routes.Health)
 		// r.Get("/users/me", routes.GetUser)
 		// r.Put("/users/me", routes.UpdateUser)
 		// r.Get("/users/me/vms", routes.GetVMs)
