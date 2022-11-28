@@ -56,6 +56,7 @@ func Start() *chi.Mux {
 		// r.Put("/users/me", routes.UpdateUser)
 		// r.Get("/users/me/vms", routes.GetVMs)
 		// r.Get("/users/me/vms/{id}", routes.GetVM)
+		// r.Put("/users/me/vms/{id}", routes.UpdateVM)
 	})
 
 	return r
