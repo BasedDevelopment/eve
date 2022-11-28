@@ -13,20 +13,20 @@ import (
 )
 
 type HV struct {
-	Mutex    sync.Mutex `db:"-"`
-	ID       uuid.UUID
-	Hostname string
-	IP       net.IP
-	Port     int
-	Site     string
-	Nics     []HVNic     `db:"-"`
-	Storages []HVStorage `db:"-"`
-	VMs      []VM        `db:"-"`
-	Created  time.Time
-	Updated  time.Time
-	Remarks  string
-	Status   string `db:"-"`
-	Version  string `db:"-"`
+	mutex    sync.Mutex            `db:"-"`
+	ID       uuid.UUID             `json:"id"`
+	Hostname string                `json:"hostname"`
+	IP       net.IP                `json:"ip"`
+	Port     int                   `json:"port"`
+	Site     string                `json:"site"`
+	Nics     map[string]*HVNic     `json:"nics" db:"-"`
+	Storages map[string]*HVStorage `json:"storages" db:"-"`
+	VMs      map[string]*VM        `json:"vms" db:"-"`
+	Created  time.Time             `json:"created"`
+	Updated  time.Time             `json:"updated"`
+	Remarks  string                `json:"remarks"`
+	Status   string                `json:"status" db:"-"`
+	Version  string                `json:"version" db:"-"`
 }
 
 type HVNic struct {
@@ -63,13 +63,13 @@ func getHVs(cloud *HVList) (err error) {
 
 	HVs, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[HV])
 
-	cloud.Mutex.Lock()
+	cloud.mutex.Lock()
+	defer cloud.mutex.Unlock()
 	cloud.HVs = make(map[string]*HV)
 	for i := range HVs {
 		hvid := HVs[i].ID.String()
 		cloud.HVs[hvid] = &HVs[i]
 	}
-	cloud.Mutex.Unlock()
 
 	if collectErr != nil {
 		return fmt.Errorf("Error collecting hv: %w", collectErr)

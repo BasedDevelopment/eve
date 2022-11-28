@@ -7,8 +7,8 @@ import (
 )
 
 type HVList struct {
-	Mutex sync.Mutex
-	HVs   map[string]*HV
+	mutex sync.Mutex
+	HVs   map[string]*HV `json:"hvs"`
 }
 
 var Cloud *HVList
