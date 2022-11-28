@@ -17,7 +17,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Decode request body
-	if err := json.NewDecoder(r.Body).Decode(&loginRequest); err != nil {
+	//DisallowUnknownFields()
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&loginRequest); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("Bad request"))
 		return
