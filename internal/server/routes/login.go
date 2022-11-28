@@ -17,7 +17,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Decode request body
-	//DisallowUnknownFields()
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&loginRequest); err != nil {

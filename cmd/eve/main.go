@@ -72,7 +72,7 @@ func main() {
 	var c int
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
-		if hv.Status == "online" {
+		if hv.Status == "Online" {
 			c++
 		}
 	}
