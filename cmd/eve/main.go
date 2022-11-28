@@ -60,7 +60,7 @@ func main() {
 
 		log.Info().Msg("Connecting to " + hv.Hostname)
 
-		if err := libvirt.Init(cloud.HVs[i]); err != nil {
+		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
 			log.Warn().Err(err).Msg("Failed to connect to HV " + hv.Hostname)
 		} else {
 			hv := cloud.HVs[i]

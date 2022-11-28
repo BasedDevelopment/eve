@@ -10,14 +10,16 @@ import (
 
 func GetHVs(w http.ResponseWriter, r *http.Request) {
 	cloud := controllers.Cloud
+	var out []*controllers.HV
 	for _, hv := range cloud.HVs {
-		hv.VMs = nil
+		hv.VMs = make(map[string]*controllers.VM)
+		out = append(out, hv)
 	}
-	cloudJson, err := json.Marshal(cloud)
+	outJson, err := json.Marshal(out)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to marshal cloud json")
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(cloudJson)
+	w.Write(outJson)
 }

@@ -61,18 +61,23 @@ func getHVs(cloud *HVList) (err error) {
 		return fmt.Errorf("Error reading hv: %w", queryErr)
 	}
 
+	// Collect the rows into the HV struct
 	HVs, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[HV])
+
+	if collectErr != nil {
+		return fmt.Errorf("Error collecting hv: %w", collectErr)
+	}
 
 	cloud.mutex.Lock()
 	defer cloud.mutex.Unlock()
+
 	cloud.HVs = make(map[string]*HV)
 	for i := range HVs {
 		hvid := HVs[i].ID.String()
 		cloud.HVs[hvid] = &HVs[i]
-	}
-
-	if collectErr != nil {
-		return fmt.Errorf("Error collecting hv: %w", collectErr)
+		HVs[i].Nics = make(map[string]*HVNic)
+		HVs[i].Storages = make(map[string]*HVStorage)
+		HVs[i].VMs = make(map[string]*VM)
 	}
 
 	return
