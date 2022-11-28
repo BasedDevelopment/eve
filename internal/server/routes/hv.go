@@ -9,7 +9,11 @@ import (
 )
 
 func GetHVs(w http.ResponseWriter, r *http.Request) {
-	cloudJson, err := json.Marshal(controllers.Cloud)
+	cloud := controllers.Cloud
+	for _, hv := range cloud.HVs {
+		hv.VMs = nil
+	}
+	cloudJson, err := json.Marshal(cloud)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to marshal cloud json")
 	}
