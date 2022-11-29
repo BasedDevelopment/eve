@@ -53,18 +53,26 @@ func main() {
 	cloud := controllers.InitCloud()
 
 	// Get HVs
-	log.Info().Msg("Getting HVs")
+	log.Info().Msg("Fetching HVs")
 
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
 
-		log.Info().Msg("Connecting to " + hv.Hostname)
+		log.Info().
+			Str("hv", hv.Hostname).
+			Msg("Connecting")
 
 		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
-			log.Warn().Err(err).Msg("Failed to connect to HV " + hv.Hostname)
+			log.Warn().Err(err).
+				Str("hv", hv.Hostname).
+				Msg("Failed to connect")
 		} else {
 			hv := cloud.HVs[i]
-			log.Info().Msg("Connected to " + hv.Hostname + ", libvirt version: " + hv.Version)
+
+			log.Info().
+				Str("hv", hv.Hostname).
+				Str("version", hv.Version).
+				Msg("Connected to HV")
 		}
 	}
 
@@ -84,7 +92,10 @@ func main() {
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
 
-	log.Info().Msg("Starting the web server at " + listenAddress)
+	log.Info().
+		Str("host", config.Config.API.Host).
+		Int("port", config.Config.API.Port).
+		Msg("Started HTTP server")
 
 	if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start HTTP server")
