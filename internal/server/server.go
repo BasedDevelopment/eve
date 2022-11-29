@@ -30,7 +30,7 @@ func Start() *chi.Mux {
 
 		r.Get("/admin/health", routes.Health)
 		r.Get("/admin/hvs", routes.GetHVs)
-		// r.Get("/admin/hvs/{id}", routes.GetHV)
+		r.Get("/admin/hv/{id}", routes.GetHV)
 		// r.Post("/admin/hvs/{id}", routes.CreateHV)
 		// r.Put("/admin/hvs/{id}", routes.UpdateHV)
 		// r.Delete("/admin/hvs/{id}", routes.RemoveHV)
