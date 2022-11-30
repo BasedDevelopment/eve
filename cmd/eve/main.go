@@ -58,13 +58,19 @@ func main() {
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
 
-		log.Info().Msg("Connecting to " + hv.Hostname)
+		log.Info().
+			Str("hostname", hv.Hostname).
+			Msg("Connecting to HV")
 
 		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
-			log.Warn().Err(err).Msg("Failed to connect to HV " + hv.Hostname)
+			log.Warn().
+				Err(err).
+				Str("hostname", hv.Hostname).
+				Msg("Failed to connect to HV")
 		} else {
-			hv := cloud.HVs[i]
-			log.Info().Msg("Connected to " + hv.Hostname + ", libvirt version: " + hv.Version)
+			log.Info().
+				Str("hostname", hv.Hostname).
+				Msg("Connected to HV")
 		}
 	}
 
@@ -79,14 +85,21 @@ func main() {
 
 	// TODO: Report amount of VMs found
 
-	log.Info().Msg("Online HVs: " + strconv.Itoa(c) + "/" + strconv.Itoa(len(cloud.HVs)))
+	log.Info().
+		Int("online hypervisors", c).
+		Int("total hypervisors", len(cloud.HVs))
 
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
 
-	log.Info().Msg("Starting the web server at " + listenAddress)
+	log.Info().
+		Str("host", config.Config.API.Host).
+		Int("port", config.Config.API.Port).
+		Msg("Started HTTP server")
 
 	if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
-		log.Fatal().Err(err).Msg("Failed to start HTTP server")
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start HTTP server")
 	}
 }

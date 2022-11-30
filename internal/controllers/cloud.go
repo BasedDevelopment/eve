@@ -19,7 +19,7 @@ func InitCloud() *HVList {
 		log.Fatal().Err(err).Msg("Failed to get HVs")
 	} else {
 		count := len(Cloud.HVs)
-		log.Info().Msgf("Found %d HVs", count)
+		log.Info().Int("hv", count).Msg("Found hypervisors")
 	}
 	return Cloud
 }

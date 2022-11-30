@@ -39,7 +39,7 @@ func Start() *chi.Mux {
 		// r.Post("/admin/hvs/{id}/vms", routes.CreateVM)
 		// r.Put("/admin/hvs/{id}/vms/{vmid}", routes.UpdateVM)
 		// r.Delete("/admin/hvs/{id}/vms/{vmid}", routes.DeleteVM)
-		// r.Post("/admin/users", routes.CreateUser)
+		r.Post("/admin/users", routes.CreateUser)
 		// r.Get("/admin/users", routes.GetUsers)
 		// r.Get("/admin/users/{id}", routes.GetUser)
 		// r.Put("/admin/users/{id}", routes.UpdateUser)

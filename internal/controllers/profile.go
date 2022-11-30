@@ -15,13 +15,22 @@ type Profile struct {
 	Email     string
 	Password  string
 	Disabled  bool
+	IsAdmin   bool      `db:"is_admin"`
 	LastLogin time.Time `db:"last_login"`
 	Created   time.Time
 	Updated   time.Time
 	Remarks   string
 }
 
-func (p *Profile) New()             {}
+func (p *Profile) New(ctx context.Context) (id string, err error) {
+	// Generate UUID
+	p.ID = uuid.New()
+	id = p.ID.String()
+
+	_, err = db.Pool.Exec(ctx, "INSERT INTO profile (id, name, email, password, disabled, is_admin, remarks) VALUES ($1, $2, $3, $4, $5, $6, $7)", id, p.Name, p.Email, p.Password, p.Disabled, p.IsAdmin, p.Remarks)
+	return
+}
+
 func (p *Profile) Get(id uuid.UUID) {}
 func (p *Profile) Update()          {}
 func (p *Profile) Delete()          {}
