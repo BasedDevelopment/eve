@@ -59,7 +59,6 @@ func main() {
 		hv := cloud.HVs[i]
 
 		log.Info().
-<<<<<<< HEAD
 			Str("hostname", hv.Hostname).
 			Msg("Connecting to HV")
 
@@ -71,51 +70,50 @@ func main() {
 		} else {
 			log.Info().
 				Str("hostname", hv.Hostname).
-=======
-			Str("hv", hv.Hostname).
-			Msg("Connecting")
-
-		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
-			log.Warn().Err(err).
 				Str("hv", hv.Hostname).
-				Msg("Failed to connect")
-		} else {
+				Msg("Connecting")
+
+			if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
+				log.Warn().Err(err).
+					Str("hv", hv.Hostname).
+					Msg("Failed to connect")
+			} else {
+				hv := cloud.HVs[i]
+
+				log.Info().
+					Str("hv", hv.Hostname).
+					Str("version", hv.Version).
+					Msg("Connected to HV")
+			}
+		}
+
+		// Report amount of online HVs
+		var c int
+		for i := range cloud.HVs {
 			hv := cloud.HVs[i]
-
-			log.Info().
-				Str("hv", hv.Hostname).
-				Str("version", hv.Version).
->>>>>>> 95fb81d4eb7648630f11c4d02e0b3dbb3d0f0912
-				Msg("Connected to HV")
+			if hv.Status == "Online" {
+				c++
+			}
 		}
-	}
 
-	// Report amount of online HVs
-	var c int
-	for i := range cloud.HVs {
-		hv := cloud.HVs[i]
-		if hv.Status == "Online" {
-			c++
+		// TODO: Report amount of VMs found
+
+		log.Info().
+			Int("online hypervisors", c).
+			Int("total hypervisors", len(cloud.HVs))
+
+		// Start server
+		listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
+
+		log.Info().
+			Str("host", config.Config.API.Host).
+			Int("port", config.Config.API.Port).
+			Msg("Started HTTP server")
+
+		if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed to start HTTP server")
 		}
-	}
-
-	// TODO: Report amount of VMs found
-
-	log.Info().
-		Int("online hypervisors", c).
-		Int("total hypervisors", len(cloud.HVs))
-
-	// Start server
-	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
-
-	log.Info().
-		Str("host", config.Config.API.Host).
-		Int("port", config.Config.API.Port).
-		Msg("Started HTTP server")
-
-	if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to start HTTP server")
 	}
 }
