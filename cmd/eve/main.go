@@ -53,12 +53,13 @@ func main() {
 	cloud := controllers.InitCloud()
 
 	// Get HVs
-	log.Info().Msg("Getting HVs")
+	log.Info().Msg("Fetching HVs")
 
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
 
 		log.Info().
+<<<<<<< HEAD
 			Str("hostname", hv.Hostname).
 			Msg("Connecting to HV")
 
@@ -70,6 +71,21 @@ func main() {
 		} else {
 			log.Info().
 				Str("hostname", hv.Hostname).
+=======
+			Str("hv", hv.Hostname).
+			Msg("Connecting")
+
+		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
+			log.Warn().Err(err).
+				Str("hv", hv.Hostname).
+				Msg("Failed to connect")
+		} else {
+			hv := cloud.HVs[i]
+
+			log.Info().
+				Str("hv", hv.Hostname).
+				Str("version", hv.Version).
+>>>>>>> 95fb81d4eb7648630f11c4d02e0b3dbb3d0f0912
 				Msg("Connected to HV")
 		}
 	}
