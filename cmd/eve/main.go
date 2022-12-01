@@ -11,6 +11,7 @@ import (
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/libvirt"
 	"github.com/ericzty/eve/internal/server"
+	"github.com/ericzty/eve/internal/util"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -91,7 +92,8 @@ func main() {
 		var c int
 		for i := range cloud.HVs {
 			hv := cloud.HVs[i]
-			if hv.Status == "Online" {
+
+			if hv.Status == util.STATUS_ONLINE {
 				c++
 			}
 		}

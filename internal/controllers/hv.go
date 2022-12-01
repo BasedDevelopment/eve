@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/ericzty/eve/internal/db"
+	"github.com/ericzty/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -25,7 +26,7 @@ type HV struct {
 	Created  time.Time             `json:"created"`
 	Updated  time.Time             `json:"updated"`
 	Remarks  string                `json:"remarks"`
-	Status   string                `json:"status" db:"-"`
+	Status   util.Status           `json:"status" db:"-"`
 	Version  string                `json:"version" db:"-"`
 }
 

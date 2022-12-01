@@ -40,8 +40,8 @@ var TokenExpiredErr = errors.New("Token Expired Err:")
 var ServerTokenErr = errors.New("Parsing Server Token Err:")
 
 func VerifyToken(ctx context.Context, token string) (string, error) {
-
 	userToken, parseTokenErr := parseToken(token)
+
 	if parseTokenErr != nil {
 		return "", fmt.Errorf("%w Error parsing user token: %v", TokenErr, parseTokenErr) // Invalid Token
 	}
@@ -53,7 +53,7 @@ func VerifyToken(ctx context.Context, token string) (string, error) {
 
 	serverToken, parseServerTokenErr := parseToken(serverTokenDB)
 	if parseServerTokenErr != nil {
-		return "", fmt.Errorf("%w Error parsing server token: %v", ServerTokenErr) // Internal Server Err
+		return "", fmt.Errorf("Error parsing server token: %v", ServerTokenErr) // Internal Server Err
 	}
 
 	// Decode token
