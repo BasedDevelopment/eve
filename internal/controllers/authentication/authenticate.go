@@ -46,7 +46,7 @@ func VerifyToken(ctx context.Context, token string) (string, error) {
 		return "", fmt.Errorf("%w Error parsing user token: %v", TokenErr, parseTokenErr) // Invalid Token
 	}
 
-	id, serverTokenDB, expirey, dbErr := getToken(ctx, userToken.Public)
+	id, serverTokenDB, expiry, dbErr := getToken(ctx, userToken.Public)
 	if dbErr != nil {
 		return "", fmt.Errorf("%w Error getting token from database: %v", TokenErr, dbErr) // Database Error
 	}
@@ -74,8 +74,8 @@ func VerifyToken(ctx context.Context, token string) (string, error) {
 		return "", fmt.Errorf("%w Token incorrect", TokenErr) // Invalid Token
 	}
 
-	// Check expirey
-	if expirey.Before(time.Now()) {
+	// Check expiry
+	if expiry.Before(time.Now()) {
 		return "", fmt.Errorf("%w Token expired", TokenExpiredErr) // Invalid Token
 	}
 

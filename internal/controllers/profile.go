@@ -47,8 +47,8 @@ func (p *Profile) IssueToken(ctx context.Context) (userToken string, err error) 
 		return "", err
 	}
 
-	// Set expirey
-	expirey := time.Now().Add(24 * time.Hour)
+	// Set expiry
+	expiry := time.Now().Add(24 * time.Hour)
 
 	// Get user ID
 	var id uuid.UUID
@@ -57,7 +57,7 @@ func (p *Profile) IssueToken(ctx context.Context) (userToken string, err error) 
 	}
 
 	// Store token
-	_, err = db.Pool.Exec(ctx, "INSERT INTO token (token_public, token_private, profile_id, expires) VALUES ($1, $2, $3, $4)", publicPart, serverToken, id.String(), expirey)
+	_, err = db.Pool.Exec(ctx, "INSERT INTO token (token_public, token_private, profile_id, expires) VALUES ($1, $2, $3, $4)", publicPart, serverToken, id.String(), expiry)
 	return
 }
 
