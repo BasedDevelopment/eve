@@ -37,7 +37,30 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: check if email is already in DB
+	// New profile instance
+	p := new(controllers.Profile)
+	p.Email = createRequest.Email
+	p.Name = createRequest.Name
+	p.Disabled = createRequest.Disabled
+	p.IsAdmin = createRequest.IsAdmin
+	p.Remarks = createRequest.Remarks
+
+	existingUserHash, err := p.GetHash(ctx)
+
+	if err != nil {
+		if err.Error() != "no rows in result set" {
+			log.Error().Err(err).Msg("Failed to get hash")
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Internal server error"))
+			return
+		}
+	}
+
+	if existingUserHash != "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("User already exists"))
+		return
+	}
 
 	// Hash password
 	bytes, err := bcrypt.GenerateFromPassword([]byte(createRequest.Password), 10)
@@ -49,14 +72,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// New profile instance
-	p := new(controllers.Profile)
-	p.Email = createRequest.Email
-	p.Name = createRequest.Name
 	p.Password = hash
-	p.Disabled = createRequest.Disabled
-	p.IsAdmin = createRequest.IsAdmin
-	p.Remarks = createRequest.Remarks
 
 	uuid, err := p.New(ctx)
 
