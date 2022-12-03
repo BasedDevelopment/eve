@@ -42,11 +42,7 @@ func init() {
 	// Init database
 	log.Info().Msg("Connecting to database")
 
-	if err := db.Init(config.Config.Database.URL); err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to database")
-	} else {
-		log.Info().Msg("Connected to database")
-	}
+	db.Init(config.Config.Database.URL)
 }
 
 func main() {
@@ -87,35 +83,37 @@ func main() {
 					Msg("Connected to HV")
 			}
 		}
+	}
 
-		// Report amount of online HVs
-		var c int
-		for i := range cloud.HVs {
-			hv := cloud.HVs[i]
+	defer db.Pool.Close()
 
-			if hv.Status == util.STATUS_ONLINE {
-				c++
-			}
+	// Report amount of online HVs
+	var c int
+	for i := range cloud.HVs {
+		hv := cloud.HVs[i]
+
+		if hv.Status == util.STATUS_ONLINE {
+			c++
 		}
+	}
 
-		// TODO: Report amount of VMs found
+	// TODO: Report amount of VMs found
 
-		log.Info().
-			Int("online hypervisors", c).
-			Int("total hypervisors", len(cloud.HVs))
+	log.Info().
+		Int("online hypervisors", c).
+		Int("total hypervisors", len(cloud.HVs))
 
-		// Start server
-		listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
+	// Start server
+	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
 
-		log.Info().
-			Str("host", config.Config.API.Host).
-			Int("port", config.Config.API.Port).
-			Msg("Started HTTP server")
+	log.Info().
+		Str("host", config.Config.API.Host).
+		Int("port", config.Config.API.Port).
+		Msg("Started HTTP server")
 
-		if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
-			log.Fatal().
-				Err(err).
-				Msg("Failed to start HTTP server")
-		}
+	if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start HTTP server")
 	}
 }

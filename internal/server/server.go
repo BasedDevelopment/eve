@@ -52,7 +52,7 @@ func Start() *chi.Mux {
 
 		r.Post("/logout", routes.Logout)
 		r.Get("/user/health", routes.Health)
-		// r.Get("/users/me", routes.GetUser)
+		r.Get("/users/me", routes.GetUser)
 		// r.Patch("/users/me", routes.UpdateUser)
 		// r.Get("/users/me/vms", routes.GetVMs)
 		// r.Get("/users/me/vms/{id}", routes.GetVM)

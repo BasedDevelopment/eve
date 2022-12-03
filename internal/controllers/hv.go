@@ -10,6 +10,7 @@ import (
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/util"
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -25,7 +26,7 @@ type HV struct {
 	VMs      map[string]*VM        `json:"vms" db:"-"`
 	Created  time.Time             `json:"created"`
 	Updated  time.Time             `json:"updated"`
-	Remarks  string                `json:"remarks"`
+	Remarks  pgtype.Text           `json:"remarks"`
 	Status   util.Status           `json:"status" db:"-"`
 	Version  string                `json:"version" db:"-"`
 }
@@ -38,7 +39,7 @@ type HVNic struct {
 	IP      []net.IP
 	Created time.Time
 	Updated time.Time
-	Remarks string
+	Remarks pgtype.Text
 }
 
 // TODO: Impl bridges
@@ -51,7 +52,7 @@ type HVStorage struct {
 	Available int `db:"-"`
 	Created   time.Time
 	Updated   time.Time
-	Remarks   string
+	Remarks   pgtype.Text
 }
 
 func getHVs(cloud *HVList) (err error) {

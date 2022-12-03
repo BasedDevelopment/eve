@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgtype"
 )
 
 type VM struct {
@@ -17,7 +18,7 @@ type VM struct {
 	Storages map[string]VMStorage `db:"-"`
 	Created  time.Time
 	Updated  time.Time
-	Remarks  string
+	Remarks  pgtype.Text
 	State    string `db:"-"`
 }
 
@@ -28,7 +29,7 @@ type VMNic struct {
 	IP      []net.IP `db:"-"`
 	Created time.Time
 	Updated time.Time
-	Remarks string
+	Remarks pgtype.Text
 	State   string `db:"-"`
 }
 
@@ -37,5 +38,5 @@ type VMStorage struct {
 	Size    int
 	Created time.Time
 	Updated time.Time
-	Remarks string
+	Remarks pgtype.Text
 }

@@ -29,7 +29,7 @@ CREATE TABLE public.hv (
     site character varying(255) NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text NOT NULL DEFAULT 'n/a'
+    remarks text
 );
 
 CREATE TABLE public.hv_nic (
