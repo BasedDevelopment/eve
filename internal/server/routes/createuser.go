@@ -43,10 +43,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	p.Name = createRequest.Name
 	p.Disabled = createRequest.Disabled
 	p.IsAdmin = createRequest.IsAdmin
-	if createRequest.Remarks != "" {
-		p.Remarks.String = createRequest.Remarks
-		p.Remarks.Status = 2
-	}
+	p.Remarks = createRequest.Remarks
 
 	existingUserHash, err := p.GetHash(ctx)
 

@@ -9,21 +9,20 @@ import (
 	"github.com/ericzty/eve/internal/controllers/authentication"
 	"github.com/ericzty/eve/internal/db"
 	"github.com/google/uuid"
-	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v5"
 )
 
 type Profile struct {
 	ID        uuid.UUID
-	Name      string
-	Email     string
+	Name      string `json:"name"`
+	Email     string `json:"email"`
 	Password  string
 	Disabled  bool
 	IsAdmin   bool      `db:"is_admin"`
-	LastLogin time.Time `db:"last_login"`
-	Created   time.Time
-	Updated   time.Time
-	Remarks   pgtype.Text
+	LastLogin time.Time `json:"lastLogin" db:"last_login"`
+	Created   time.Time `json:"created"`
+	Updated   time.Time `json:"updated"`
+	Remarks   string
 }
 
 func (p *Profile) New(ctx context.Context) (id string, err error) {
@@ -38,17 +37,17 @@ func (p *Profile) New(ctx context.Context) (id string, err error) {
 var QueryErr = errors.New("Query error:")
 var CollectErr = errors.New("Collect error:")
 
-func (p *Profile) Get(ctx context.Context) (err error) {
+func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 	row, err := db.Pool.Query(ctx, "SELECT * FROM profile WHERE id = $1", p.ID)
 	if err != nil {
-		return fmt.Errorf("%w %v", QueryErr, err)
+		return Profile{}, fmt.Errorf("%w %v", QueryErr, err)
 	}
-	profile, err := pgx.CollectRows(row, pgx.RowToStructByName[Profile])
+	profilerow, err := pgx.CollectRows(row, pgx.RowToStructByName[Profile])
+	profile = profilerow[0]
 	if err != nil {
-		return fmt.Errorf("%w %v", CollectErr, err)
+		return Profile{}, fmt.Errorf("%w %v", CollectErr, err)
 	}
-	fmt.Println(profile)
-	return nil
+	return
 
 }
 func (p *Profile) Update() {}

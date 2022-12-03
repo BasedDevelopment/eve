@@ -10,7 +10,7 @@ CREATE TABLE public.profile (
     last_login timestamp with time zone,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.token (
@@ -29,7 +29,7 @@ CREATE TABLE public.hv (
     site character varying(255) NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.hv_nic (
@@ -40,7 +40,7 @@ CREATE TABLE public.hv_nic (
     ip inet[] NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.hv_storage (
@@ -49,7 +49,7 @@ CREATE TABLE public.hv_storage (
     size integer NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.vm (
@@ -61,7 +61,7 @@ CREATE TABLE public.vm (
     memory integer NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.vm_nic (
@@ -72,7 +72,7 @@ CREATE TABLE public.vm_nic (
     ips inet[] NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 CREATE TABLE public.vm_storage (
@@ -81,7 +81,7 @@ CREATE TABLE public.vm_storage (
     size bigint NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text
+    remarks text NOT NULL DEFAULT ''
 );
 
 -- +goose StatementEnd
