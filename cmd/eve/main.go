@@ -11,7 +11,6 @@ import (
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/libvirt"
 	"github.com/ericzty/eve/internal/server"
-	"github.com/ericzty/eve/internal/util"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -68,40 +67,11 @@ func main() {
 			log.Info().
 				Str("hostname", hv.Hostname).
 				Str("hv", hv.Hostname).
-				Msg("Connecting")
-
-			if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
-				log.Warn().Err(err).
-					Str("hv", hv.Hostname).
-					Msg("Failed to connect")
-			} else {
-				hv := cloud.HVs[i]
-
-				log.Info().
-					Str("hv", hv.Hostname).
-					Str("version", hv.Version).
-					Msg("Connected to HV")
-			}
+				Msg("Connected to HV")
 		}
 	}
 
 	defer db.Pool.Close()
-
-	// Report amount of online HVs
-	var c int
-	for i := range cloud.HVs {
-		hv := cloud.HVs[i]
-
-		if hv.Status == util.STATUS_ONLINE {
-			c++
-		}
-	}
-
-	// TODO: Report amount of VMs found
-
-	log.Info().
-		Int("online hypervisors", c).
-		Int("total hypervisors", len(cloud.HVs))
 
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
