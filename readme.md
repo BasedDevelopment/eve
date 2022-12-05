@@ -1,5 +1,12 @@
 # EVE Virtual Environment
 
+>  Eve is pre-alpha software and is not currently deployed anywhere, nor should it be. Once it reaches a usable state we will provide documentation on how you can use it for your own purposes.
+
+Eve is a management toolkit for libvirt-based virtualization servers. It includes many useful tools for running a hosting providers, handles user accounts, and provides a interface for libvirt actions.
+
+Eve deliberately does not include a dashboard, if you need a dashboard check out [vixen](https://github.com/lukewhrit/vixen), which is developed by contributors to Eve and used by [EricNet](https://as206628.net).
+
+## License
 
 Copyright (C) 2022 Tianyu Zhu <eric@ericz.me>
 
