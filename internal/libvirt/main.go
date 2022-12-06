@@ -2,24 +2,21 @@ package libvirt
 
 import (
 	"fmt"
-	"net"
 	"strconv"
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
+	"github.com/digitalocean/go-libvirt/socket/dialers"
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/util"
 )
 
 func InitHVs(HV *controllers.HV) (err error) {
-	c, err := net.DialTimeout("tcp", HV.IP.String()+":"+strconv.Itoa(HV.Port), 3*time.Second)
-
-	if err != nil {
-		HV.Status = util.STATUS_OFFLINE
-		return fmt.Errorf("Failed to dial to libvirt tcp socket: %v", err)
-	}
-
-	l := libvirt.New(c)
+	l := libvirt.NewWithDialer(dialers.NewRemote(
+		HV.IP.String(),
+		dialers.UsePort(strconv.Itoa(HV.Port)),
+		dialers.WithRemoteTimeout(time.Second*2),
+	))
 
 	if err := l.Connect(); err != nil {
 		HV.Status = util.STATUS_OFFLINE
@@ -34,7 +31,6 @@ func InitHVs(HV *controllers.HV) (err error) {
 	}
 
 	defer l.Disconnect()
-	defer c.Close()
 
 	HV.Status = util.STATUS_ONLINE
 	HV.Version = v
