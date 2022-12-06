@@ -15,6 +15,14 @@ func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		reqToken := r.Header.Get("Authorization")
+
+		if reqToken == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("Missing Auth-Token header"))
+
+			return
+		}
+
 		splitToken := strings.Split(reqToken, "Bearer ")
 		reqToken = splitToken[1]
 

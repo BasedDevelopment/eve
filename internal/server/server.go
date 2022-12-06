@@ -19,6 +19,7 @@ func Start() *chi.Mux {
 	r.Use(middlewares.Logger)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
 	r.Use(middleware.Heartbeat("/health"))
+	r.Use(middleware.Recoverer)
 
 	// Login
 	r.Post("/login", routes.Login)
@@ -51,7 +52,7 @@ func Start() *chi.Mux {
 		r.Use(middlewares.Auth)
 
 		r.Post("/logout", routes.Logout)
-		r.Get("/user/health", routes.Health)
+		r.Get("/users/health", routes.Health)
 		r.Get("/users/me", routes.GetUser)
 		// r.Patch("/users/me", routes.UpdateUser)
 		// r.Get("/users/me/vms", routes.GetVMs)
