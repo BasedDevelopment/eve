@@ -8,10 +8,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Logger uses zerolog to log information about each request (log level = INFO)
 func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t := time.Now()
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
+
 		defer func() {
 			log.Info().
 				// TODO: request ids?

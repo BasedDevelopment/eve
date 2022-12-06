@@ -3,10 +3,10 @@ package server
 import (
 	"time"
 
-	"github.com/ericzty/eve/internal/server/middlewares"
+	middleware "github.com/ericzty/eve/internal/server/middleware"
 	"github.com/ericzty/eve/internal/server/routes"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
+	cm "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"
 )
 
@@ -14,20 +14,20 @@ func Start() *chi.Mux {
 	r := chi.NewMux()
 
 	// Middlewares
-	r.Use(middleware.RealIP)
-	r.Use(middleware.RequestID)
-	r.Use(middlewares.Logger)
+	r.Use(cm.RealIP)
+	r.Use(cm.RequestID)
+	r.Use(cm.Logger)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
-	r.Use(middleware.Heartbeat("/health"))
-	r.Use(middleware.Recoverer)
+	r.Use(cm.Heartbeat("/health"))
+	r.Use(cm.Recoverer)
 
 	// Login
 	r.Post("/login", routes.Login)
 
 	// Admin endpoints
 	r.Group(func(r chi.Router) {
-		r.Use(middlewares.Auth)
-		r.Use(middlewares.MustBeAdmin)
+		r.Use(middleware.Auth)
+		r.Use(middleware.MustBeAdmin)
 
 		r.Get("/admin/health", routes.Health)
 		r.Get("/admin/hvs", routes.GetHVs)
@@ -49,7 +49,7 @@ func Start() *chi.Mux {
 
 	// User endpoints
 	r.Group(func(r chi.Router) {
-		r.Use(middlewares.Auth)
+		r.Use(middleware.Auth)
 
 		r.Post("/logout", routes.Logout)
 		r.Get("/users/health", routes.Health)
