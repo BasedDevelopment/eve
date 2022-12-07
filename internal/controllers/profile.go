@@ -8,6 +8,7 @@ import (
 
 	"github.com/ericzty/eve/internal/controllers/authentication"
 	"github.com/ericzty/eve/internal/db"
+	"github.com/ericzty/eve/internal/tokens"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
@@ -92,10 +93,8 @@ func IsAdmin(ctx context.Context, id string) (isAdmin bool, err error) {
 }
 
 func Logout(ctx context.Context, reqToken string) (err error) {
-	publicPart, err := authentication.GetPublicPart(reqToken)
-	if err != nil {
-		return
-	}
+	publicPart := tokens.Parse(reqToken)
 	_, err = db.Pool.Exec(ctx, "DELETE FROM token WHERE token_public = $1", publicPart)
+
 	return
 }

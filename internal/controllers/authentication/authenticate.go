@@ -8,31 +8,36 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ericzty/eve/internal/tokens"
 	"golang.org/x/crypto/sha3"
 )
 
-func GenerateToken() (userToken string, serverToken string, p string, err error) {
+func GenerateToken() (string, string, string, error) {
 	p, s, salt, err := generateStrings([]int{64, 64, 32})
+
+	if err != nil {
+		return "", "", "", err
+	}
 
 	buf := []byte(s + salt)
 	secret := make([]byte, 64)
 	sha3.ShakeSum256(secret, buf)
 
-	userToken = makeToken(Token{
+	userToken := tokens.Token{
 		Version: "v1",
 		Public:  p,
 		Secret:  base64.URLEncoding.EncodeToString([]byte(s)),
 		Salt:    salt,
-	})
+	}
 
-	serverToken = makeToken(Token{
+	serverToken := tokens.Token{
 		Version: "v1",
 		Public:  p,
 		Secret:  fmt.Sprintf("%x", secret),
 		Salt:    salt,
-	})
+	}
 
-	return
+	return userToken.String(), serverToken.String(), p, nil
 }
 
 var TokenErr = errors.New("Token Err:")
@@ -40,21 +45,14 @@ var TokenExpiredErr = errors.New("Token Expired Err:")
 var ServerTokenErr = errors.New("Parsing Server Token Err:")
 
 func VerifyToken(ctx context.Context, token string) (string, error) {
-	userToken, parseTokenErr := parseToken(token)
-
-	if parseTokenErr != nil {
-		return "", fmt.Errorf("%w Error parsing user token: %v", TokenErr, parseTokenErr) // Invalid Token
-	}
-
+	userToken := tokens.Parse(token)
 	id, serverTokenDB, expiry, dbErr := getToken(ctx, userToken.Public)
+
 	if dbErr != nil {
 		return "", fmt.Errorf("%w Error getting token from database: %v", TokenErr, dbErr) // Database Error
 	}
 
-	serverToken, parseServerTokenErr := parseToken(serverTokenDB)
-	if parseServerTokenErr != nil {
-		return "", fmt.Errorf("Error parsing server token: %v", ServerTokenErr) // Internal Server Err
-	}
+	serverToken := tokens.Parse(serverTokenDB)
 
 	// Decode token
 	unb64dSecret, decodeErr := base64.URLEncoding.DecodeString(userToken.Secret)
@@ -80,9 +78,4 @@ func VerifyToken(ctx context.Context, token string) (string, error) {
 	}
 
 	return id, nil
-}
-
-func GetPublicPart(token string) (publicPart string, err error) {
-	userToken, err := parseToken(token)
-	return userToken.Public, err
 }

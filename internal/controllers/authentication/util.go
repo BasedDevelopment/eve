@@ -4,17 +4,9 @@ import (
 	"crypto/rand"
 	"fmt"
 	"log"
-	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 )
-
-type Token struct {
-	Version string
-	Public  string
-	Secret  string
-	Salt    string
-}
 
 func hashAndSalt(pwd []byte) string {
 	// Use GenerateFromPassword to hash & salt pwd.
@@ -55,23 +47,4 @@ func generateStrings(bits []int) (a, b, c string, err error) {
 	}
 
 	return a, b, c, err
-}
-
-func parseToken(token string) (Token, error) {
-	var tok Token
-	toks := strings.Split(token, ".")
-
-	tok.Version = toks[0]
-	tok.Public = toks[1]
-	tok.Secret = toks[2]
-
-	if len(toks) == 4 {
-		tok.Salt = toks[3]
-	}
-
-	return tok, nil
-}
-
-func makeToken(token Token) string {
-	return fmt.Sprintf("%s.%s.%s.%s", token.Version, token.Public, token.Secret, token.Salt)
 }
