@@ -1,4 +1,4 @@
-package routes
+package admin
 
 import (
 	"encoding/json"

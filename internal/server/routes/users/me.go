@@ -1,4 +1,4 @@
-package routes
+package users
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetSelf(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	p := new(controllers.Profile)
