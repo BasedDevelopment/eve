@@ -2,12 +2,12 @@ package middlewares
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/sessions"
-	"github.com/ericzty/eve/internal/tokens"
+	"github.com/ericzty/eve/internal/controllers/authentication"
 	"github.com/rs/zerolog/log"
 )
 
@@ -15,21 +15,50 @@ import (
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		authorizationHeader := r.Header.Get("Authorization")
+		reqToken := r.Header.Get("Authorization")
 
-		if authorizationHeader == "" {
+		if reqToken == "" {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte("Missing Auth-Token header"))
 
 			return
 		}
 
-		splitToken := strings.Split(authorizationHeader, "Bearer ")
-		reqToken := tokens.Parse(splitToken[1])
+		splitToken := strings.Split(reqToken, "Bearer ")
+		reqToken = splitToken[1]
 
-		isValidSession := sessions.ValidateSession(ctx, reqToken)
+		if !strings.HasPrefix(reqToken, "v1") {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized"))
 
-		if !isValidSession {
+			return
+		}
+
+		id, err := authentication.VerifyToken(ctx, reqToken)
+
+		if err != nil {
+			if errors.Is(err, authentication.TokenErr) {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Invalid token"))
+
+				return
+			}
+
+			if errors.Is(err, authentication.TokenExpiredErr) {
+				w.WriteHeader(http.StatusUnauthorized)
+				w.Write([]byte("Token expired"))
+
+				return
+			}
+
+			if errors.Is(err, authentication.ServerTokenErr) {
+				log.Error().Err(err).Msg("Error parsing server token")
+
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte("Internal server error"))
+
+				return
+			}
 		}
 
 		isAdmin, err := controllers.IsAdmin(ctx, id)
