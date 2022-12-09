@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ericzty/eve/internal/controllers/authentication"
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/tokens"
 	"github.com/google/uuid"
@@ -56,34 +55,6 @@ func (p *Profile) Delete() {}
 
 func (p *Profile) GetHash(ctx context.Context) (hash string, err error) {
 	err = db.Pool.QueryRow(ctx, "SELECT password FROM profile WHERE email = $1", p.Email).Scan(&hash)
-	return
-}
-
-func (p *Profile) IssueToken(ctx context.Context) (userToken string, err error) {
-	// Generate Token
-	userToken, serverToken, publicPart, err := authentication.GenerateToken()
-	if err != nil {
-		return "", err
-	}
-
-	// Set expiry
-	expiry := time.Now().Add(24 * time.Hour)
-
-	// Get user ID
-	var id uuid.UUID
-	if err := db.Pool.QueryRow(ctx, "SELECT id FROM profile WHERE email = $1", p.Email).Scan(&id); err != nil {
-		return "", err
-	}
-
-	// Set Last Login
-	time := time.Now()
-	_, err = db.Pool.Exec(ctx, "UPDATE profile SET last_login = $1 WHERE id = $2", time, id)
-	if err != nil {
-		return "", err
-	}
-
-	// Store token
-	_, err = db.Pool.Exec(ctx, "INSERT INTO token (token_public, token_private, profile_id, expires) VALUES ($1, $2, $3, $4)", publicPart, serverToken, id.String(), expiry)
 	return
 }
 
