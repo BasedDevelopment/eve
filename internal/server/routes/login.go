@@ -40,14 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	profile, err := profile.Get(ctx)
 
 	// Validate password
-	hash, err := profile.GetHash(ctx)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(loginRequest.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(loginRequest.Password)); err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
 		return

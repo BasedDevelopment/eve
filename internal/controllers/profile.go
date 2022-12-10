@@ -65,8 +65,3 @@ func (p *Profile) GetHash(ctx context.Context) (hash string, err error) {
 	err = db.Pool.QueryRow(ctx, "SELECT password FROM profile WHERE email = $1", p.Email).Scan(&hash)
 	return
 }
-
-func IsAdmin(ctx context.Context, id string) (isAdmin bool, err error) {
-	err = db.Pool.QueryRow(ctx, "SELECT is_admin FROM profile WHERE id = $1", id).Scan(&isAdmin)
-	return
-}
