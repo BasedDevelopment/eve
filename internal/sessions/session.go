@@ -36,7 +36,7 @@ func (s Session) push(ctx context.Context) error {
 	return err
 }
 
-func getSession(ctx context.Context, token tokens.Token) (Session, error) {
+func GetSession(ctx context.Context, token tokens.Token) (Session, error) {
 	var session Session
 
 	err := db.Pool.QueryRow(ctx, "SELECT * FROM token WHERE token_public = $1", token.Public).Scan(&session)

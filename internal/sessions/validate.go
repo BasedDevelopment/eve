@@ -13,7 +13,7 @@ import (
 // ValidateSession takes a token and finds its session. Returns true if valid, false if anything else
 func ValidateSession(ctx context.Context, incomingToken tokens.Token) bool {
 	// Get the session from the database
-	session, err := getSession(ctx, incomingToken)
+	session, err := GetSession(ctx, incomingToken)
 
 	if err != nil {
 		return false // Error fetching session, almost definitely unauthenticated

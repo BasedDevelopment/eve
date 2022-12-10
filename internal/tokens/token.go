@@ -15,7 +15,7 @@ type Token struct {
 }
 
 // String converts a Token object to a string
-func (t *Token) String() string {
+func (t Token) String() string {
 	return fmt.Sprintf("%s.%s.%s.%s", t.Version, t.Public, t.Secret, t.Salt)
 }
 

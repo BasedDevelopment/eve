@@ -47,8 +47,8 @@ func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 		return Profile{}, fmt.Errorf("%w %v", CollectErr, err)
 	}
 	return
-
 }
+
 func (p *Profile) Update() {}
 func (p *Profile) Delete() {}
 

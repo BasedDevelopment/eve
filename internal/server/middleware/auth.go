@@ -1,94 +1,53 @@
 package middlewares
 
 import (
-	"context"
-	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/controllers/authentication"
-	"github.com/rs/zerolog/log"
+	"github.com/ericzty/eve/internal/sessions"
+	"github.com/ericzty/eve/internal/tokens"
+	"github.com/gofrs/uuid"
 )
+
+func getToken(w http.ResponseWriter, r *http.Request) tokens.Token {
+	authorizationHeader := r.Header.Get("Authorization")
+
+	if authorizationHeader == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Missing Authorization header"))
+
+		return tokens.Token{}
+	}
+
+	splitHeader := strings.Split(authorizationHeader, "Bearer ")
+	return tokens.Parse(splitHeader[1])
+}
 
 // Auth forces a user to be authenticated before continuing to the route
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		reqToken := r.Header.Get("Authorization")
+		requestToken := getToken(w, r)
 
-		if reqToken == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("Missing Auth-Token header"))
-
-			return
-		}
-
-		splitToken := strings.Split(reqToken, "Bearer ")
-		reqToken = splitToken[1]
-
-		if !strings.HasPrefix(reqToken, "v1") {
+		if !sessions.ValidateSession(ctx, requestToken) {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Unauthorized"))
 
 			return
 		}
-
-		id, err := authentication.VerifyToken(ctx, reqToken)
-
-		if err != nil {
-			if errors.Is(err, authentication.TokenErr) {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Invalid token"))
-
-				return
-			}
-
-			if errors.Is(err, authentication.TokenExpiredErr) {
-				w.WriteHeader(http.StatusUnauthorized)
-				w.Write([]byte("Token expired"))
-
-				return
-			}
-
-			if errors.Is(err, authentication.ServerTokenErr) {
-				log.Error().Err(err).Msg("Error parsing server token")
-
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("Internal server error"))
-
-				return
-			}
-		}
-
-		isAdmin, err := controllers.IsAdmin(ctx, id)
-
-		if err != nil {
-			log.Error().Err(err).Msg("Error fetching isAdmin from db")
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error"))
-
-			return
-		}
-
-		ctx = context.WithValue(ctx, "id", id)
-		ctx = context.WithValue(ctx, "isAdmin", isAdmin)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
+// MustBeAdmin verifies is an **already authenticated** user is an admin
 func MustBeAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		isAdmin := ctx.Value("isAdmin").(bool)
+		owner := ctx.Value("owner").(uuid.UUID)
 
-		if !isAdmin {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
-
-			return
-		}
+		fmt.Println(owner)
 
 		next.ServeHTTP(w, r)
 	})
