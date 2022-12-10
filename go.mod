@@ -11,18 +11,19 @@ require (
 	github.com/rs/zerolog v1.28.0
 )
 
+require github.com/jackc/pgproto3/v2 v2.2.0 // indirect
+
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/georgysavva/scany/v2 v2.0.0
-	github.com/go-chi/chi v1.5.4 // indirect
-	github.com/go-chi/httprate v0.7.0 // indirect
-	github.com/gofrs/uuid v4.2.0+incompatible // indirect
+	github.com/go-chi/chi v1.5.4
+	github.com/go-chi/httprate v0.7.0
+	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.13.0 // indirect
-	github.com/jackc/pgx-gofrs-uuid v0.0.0-20220402203838-5fdaf7ddb8a2 // indirect
+	github.com/jackc/pgtype v1.13.0
 	github.com/jackc/puddle/v2 v2.1.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -31,9 +32,8 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
-	github.com/vgarvardt/pgx-google-uuid/v5 v5.0.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	golang.org/x/sync v0.0.0-20220923202941-7f9b1623fab7 // indirect
 	golang.org/x/sys v0.2.0 // indirect
 	golang.org/x/text v0.4.0 // indirect

@@ -16,7 +16,6 @@ func UserContext(next http.Handler) http.Handler {
 
 	// It is required for the MustBeAdmin middleware though, since
 	// that middleware uses the profile in the request context.
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
