@@ -8,10 +8,10 @@ import (
 const CurrentVersion = "v1"
 
 type Token struct {
-	Version string
-	Public  string
-	Secret  string
-	Salt    string
+	Version string `db:"token_version"`
+	Public  string `db:"token_public"`
+	Secret  string `db:"token_secret"`
+	Salt    string `db:"token_salt"`
 }
 
 // String converts a Token object to a string

@@ -56,13 +56,11 @@ func NewSession(ctx context.Context, user controllers.Profile) (tokens.Token, er
 
 	// This is what we store in the database
 	session := Session{
-		Owner: user.ID,
-		Token: tokens.Token{
-			Version: "v1",
-			Public:  public,
-			Secret:  fmt.Sprintf("%x", saltedSecret),
-			Salt:    salt,
-		},
+		Owner:   user.ID,
+		Version: "v1",
+		Public:  public,
+		Secret:  fmt.Sprintf("%x", saltedSecret),
+		Salt:    salt,
 		Created: time.Now(),
 		Expires: time.Now().Add(24 * time.Hour), // expires in 1 day
 	}

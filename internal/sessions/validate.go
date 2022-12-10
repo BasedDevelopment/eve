@@ -16,6 +16,7 @@ func ValidateSession(ctx context.Context, incomingToken tokens.Token) bool {
 	session, err := GetSession(ctx, incomingToken)
 
 	if err != nil {
+		fmt.Println(err)
 		return false // Error fetching session, almost definitely unauthenticated
 	}
 
@@ -34,7 +35,7 @@ func ValidateSession(ctx context.Context, incomingToken tokens.Token) bool {
 
 	// Compare the two secrets
 	if subtle.ConstantTimeCompare(
-		[]byte(session.Token.Secret),            // secret from the database (already in hex)
+		[]byte(session.Secret),                  // secret from the database (already in hex)
 		[]byte(fmt.Sprintf("%x", saltedSecret)), // secret from the request (now salted & hashed, and converted to hex)
 	) != 1 {
 		return false // Invalid Token, unauthenticated

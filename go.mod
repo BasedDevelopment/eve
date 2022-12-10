@@ -14,6 +14,7 @@ require (
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
+	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi v1.5.4 // indirect
 	github.com/go-chi/httprate v0.7.0 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible // indirect

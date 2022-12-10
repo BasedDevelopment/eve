@@ -6,14 +6,18 @@ import (
 
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/tokens"
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 )
 
 type Session struct {
-	Owner   uuid.UUID // TODO: Make this a reference?
-	Token   tokens.Token
-	Created time.Time
-	Expires time.Time
+	Owner   uuid.UUID `db:"owner"`
+	Version string    `db:"token_version"`
+	Public  string    `db:"token_public"`
+	Secret  string    `db:"token_secret"`
+	Salt    string    `db:"token_salt"`
+	Created time.Time `db:"created"`
+	Expires time.Time `db:"expires"`
 }
 
 // push pushes a Session to the database
@@ -23,14 +27,14 @@ func (s Session) push(ctx context.Context) error {
 
 	_, err := db.Pool.Exec(
 		ctx,
-		"INSERT INTO token (owner, token_version, token_public, token_secret, token_salt, created_at, expires) VALUES ($1, $2, $3, $4)",
-		s.Owner,         // owner
-		s.Token.Version, // token_version
-		s.Token.Public,  // token_public
-		s.Token.Secret,  // token_secret
-		s.Token.Salt,    // token_salt
-		s.Created,       // created_at
-		s.Expires,       // expires
+		"INSERT INTO sessions (owner, token_version, token_public, token_secret, token_salt, created, expires) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		"b7549879-700d-4ee9-abb2-fe438e7eb133", // owner
+		s.Version,                              // token_version
+		s.Public,                               // token_public
+		s.Secret,                               // token_secret
+		s.Salt,                                 // token_salt
+		s.Created,                              // created_at
+		s.Expires,                              // expires
 	)
 
 	return err
@@ -39,15 +43,17 @@ func (s Session) push(ctx context.Context) error {
 func GetSession(ctx context.Context, token tokens.Token) (Session, error) {
 	var session Session
 
-	err := db.Pool.QueryRow(ctx, "SELECT * FROM token WHERE token_public = $1", token.Public).Scan(&session)
+	// Query pgx.Rows from the database.
+	rows, _ := db.Pool.Query(ctx, `SELECT * FROM sessions WHERE token_public='be056dee80664ab20729'`)
 
-	if err != nil {
-		return Session{}, nil
+	// Scan rows into session
+	if err := pgxscan.ScanOne(&session, rows); err != nil {
+		return Session{}, err
 	}
 
 	return session, nil
 }
 
 func (s Session) isExpired() bool {
-	return s.Expires.After(time.Now())
+	return time.Now().After(s.Expires)
 }
