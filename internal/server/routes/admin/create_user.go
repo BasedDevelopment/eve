@@ -3,6 +3,7 @@ package admin
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/rs/zerolog/log"
@@ -39,11 +40,12 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// New profile instance
 	profile := controllers.Profile{
-		Email:    createRequest.Email,
-		Name:     createRequest.Name,
-		Disabled: createRequest.Disabled,
-		IsAdmin:  createRequest.IsAdmin,
-		Remarks:  createRequest.Remarks,
+		Email:     createRequest.Email,
+		Name:      createRequest.Name,
+		Disabled:  createRequest.Disabled,
+		IsAdmin:   createRequest.IsAdmin,
+		Remarks:   createRequest.Remarks,
+		LastLogin: time.Now(),
 	}
 
 	// Check if user exists
