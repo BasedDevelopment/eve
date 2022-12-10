@@ -28,13 +28,13 @@ func (s Session) push(ctx context.Context) error {
 	_, err := db.Pool.Exec(
 		ctx,
 		"INSERT INTO sessions (owner, token_version, token_public, token_secret, token_salt, created, expires) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-		"b7549879-700d-4ee9-abb2-fe438e7eb133", // owner
-		s.Version,                              // token_version
-		s.Public,                               // token_public
-		s.Secret,                               // token_secret
-		s.Salt,                                 // token_salt
-		s.Created,                              // created_at
-		s.Expires,                              // expires
+		s.Owner,   // owner
+		s.Version, // token_version
+		s.Public,  // token_public
+		s.Secret,  // token_secret
+		s.Salt,    // token_salt
+		s.Created, // created_at
+		s.Expires, // expires
 	)
 
 	return err

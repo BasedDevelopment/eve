@@ -9,6 +9,7 @@ import (
 	"github.com/ericzty/eve/internal/db"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type Profile struct {
@@ -37,7 +38,13 @@ var QueryErr = errors.New("Query error:")
 var CollectErr = errors.New("Collect error:")
 
 func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
-	rows, err := db.Pool.Query(ctx, "SELECT * FROM profile WHERE id = $1", p.ID)
+	var rows pgx.Rows
+
+	if p.Email != "" {
+		rows, err = db.Pool.Query(ctx, "SELECT * FROM profile WHERE email = $1", p.Email)
+	} else {
+		rows, err = db.Pool.Query(ctx, "SELECT * FROM PROFILE WHERE id = $1", p.ID)
+	}
 
 	if err != nil {
 		return Profile{}, fmt.Errorf("%w %v", QueryErr, err)

@@ -36,11 +36,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// New profile instance
-	p := new(controllers.Profile)
-	p.Email = loginRequest.Email
+	profile := controllers.Profile{Email: loginRequest.Email}
+	profile, err := profile.Get(ctx)
 
 	// Validate password
-	hash, err := p.GetHash(ctx)
+	hash, err := profile.GetHash(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("Unauthorized"))
@@ -54,7 +54,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Issue token
-	userToken, err := sessions.NewSession(ctx, *p)
+	userToken, err := sessions.NewSession(ctx, profile)
+
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to issue token")
 		w.WriteHeader(http.StatusInternalServerError)
