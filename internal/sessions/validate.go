@@ -16,7 +16,6 @@ func ValidateSession(ctx context.Context, incomingToken tokens.Token) bool {
 	session, err := GetSession(ctx, incomingToken)
 
 	if err != nil {
-		fmt.Println(err)
 		return false // Error fetching session, almost definitely unauthenticated
 	}
 

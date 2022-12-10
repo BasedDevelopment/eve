@@ -11,7 +11,7 @@ import (
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	//make create user struct
+
 	var createRequest struct {
 		Name     string `json:"name"`
 		Email    string `json:"email"`
@@ -21,7 +21,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Remarks  string `json:"remarks"`
 	}
 
-	// Decode request body see what user wants
+	// Decode request body
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&createRequest); err != nil {
@@ -38,52 +38,56 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// New profile instance
-	p := new(controllers.Profile)
-	p.Email = createRequest.Email
-	p.Name = createRequest.Name
-	p.Disabled = createRequest.Disabled
-	p.IsAdmin = createRequest.IsAdmin
-	p.Remarks = createRequest.Remarks
-
-	existingUserHash, err := p.GetHash(ctx)
-
-	if err != nil {
-		if err.Error() != "no rows in result set" {
-			log.Error().Err(err).Msg("Failed to get hash")
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal server error"))
-			return
-		}
+	profile := controllers.Profile{
+		Email:    createRequest.Email,
+		Name:     createRequest.Name,
+		Disabled: createRequest.Disabled,
+		IsAdmin:  createRequest.IsAdmin,
+		Remarks:  createRequest.Remarks,
 	}
 
-	if existingUserHash != "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("User already exists"))
-		return
-	}
+	// Check if user exists
+
+	// if err != nil {
+	// 	if err.Error() != "no rows in result set" {
+	// 		log.Error().Err(err).Msg("Failed to get hash")
+	// 		w.WriteHeader(http.StatusInternalServerError)
+	// 		w.Write([]byte("Internal server error"))
+
+	// 		return
+	// 	}
+	// }
+
+	// if existingUserHash != "" {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte("User already exists"))
+
+	// 	return
+	// }
 
 	// Hash password
-	bytes, err := bcrypt.GenerateFromPassword([]byte(createRequest.Password), 10)
-	hash := string(bytes)
+	hash, err := bcrypt.GenerateFromPassword([]byte(createRequest.Password), 10)
+
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to hash password")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal server error"))
+
 		return
 	}
 
-	p.Password = hash
-
-	uuid, err := p.New(ctx)
+	profile.Password = string(hash)
+	uuid, err := profile.New(ctx)
 
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create user")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))
-		return
-	} else {
-		w.WriteHeader(http.StatusCreated)
-		w.Write([]byte(uuid))
+
 		return
 	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte(uuid))
+	return
 }

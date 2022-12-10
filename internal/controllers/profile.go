@@ -61,7 +61,15 @@ func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 func (p *Profile) Update() {}
 func (p *Profile) Delete() {}
 
-func (p *Profile) GetHash(ctx context.Context) (hash string, err error) {
-	err = db.Pool.QueryRow(ctx, "SELECT password FROM profile WHERE email = $1", p.Email).Scan(&hash)
-	return
+func (p *Profile) Exists(ctx context.Context) bool {
+	var exists bool
+	err := db.Pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM profile WHERE email = $1)", p.Email).Scan(&exists)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(exists)
+
+	return exists
 }
