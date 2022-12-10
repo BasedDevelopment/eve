@@ -12,12 +12,11 @@ import (
 func GetSelf(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	ownerId := ctx.Value("owner").(uuid.UUID)
-	profile := controllers.Profile{ID: ownerId}
+	profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Marshal Error")
+		log.Error().Err(err).Msg("User Fetch")
 
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))

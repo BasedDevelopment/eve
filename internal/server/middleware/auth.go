@@ -1,13 +1,14 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/tokens"
-	"github.com/gofrs/uuid"
+	"github.com/google/uuid"
+	"github.com/rs/zerolog/log"
 )
 
 func getToken(w http.ResponseWriter, r *http.Request) tokens.Token {
@@ -45,9 +46,25 @@ func Auth(next http.Handler) http.Handler {
 func MustBeAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		owner := ctx.Value("owner").(uuid.UUID)
 
-		fmt.Println(owner)
+		profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
+		profile, err := profile.Get(ctx)
+
+		if err != nil {
+			log.Error().Err(err).Msg("User Fetch")
+
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Internal Server Error"))
+
+			return
+		}
+
+		if !profile.IsAdmin {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Unauthorized; Not Admin"))
+
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
