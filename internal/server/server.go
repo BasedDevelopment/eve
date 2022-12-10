@@ -29,6 +29,7 @@ func Start() *chi.Mux {
 	// Admin endpoints
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth)
+		r.Use(middleware.UserContext)
 		r.Use(middleware.MustBeAdmin)
 
 		// Hypervisor management
@@ -56,6 +57,7 @@ func Start() *chi.Mux {
 	// User endpoints
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.Auth)
+		r.Use(middleware.UserContext)
 
 		r.Get("/users/me", users.GetSelf)
 		// r.Patch("/users/me", routes.UpdateUser)

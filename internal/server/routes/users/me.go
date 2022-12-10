@@ -2,9 +2,7 @@ package users
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
-	"time"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/google/uuid"
@@ -14,46 +12,36 @@ import (
 func GetSelf(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	p := new(controllers.Profile)
-	id := ctx.Value("id").(string)
-	p.ID = uuid.MustParse(id)
+	ownerId := ctx.Value("owner").(uuid.UUID)
+	profile := controllers.Profile{ID: ownerId}
+	profile, err := profile.Get(ctx)
 
-	profile, err := p.Get(ctx)
 	if err != nil {
-		if errors.Is(err, controllers.QueryErr) {
-			log.Error().Err(err).Msg("query error")
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error"))
-			return
-		}
-		if errors.Is(err, controllers.CollectErr) {
-			log.Error().Err(err).Msg("collect error")
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error"))
-			return
-		}
-	}
-	type response struct {
-		Name      string    `json:"name"`
-		Email     string    `json:"email"`
-		LastLogin time.Time `json:"lastLogin"`
-		Created   time.Time `json:"created"`
-		Updated   time.Time `json:"updated"`
-	}
+		log.Error().Err(err).Msg("Marshal Error")
 
-	outJson, err := json.Marshal(response{
-		Name:      profile.Name,
-		Email:     profile.Email,
-		LastLogin: profile.LastLogin,
-		Created:   profile.Created,
-		Updated:   profile.Updated,
-	})
-	if err != nil {
-		log.Error().Err(err).Msg("marshal error")
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Internal Server Error"))
+
 		return
 	}
+
+	outJson, err := json.Marshal(map[string]interface{}{
+		"name":       profile.Name,
+		"email":      profile.Email,
+		"last_login": profile.LastLogin,
+		"created":    profile.Created,
+		"updated":    profile.Updated,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("marshal error")
+
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error"))
+
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(outJson)

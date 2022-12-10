@@ -7,21 +7,21 @@ import (
 	"time"
 
 	"github.com/ericzty/eve/internal/db"
+	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 )
 
 type Profile struct {
-	ID        uuid.UUID
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Password  string
-	Disabled  bool
+	ID        uuid.UUID `json:"id" db:"id"`
+	Name      string    `json:"name" db:"name"`
+	Email     string    `json:"email" db:"email"`
+	Password  string    `db:"password"`
+	Disabled  bool      `db:"disabled"`
 	IsAdmin   bool      `db:"is_admin"`
-	LastLogin time.Time `json:"lastLogin" db:"last_login"`
-	Created   time.Time `json:"created"`
-	Updated   time.Time `json:"updated"`
-	Remarks   string
+	LastLogin time.Time `json:"last_login" db:"last_login"`
+	Created   time.Time `json:"created" db:"created"`
+	Updated   time.Time `json:"updated" db:"updated"`
+	Remarks   string    `db:"remarks"`
 }
 
 func (p *Profile) New(ctx context.Context) (id string, err error) {
@@ -37,16 +37,18 @@ var QueryErr = errors.New("Query error:")
 var CollectErr = errors.New("Collect error:")
 
 func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
-	row, err := db.Pool.Query(ctx, "SELECT * FROM profile WHERE id = $1", p.ID)
+	rows, err := db.Pool.Query(ctx, "SELECT * FROM profile WHERE id = $1", p.ID)
+
 	if err != nil {
 		return Profile{}, fmt.Errorf("%w %v", QueryErr, err)
 	}
-	profilerow, err := pgx.CollectRows(row, pgx.RowToStructByName[Profile])
-	profile = profilerow[0]
-	if err != nil {
-		return Profile{}, fmt.Errorf("%w %v", CollectErr, err)
+
+	// Scan rows into session
+	if err := pgxscan.ScanOne(&profile, rows); err != nil {
+		return Profile{}, err
 	}
-	return
+
+	return profile, nil
 }
 
 func (p *Profile) Update() {}
