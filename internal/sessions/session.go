@@ -44,7 +44,7 @@ func GetSession(ctx context.Context, token tokens.Token) (Session, error) {
 	var session Session
 
 	// Query pgx.Rows from the database.
-	rows, _ := db.Pool.Query(ctx, `SELECT * FROM sessions WHERE token_public='be056dee80664ab20729'`)
+	rows, _ := db.Pool.Query(ctx, `SELECT * FROM sessions WHERE token_public=$1`, token.Public)
 
 	// Scan rows into session
 	if err := pgxscan.ScanOne(&session, rows); err != nil {
