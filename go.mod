@@ -19,7 +19,6 @@ require (
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/httprate v0.7.0
-	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
