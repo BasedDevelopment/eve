@@ -1,13 +1,18 @@
 package routes
 
 import (
-	"fmt"
 	"net/http"
+
+	"github.com/ericzty/eve/internal/util"
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	id := ctx.Value("id").(string)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Hello %s", id)))
+	t := new(util.LoginRequest)
+
+	if err := util.ParseRequest(r, t); err != nil {
+		util.WriteError(err, w, http.StatusBadRequest)
+		return
+	}
+
+	util.WriteResponse(t, w, http.StatusOK)
 }

@@ -25,6 +25,7 @@ func Start() *chi.Mux {
 
 	// Login
 	r.Post("/login", routes.Login)
+	r.Post("/health", routes.Health)
 
 	// Admin endpoints
 	r.Group(func(r chi.Router) {

@@ -16,7 +16,7 @@ type UserResponse struct {
 	Updated   time.Time
 }
 
-func WriteResponse[R UserResponse | map[string]interface{} | []map[string]interface{}](r R, w http.ResponseWriter, status ...int) error {
+func WriteResponse[R any](r R, w http.ResponseWriter, status ...int) error {
 	json, err := json.Marshal(r)
 
 	if err != nil {

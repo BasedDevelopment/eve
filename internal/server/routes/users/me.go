@@ -10,7 +10,6 @@ import (
 
 func GetSelf(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
 	profile, err := profile.Get(ctx)
 
