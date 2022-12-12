@@ -2,11 +2,12 @@ package admin
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/ericzty/eve/internal/controllers"
-	"github.com/rs/zerolog/log"
+	"github.com/ericzty/eve/internal/util"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,16 +26,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	// Decode request body
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
+
 	if err := decoder.Decode(&createRequest); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad request"))
+		util.WriteError(err, w, http.StatusBadRequest)
 		return
 	}
 
 	// Check request body see if any are empty
 	if createRequest.Email == "" || createRequest.Password == "" || createRequest.Name == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad request"))
+		util.WriteError(errors.New("Bad Request"), w, http.StatusBadRequest)
 		return
 	}
 
@@ -71,10 +71,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(createRequest.Password), 10)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to hash password")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
-
+		util.WriteError(err, w, http.StatusInternalServerError)
 		return
 	}
 
@@ -82,10 +79,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	uuid, err := profile.New(ctx)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to create user")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
-
+		util.WriteError(err, w, http.StatusInternalServerError)
 		return
 	}
 

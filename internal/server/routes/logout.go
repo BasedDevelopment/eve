@@ -6,7 +6,7 @@ import (
 
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/tokens"
-	"github.com/rs/zerolog/log"
+	"github.com/ericzty/eve/internal/util"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -20,11 +20,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	err := sessions.Delete(ctx, reqToken)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Logout")
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
-
+		util.WriteError(err, w, http.StatusInternalServerError)
 		return
 	}
 

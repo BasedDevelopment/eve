@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/ericzty/eve/internal/controllers"
-	"github.com/rs/zerolog/log"
+	"github.com/ericzty/eve/internal/util"
 )
 
 func GetHVs(w http.ResponseWriter, r *http.Request) {
@@ -18,9 +18,8 @@ func GetHVs(w http.ResponseWriter, r *http.Request) {
 	}
 	outJson, err := json.Marshal(out)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to marshal cloud json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		util.WriteError(err, w, http.StatusInternalServerError)
+		return
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -32,11 +31,12 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 	hvid := parts[3]
 	hv := controllers.Cloud.HVs[hvid]
 	outJson, err := json.Marshal(hv)
+
 	if err != nil {
-		log.Error().Err(err).Msg("failed to marshal hv json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		util.WriteError(err, w, http.StatusInternalServerError)
+		return
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(outJson)

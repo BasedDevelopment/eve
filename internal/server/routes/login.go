@@ -2,11 +2,12 @@ package routes
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/sessions"
-	"github.com/rs/zerolog/log"
+	"github.com/ericzty/eve/internal/util"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -23,15 +24,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&loginRequest); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Bad Request"))
+		util.WriteError(err, w, http.StatusBadRequest)
 		return
 	}
 
 	// Check request body
 	if loginRequest.Email == "" || loginRequest.Password == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing required fields"))
+		util.WriteError(errors.New("Missing required fields"), w, http.StatusBadRequest)
 		return
 	}
 
@@ -41,8 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(loginRequest.Password)); err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("Unauthorized"))
+		util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
 		return
 	}
 
@@ -50,9 +48,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userToken, err := sessions.NewSession(ctx, profile)
 
 	if err != nil {
-		log.Error().Err(err).Msg("Failed to issue token")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal server error"))
+		util.WriteError(errors.New("Failed to issue token"), w, http.StatusInternalServerError)
 		return
 	}
 
