@@ -1,13 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE public.profile (
-    id uuid NOT NULL PRIMARY KEY,
+    id uuid NOT NULL PRIMARY KEY UNIQUE,
     name character varying(255) NOT NULL,
     email character varying(255) NOT NULL,
     password text NOT NULL,
     disabled boolean NOT NULL DEFAULT FALSE,
     is_admin boolean NOT NULL DEFAULT FALSE,
-    last_login timestamp with time zone,
+    last_login timestamp with time zone DEFAULT now(),
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
     remarks text NOT NULL DEFAULT ''
