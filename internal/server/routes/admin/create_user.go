@@ -14,7 +14,10 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// Decode request
 	req := new(util.CreateRequest)
-	util.ParseRequest(r, req)
+
+	if err := util.ParseRequest(r, req); err != nil {
+		util.WriteError(err, w, http.StatusBadRequest)
+	}
 
 	// New profile instance
 	profile := controllers.Profile{
