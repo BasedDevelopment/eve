@@ -8,6 +8,7 @@ import (
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/util"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -38,8 +39,15 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	profile := controllers.Profile{Email: loginRequest.Email}
 	profile, err := profile.Get(ctx)
 
+	if err != nil {
+		log.Debug().Err(err).Msg("Profile Fetch Error")
+		util.WriteError(err, w, http.StatusNotFound)
+		return
+	}
+
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(loginRequest.Password)); err != nil {
+		log.Debug().Err(err).Msg("Comparison Error")
 		util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
 		return
 	}

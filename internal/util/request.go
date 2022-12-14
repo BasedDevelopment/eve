@@ -21,6 +21,10 @@ type CreateRequest struct {
 }
 
 func (s CreateRequest) Validate() error {
+	if s.Email == "" || s.Password == "" || s.Name == "" {
+		return errors.New("bad request")
+	}
+
 	return nil
 }
 
