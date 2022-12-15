@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE public.profile (
-    id uuid NOT NULL PRIMARY KEY UNIQUE,
+    id uuid NOT NULL PRIMARY KEY,
     name character varying(255) NOT NULL,
-    email character varying(255) NOT NULL,
+    email character varying(255) NOT NULL UNIQUE,
     password text NOT NULL,
     disabled boolean NOT NULL DEFAULT FALSE,
     is_admin boolean NOT NULL DEFAULT FALSE,
