@@ -45,6 +45,6 @@ func WriteError(e error, w http.ResponseWriter, s int) {
 	log.Debug().Err(err).Msg("Marshal Error")
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(json)
 	w.WriteHeader(s)
+	w.Write(json)
 }
