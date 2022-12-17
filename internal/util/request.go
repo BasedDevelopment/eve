@@ -2,14 +2,13 @@ package util
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
-type Validateable[T any] interface {
+type Validatable[T any] interface {
 	Validate() error
 	*T
 }
@@ -24,10 +23,10 @@ type CreateRequest struct {
 }
 
 func (s CreateRequest) Validate() error {
-	return validation.ValidateStruct(s,
+	return validation.ValidateStruct(&s,
 		validation.Field(&s.Name, validation.Required, validation.Length(2, 20)),
 		validation.Field(&s.Email, validation.Required, is.Email),
-		validation.Field(&s.Password, validation.Required, validation.Length(10, 0), is.PrintableASCII),
+		validation.Field(&s.Password, validation.Required, validation.Length(10, 0), is.PrintableASCII), // todo: PrintableASCII includes spaces, password shouldn't
 		validation.Field(&s.Disabled, validation.Required),
 		validation.Field(&s.IsAdmin, validation.Required),
 		validation.Field(&s.Remarks, validation.Required),
@@ -40,14 +39,13 @@ type LoginRequest struct {
 }
 
 func (s LoginRequest) Validate() error {
-	if len(s.Email) != len("luke@ericz.me") {
-		return errors.New("email is wrong length")
-	}
-
-	return nil
+	return validation.ValidateStruct(&s,
+		validation.Field(&s.Email, validation.Required, is.Email),
+		validation.Field(&s.Password, validation.Required, validation.Length(8, 0), is.PrintableASCII), // todo: PrintableASCII includes spaces, password shouldn't
+	)
 }
 
-func ParseRequest[R LoginRequest | CreateRequest, T Validateable[R]](r *http.Request, rq T) error {
+func ParseRequest[R LoginRequest | CreateRequest, T Validatable[R]](r *http.Request, rq T) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 

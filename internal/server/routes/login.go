@@ -20,18 +20,11 @@ var loginRequest struct {
 func Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	// Decode request body
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
+	// Parse request body
+	req := new(util.LoginRequest)
 
-	if err := decoder.Decode(&loginRequest); err != nil {
+	if err := util.ParseRequest(r, req); err != nil {
 		util.WriteError(err, w, http.StatusBadRequest)
-		return
-	}
-
-	// Check request body
-	if loginRequest.Email == "" || loginRequest.Password == "" {
-		util.WriteError(errors.New("Missing required fields"), w, http.StatusBadRequest)
 		return
 	}
 
