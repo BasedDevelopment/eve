@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
 
 type Validateable[T any] interface {
@@ -21,11 +24,14 @@ type CreateRequest struct {
 }
 
 func (s CreateRequest) Validate() error {
-	if s.Email == "" || s.Password == "" || s.Name == "" {
-		return errors.New("bad request")
-	}
-
-	return nil
+	return validation.ValidateStruct(s,
+		validation.Field(&s.Name, validation.Required, validation.Length(2, 20)),
+		validation.Field(&s.Email, validation.Required, is.Email),
+		validation.Field(&s.Password, validation.Required, validation.Length(10, 0), is.PrintableASCII),
+		validation.Field(&s.Disabled, validation.Required),
+		validation.Field(&s.IsAdmin, validation.Required),
+		validation.Field(&s.Remarks, validation.Required),
+	)
 }
 
 type LoginRequest struct {
