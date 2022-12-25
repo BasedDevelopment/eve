@@ -34,8 +34,8 @@ func Start() *chi.Mux {
 		r.Use(middleware.MustBeAdmin)
 
 		// Hypervisor management
-		r.Get("/admin/hvs", admin.GetHVs)
-		r.Get("/admin/hv/{id}", admin.GetHV)
+		r.Get("/admin/hypervisors", admin.GetHVs)
+		r.Get("/admin/hypervisor/{id}", admin.GetHV)
 		// r.Post("/admin/hvs/{id}", routes.CreateHV)
 		// r.Patch("/admin/hvs/{id}", routes.UpdateHV)
 		// r.Delete("/admin/hvs/{id}", routes.RemoveHV)
