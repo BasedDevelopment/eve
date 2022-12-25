@@ -2,7 +2,6 @@ package admin
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/util"
@@ -21,12 +20,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	// New profile instance
 	profile := controllers.Profile{
-		Email:     req.Email,
-		Name:      req.Name,
-		Disabled:  req.Disabled,
-		IsAdmin:   req.IsAdmin,
-		Remarks:   req.Remarks,
-		LastLogin: time.Now(),
+		Email:    req.Email,
+		Name:     req.Name,
+		Disabled: req.Disabled,
+		IsAdmin:  req.IsAdmin,
+		Remarks:  req.Remarks,
 	}
 
 	// Hash password

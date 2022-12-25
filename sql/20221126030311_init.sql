@@ -7,7 +7,7 @@ CREATE TABLE public.profile (
     password text NOT NULL,
     disabled boolean NOT NULL DEFAULT FALSE,
     is_admin boolean NOT NULL DEFAULT FALSE,
-    last_login timestamp with time zone DEFAULT now(),
+    last_login timestamp with time zone NOT NULL DEFAULT now(),
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
     remarks text NOT NULL DEFAULT ''

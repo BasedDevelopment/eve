@@ -32,15 +32,14 @@ func (p *Profile) New(ctx context.Context) (id string, err error) {
 
 	_, err = db.Pool.Exec(
 		ctx,
-		"INSERT INTO profile (id, name, email, password, disabled, is_admin, last_login, remarks) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
-		id,          // id
-		p.Name,      // name
-		p.Email,     // email
-		p.Password,  // password
-		p.Disabled,  // disabled
-		p.IsAdmin,   // is_admin
-		p.LastLogin, // last_login
-		p.Remarks,   // remarks
+		"INSERT INTO profile (id, name, email, password, disabled, is_admin, remarks) VALUES ($1, $2, $3, $4, $5, $6, $7)",
+		id,         // id
+		p.Name,     // name
+		p.Email,    // email
+		p.Password, // password
+		p.Disabled, // disabled
+		p.IsAdmin,  // is_admin
+		p.Remarks,  // remarks
 	)
 
 	return
