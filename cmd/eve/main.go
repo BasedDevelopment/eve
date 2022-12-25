@@ -3,7 +3,9 @@ package main
 import (
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 	"time"
 
 	"github.com/ericzty/eve/internal/config"
@@ -58,7 +60,7 @@ func main() {
 			Str("hostname", hv.Hostname).
 			Msg("Connecting to HV")
 
-		if err := libvirt.InitHVs(cloud.HVs[i]); err != nil {
+		if err := libvirt.InitHV(cloud.HVs[i]); err != nil {
 			log.Warn().
 				Err(err).
 				Str("hostname", hv.Hostname).
@@ -71,7 +73,17 @@ func main() {
 		}
 	}
 
-	defer db.Pool.Close()
+	// Listen for sigterm and sigint and shutdown gracefully
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		log.Info().Msg("Gracefully shutting down")
+		//TODO: Gracefully shutdown webserver, return code 1 if fails
+		//TODO: Gracefully shutdown libvirt, return code 1 if fails
+		db.Pool.Close()
+		os.Exit(0)
+	}()
 
 	// Start server
 	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
@@ -86,4 +98,5 @@ func main() {
 			Err(err).
 			Msg("Failed to start HTTP server")
 	}
+	<-c
 }

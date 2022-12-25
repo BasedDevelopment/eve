@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/digitalocean/go-libvirt"
 	"github.com/ericzty/eve/internal/db"
 	"github.com/ericzty/eve/internal/util"
 	"github.com/google/uuid"
@@ -28,6 +29,7 @@ type HV struct {
 	Remarks  string                `json:"remarks"`
 	Status   util.Status           `json:"status" db:"-"`
 	Version  string                `json:"version" db:"-"`
+	Libvirt  *libvirt.Libvirt      `json:"-" db:"-"`
 }
 
 type HVNic struct {
