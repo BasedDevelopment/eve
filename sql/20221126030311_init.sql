@@ -13,10 +13,12 @@ CREATE TABLE public.profile (
     remarks text NOT NULL DEFAULT ''
 );
 
-CREATE TABLE public.token (
+CREATE TABLE public.sessions (
+    owner uuid NOT NULL REFERENCES public.profile(id),
     token_public character varying(255) NOT NULL PRIMARY KEY,
-    token_private character varying(255) NOT NULL,
-    profile_id uuid NOT NULL REFERENCES public.profile(id),
+    token_secret character varying(255) NOT NULL,
+    token_salt character varying(255) NOT NULL,
+    token_version character varying(4) NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     expires timestamp with time zone NOT NULL
 );
