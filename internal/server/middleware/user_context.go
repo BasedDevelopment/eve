@@ -2,9 +2,11 @@ package middlewares
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/sessions"
+	"github.com/ericzty/eve/internal/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,8 +28,7 @@ func UserContext(next http.Handler) http.Handler {
 		if err != nil {
 			log.Error().Err(err).Msg("Error while setting user context")
 
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server"))
+			util.WriteError(errors.New("Internal Server Error"), w, http.StatusInternalServerError)
 
 			return
 		}

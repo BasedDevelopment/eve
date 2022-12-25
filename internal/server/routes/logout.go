@@ -13,13 +13,15 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	header := strings.Split(r.Header.Get("Authorization"), "Bearer ")
-	reqToken := tokens.Parse(header[1])
+	reqToken, err := tokens.Parse(header[1])
+	if err != nil {
+		util.WriteError(err, w, http.StatusBadRequest)
+		return
+	}
 
 	sessions.Delete(ctx, reqToken)
 
-	err := sessions.Delete(ctx, reqToken)
-
-	if err != nil {
+	if err := sessions.Delete(ctx, reqToken); err != nil {
 		util.WriteError(err, w, http.StatusInternalServerError)
 		return
 	}

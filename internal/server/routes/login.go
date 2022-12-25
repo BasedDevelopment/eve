@@ -12,11 +12,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var loginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -29,7 +24,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// New profile instance
-	profile := controllers.Profile{Email: loginRequest.Email}
+	profile := controllers.Profile{Email: req.Email}
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
@@ -39,7 +34,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate password
-	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(loginRequest.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(req.Password)); err != nil {
 		log.Debug().Err(err).Msg("Comparison Error")
 		util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
 		return

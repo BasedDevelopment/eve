@@ -35,17 +35,17 @@ func Start() *chi.Mux {
 
 		// Hypervisor management
 		r.Get("/admin/hypervisors", admin.GetHVs)
-		r.Get("/admin/hypervisor/{id}", admin.GetHV)
-		// r.Post("/admin/hvs/{id}", routes.CreateHV)
-		// r.Patch("/admin/hvs/{id}", routes.UpdateHV)
-		// r.Delete("/admin/hvs/{id}", routes.RemoveHV)
+		r.Get("/admin/hypervisors/{id}", admin.GetHV)
+		// r.Post("/admin/hypervisors/{id}", routes.CreateHV)
+		// r.Patch("/admin/hypervisors/{id}", routes.UpdateHV)
+		// r.Delete("/admin/hypervisors/{id}", routes.RemoveHV)
 
 		// VM management
-		// r.Get("/admin/hvs/{id}/vms", routes.GetVMs)
-		// r.Get("/admin/hvs/{id}/vms/{vmid}", routes.GetVM)
-		// r.Post("/admin/hvs/{id}/vms", routes.CreateVM)
-		// r.Patch("/admin/hvs/{id}/vms/{vmid}", routes.UpdateVM)
-		// r.Delete("/admin/hvs/{id}/vms/{vmid}", routes.DeleteVM)
+		// r.Get("/admin/hypervisors/{id}/virtual_machines", routes.GetVMs)
+		// r.Get("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.GetVM)
+		// r.Post("/admin/hypervisors/{id}/virtual_machines", routes.CreateVM)
+		// r.Patch("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.UpdateVM)
+		// r.Delete("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.DeleteVM)
 
 		// User management
 		r.Post("/admin/users", admin.CreateUser)
@@ -62,9 +62,9 @@ func Start() *chi.Mux {
 
 		r.Get("/users/me", users.GetSelf)
 		// r.Patch("/users/me", routes.UpdateUser)
-		// r.Get("/users/me/vms", routes.GetVMs)
-		// r.Get("/users/me/vms/{id}", routes.GetVM)
-		// r.Patch("/users/me/vms/{id}", routes.UpdateVM)
+		// r.Get("/users/me/virtual_machines", routes.GetVMs)
+		// r.Get("/users/me/virtual_machines/{id}", routes.GetVM)
+		// r.Patch("/users/me/virtual_machines/{id}", routes.UpdateVM)
 
 		r.Post("/logout", routes.Logout)
 	})

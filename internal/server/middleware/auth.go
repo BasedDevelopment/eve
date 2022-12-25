@@ -1,28 +1,34 @@
 package middlewares
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/tokens"
+	"github.com/ericzty/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
-func getToken(w http.ResponseWriter, r *http.Request) tokens.Token {
+func getToken(w http.ResponseWriter, r *http.Request) (token tokens.Token) {
 	authorizationHeader := r.Header.Get("Authorization")
 
 	if authorizationHeader == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Missing Authorization header"))
+		util.WriteError(errors.New("Missing Authorization header"), w, http.StatusBadRequest)
 
 		return tokens.Token{}
 	}
 
 	splitHeader := strings.Split(authorizationHeader, "Bearer ")
-	return tokens.Parse(splitHeader[1])
+	token, err := tokens.Parse(splitHeader[1])
+	if err != nil {
+		util.WriteError(err, w, http.StatusBadRequest)
+		return
+	}
+	return
 }
 
 // Auth forces a user to be authenticated before continuing to the route
@@ -32,8 +38,7 @@ func Auth(next http.Handler) http.Handler {
 		requestToken := getToken(w, r)
 
 		if !sessions.ValidateSession(ctx, requestToken) {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized"))
+			util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
 
 			return
 		}
@@ -52,16 +57,13 @@ func MustBeAdmin(next http.Handler) http.Handler {
 
 		if err != nil {
 			log.Error().Err(err).Msg("User Fetch")
-
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("Internal Server Error"))
+			util.WriteError(errors.New("Internal Server Error"), w, http.StatusInternalServerError)
 
 			return
 		}
 
 		if !profile.IsAdmin {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Unauthorized; Not Admin"))
+			util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
 
 			return
 		}

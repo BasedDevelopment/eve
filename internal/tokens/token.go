@@ -20,17 +20,17 @@ func (t Token) String() string {
 }
 
 // Parse converts a string containing a token into the Token type
-func Parse(incomingToken string) Token {
+func Parse(incomingToken string) (Token, error) {
 	var tok Token
 	toks := strings.Split(incomingToken, ".")
+	if len(toks) != 4 {
+		return tok, fmt.Errorf("invalid token format")
+	}
 
 	tok.Version = toks[0]
 	tok.Public = toks[1]
 	tok.Secret = toks[2]
+	tok.Salt = toks[3]
 
-	if len(toks) == 4 {
-		tok.Salt = toks[3]
-	}
-
-	return tok
+	return tok, nil
 }
