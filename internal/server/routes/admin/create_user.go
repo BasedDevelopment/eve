@@ -16,6 +16,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := util.ParseRequest(r, req); err != nil {
 		util.WriteError(err, w, http.StatusBadRequest)
+		return
 	}
 
 	// New profile instance
