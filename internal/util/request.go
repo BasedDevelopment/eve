@@ -26,10 +26,7 @@ func (s CreateRequest) Validate() error {
 	return validation.ValidateStruct(&s,
 		validation.Field(&s.Name, validation.Required, validation.Length(2, 20)),
 		validation.Field(&s.Email, validation.Required, is.Email),
-		validation.Field(&s.Password, validation.Required, validation.Length(10, 0), is.PrintableASCII), // todo: PrintableASCII includes spaces, password shouldn't
-		validation.Field(&s.Disabled, validation.Required),
-		validation.Field(&s.IsAdmin, validation.Required),
-		validation.Field(&s.Remarks, validation.Required),
+		validation.Field(&s.Password, validation.Required, validation.Length(8, 0), is.PrintableASCII), // todo: PrintableASCII includes spaces, password shouldn't
 	)
 }
 
