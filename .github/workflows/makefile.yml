@@ -21,6 +21,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: debug
+      run: ls ~ && pwd && ls
+
     - name: copy over config
       run: sudo mkdir /etc/eve && sudo cp config.toml.ci /etc/eve/config.toml
 
@@ -28,7 +31,7 @@ jobs:
       run: make
 
     - name: debug
-      run: echo $GOPATH && whoami
+      run: ls
 
     - name: sql
       run: |
