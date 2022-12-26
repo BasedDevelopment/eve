@@ -8,6 +8,7 @@ eve:
 	go build --ldflags "-s -w" -o bin/eve ./cmd/eve/main.go
 
 test:
+	go clean -testcache
 	go test -v .
 
 # Build and execute Eve program
