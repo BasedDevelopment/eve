@@ -49,7 +49,6 @@ func Service() *chi.Mux {
 		// User management
 		r.Post("/admin/users", admin.CreateUser)
 		// r.Get("/admin/users", routes.GetUsers)
-		// r.Get("/admin/users/{id}", routes.GetUser)
 		// r.Patch("/admin/users/{id}", routes.UpdateUser)
 		// r.Delete("/admin/users/{id}", routes.DeleteUser)
 	})
