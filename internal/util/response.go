@@ -10,11 +10,12 @@ import (
 )
 
 type UserResponse struct {
-	Name      string
-	Email     string
-	LastLogin time.Time
-	Created   time.Time
-	Updated   time.Time
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Email     string    `json:"email"`
+	LastLogin time.Time `json:"lastLogin"`
+	Created   time.Time `json:"created"`
+	Updated   time.Time `json:"updated"`
 }
 
 func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
@@ -24,6 +25,7 @@ func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
 		return err
 	}
 
+	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
 

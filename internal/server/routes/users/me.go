@@ -19,6 +19,7 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = util.WriteResponse(util.UserResponse{
+		ID:        profile.ID.String(),
 		Name:      profile.Name,
 		Email:     profile.Email,
 		LastLogin: profile.LastLogin,

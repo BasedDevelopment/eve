@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/controllers"
@@ -50,16 +49,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json, err := json.Marshal(map[string]interface{}{
+	resp := (map[string]interface{}{
 		"uuid": uuid,
 	})
 
-	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshal response")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(json)
+	util.WriteResponse(resp, w, http.StatusCreated)
 }
