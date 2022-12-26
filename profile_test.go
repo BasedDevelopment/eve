@@ -1,4 +1,4 @@
-package server
+package main
 
 import (
 	"bytes"
@@ -165,7 +165,127 @@ func TestCreateUser(t *testing.T) {
 	if testUserId == "" {
 		t.Fatal("uuid is empty")
 	}
+}
 
+var userToken string
+
+func TestUserLogin(t *testing.T) {
+	request := map[string]string{
+		"email":    testUserEmail,
+		"password": testUserPassword,
+	}
+	reqBody, err := json.Marshal(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp, err := http.Post(host+"/login", "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		respBody := new(bytes.Buffer)
+		respBody.ReadFrom(resp.Body)
+		t.Fatalf("expected OK; got %v, body: %v", resp.Status, respBody.String())
+	}
+
+	var response map[string]string
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	userToken = response["token"]
+	if userToken == "" {
+		t.Fatal("token is empty")
+	}
+}
+
+func TestUserGetProfile(t *testing.T) {
+	req, err := http.NewRequest("GET", host+"/users/me", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+userToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		respBody := new(bytes.Buffer)
+		respBody.ReadFrom(resp.Body)
+		t.Fatalf("expected OK; got %v, body: %v", resp.Status, respBody.String())
+	}
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response["id"] != testUserId {
+		t.Fatalf("expected %v; got %v", testUserId, response["id"])
+	}
+	if response["name"] != testUserName {
+		t.Fatalf("expected %v; got %v", testUserName, response["name"])
+	}
+	if response["email"] != testUserEmail {
+		t.Fatalf("expected %v; got %v", testUserEmail, response["email"])
+	}
+	if (response["lastLogin"] == nil) || (response["created"] == nil) || (response["updated"] == nil) {
+		t.Fatal("lastLogin, created, and/or updated is nil")
+	}
+}
+
+func TestAdminLogout(t *testing.T) {
+	req, err := http.NewRequest("POST", host+"/logout", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+adminToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		respBody := new(bytes.Buffer)
+		respBody.ReadFrom(resp.Body)
+		t.Fatalf("expected OK; got %v, body: %v", resp.Status, respBody.String())
+	}
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response["message"] != "logout success" {
+		t.Fatalf("expected %v; got %v", "logout success", response["message"])
+	}
+}
+
+func TestUserLogout(t *testing.T) {
+	req, err := http.NewRequest("POST", host+"/logout", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req.Header.Set("Authorization", "Bearer "+userToken)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		respBody := new(bytes.Buffer)
+		respBody.ReadFrom(resp.Body)
+		t.Fatalf("expected OK; got %v, body: %v", resp.Status, respBody.String())
+	}
+	var response map[string]interface{}
+	err = json.NewDecoder(resp.Body).Decode(&response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response["message"] != "logout success" {
+		t.Fatalf("expected %v; got %v", "logout success", response["message"])
+	}
 }
 
 func TestCleanUp(t *testing.T) {

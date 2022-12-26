@@ -27,6 +27,6 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	util.WriteResponse(map[string]interface{}{
-		"message": "Logout Success",
+		"message": "logout success",
 	}, w, http.StatusOK)
 }
