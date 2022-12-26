@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
 
@@ -14,18 +14,21 @@ func Logger(next http.Handler) http.Handler {
 		t := time.Now()
 		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
 
+		reqId := middleware.GetReqID(r.Context())
+
 		defer func() {
 			log.Info().
-				// TODO: request ids?
+				Str("reqId", reqId).
 				Str("method", r.Method).
 				Str("host", r.Host).
 				Str("client", r.RemoteAddr).
 				Str("page", r.RequestURI).
 				Str("protocol", r.Proto).
 				Str("user-agent", r.UserAgent()).
-				Dur("duration", time.Since(t)).
+				Int64("duration(μs)", time.Since(t).Microseconds()).
 				Int("status", ww.Status()).
-				Int("size", ww.BytesWritten()).
+				Str("bytes_in", r.Header.Get("Content-Length")).
+				Int("bytes_out", ww.BytesWritten()).
 				Msg("HTTP Request")
 		}()
 

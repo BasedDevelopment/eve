@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
 
@@ -38,13 +39,12 @@ func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string
 	}
 
 	// Get request ID
-	ctx := r.Context()
-	requestID := ctx.Value("requestIDKey").(string)
+	reqId := middleware.GetReqID(r.Context())
 
 	// Marshall response
 	json, err := json.Marshal(map[string]interface{}{
 		"message":   m,
-		"requestID": requestID,
+		"requestID": reqId,
 	})
 
 	if err != nil {
