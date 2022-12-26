@@ -40,7 +40,7 @@ func Service() *chi.Mux {
 		// r.Delete("/admin/hypervisors/{id}", routes.RemoveHV)
 
 		// VM management
-		// r.Get("/admin/hypervisors/{id}/virtual_machines", routes.GetVMs)
+		r.Get("/admin/hypervisors/{id}/virtual_machines", routes.GetVMs)
 		// r.Get("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.GetVM)
 		// r.Post("/admin/hypervisors/{id}/virtual_machines", routes.CreateVM)
 		// r.Patch("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.UpdateVM)
