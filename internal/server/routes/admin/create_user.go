@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/controllers"
@@ -15,7 +16,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	req := new(util.CreateRequest)
 
 	if err := util.ParseRequest(r, req); err != nil {
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
 		return
 	}
 
@@ -32,7 +33,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to hash password")
 		return
 	}
 
@@ -40,13 +41,20 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	uuid, err := profile.New(ctx)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to create user")
 		return
 	}
 
-	util.WriteResponse(map[string]interface{}{
-		"id": uuid,
-	}, w, http.StatusCreated)
+	json, err := json.Marshal(map[string]interface{}{
+		"uuid": uuid,
+	})
 
-	return
+	if err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshal response")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(json)
 }

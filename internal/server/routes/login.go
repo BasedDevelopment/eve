@@ -2,13 +2,11 @@ package routes
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/util"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -19,7 +17,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	req := new(util.LoginRequest)
 
 	if err := util.ParseRequest(r, req); err != nil {
-		util.WriteError(err, w, http.StatusBadRequest)
+		util.WriteError(w, r, nil, http.StatusBadRequest, "Failed to parse login request")
 		return
 	}
 
@@ -28,15 +26,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
-		log.Debug().Err(err).Msg("Profile Fetch Error")
-		util.WriteError(err, w, http.StatusNotFound)
+		util.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(req.Password)); err != nil {
-		log.Debug().Err(err).Msg("Comparison Error")
-		util.WriteError(errors.New("Unauthorized"), w, http.StatusUnauthorized)
+		util.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -44,7 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	userToken, err := sessions.NewSession(ctx, profile)
 
 	if err != nil {
-		util.WriteError(errors.New("Failed to issue token"), w, http.StatusInternalServerError)
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 

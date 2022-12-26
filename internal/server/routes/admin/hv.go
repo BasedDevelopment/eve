@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -16,28 +15,22 @@ func GetHVs(w http.ResponseWriter, r *http.Request) {
 		hv.VMs = make(map[string]*controllers.VM)
 		out = append(out, hv)
 	}
-	outJson, err := json.Marshal(out)
-	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
-		return
+
+	// Send response
+	if err := util.WriteResponse(out, w, http.StatusOK); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(outJson)
 }
 
 func GetHV(w http.ResponseWriter, r *http.Request) {
+	// Get hv ID from request
 	parts := strings.Split(r.URL.Path, "/")
 	hvid := parts[3]
+
 	hv := controllers.Cloud.HVs[hvid]
-	outJson, err := json.Marshal(hv)
 
-	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
-		return
+	// Send response
+	if err := util.WriteResponse(hv, w, http.StatusOK); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(outJson)
 }

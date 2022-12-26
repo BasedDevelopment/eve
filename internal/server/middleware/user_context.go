@@ -2,12 +2,10 @@ package middlewares
 
 import (
 	"context"
-	"errors"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/sessions"
 	"github.com/ericzty/eve/internal/util"
-	"github.com/rs/zerolog/log"
 )
 
 // UserContext fetches the owner of the request from the current session and
@@ -26,9 +24,7 @@ func UserContext(next http.Handler) http.Handler {
 		session, err := sessions.GetSession(ctx, requestToken)
 
 		if err != nil {
-			log.Error().Err(err).Msg("Error while setting user context")
-
-			util.WriteError(errors.New("Internal Server Error"), w, http.StatusInternalServerError)
+			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 
 			return
 		}

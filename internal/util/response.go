@@ -16,7 +16,7 @@ type UserResponse struct {
 	Updated   time.Time
 }
 
-func WriteResponse[R any](r R, w http.ResponseWriter, status ...int) error {
+func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
 	json, err := json.Marshal(r)
 
 	if err != nil {
@@ -26,24 +26,37 @@ func WriteResponse[R any](r R, w http.ResponseWriter, status ...int) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(json)
 
-	if status != nil {
-		w.WriteHeader(status[0])
-	} else {
-		w.WriteHeader(http.StatusOK)
-	}
-
 	return nil
 }
 
-func WriteError(e error, w http.ResponseWriter, s int) {
-	log.Debug().Err(e).Msg("Request Error")
+func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string) {
+	if e != nil {
+		log.Error().
+			Err(e).
+			Str("message", m).
+			Msg("Request Error")
+	}
 
+	// Get request ID
+	ctx := r.Context()
+	requestID := ctx.Value("requestIDKey").(string)
+
+	// Marshall response
 	json, err := json.Marshal(map[string]interface{}{
-		"error": e.Error(),
+		"message":   m,
+		"requestID": requestID,
 	})
 
-	log.Debug().Err(err).Msg("Marshal Error")
+	if err != nil {
+		log.Error().
+			Err(err).
+			Msg("Error marshalling error response")
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Internal Server Error"))
+		return
+	}
 
+	// Send response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(s)
 	w.Write(json)

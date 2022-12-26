@@ -14,7 +14,7 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusNotFound)
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -27,7 +27,7 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 	}, w, http.StatusOK)
 
 	if err != nil {
-		util.WriteError(err, w, http.StatusInternalServerError)
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 }
