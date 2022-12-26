@@ -27,6 +27,9 @@ jobs:
     - name: Build
       run: make
 
+    - name: debug
+      run: echo $GOPATH && whoami
+
     - name: sql
       run: |
         go install github.com/pressly/goose/v3/cmd/goose@latest
