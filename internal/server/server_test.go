@@ -12,6 +12,6 @@ func TestHealthCheck(t *testing.T) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		t.Fatalf("expected status OK; got %v", resp.Status)
+		t.Fatalf("expected OK; got %v", resp.Status)
 	}
 }
