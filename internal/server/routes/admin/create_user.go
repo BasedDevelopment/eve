@@ -29,6 +29,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Remarks:  req.Remarks,
 	}
 
+	if profile, _ := profile.Get(ctx); profile.Name != "" {
+		util.WriteError(w, r, nil, http.StatusBadRequest, "User already exists")
+		return
+	}
+
 	// Hash password
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 
