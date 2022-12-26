@@ -33,9 +33,7 @@ jobs:
     - name: sql
       run: |
         go install github.com/pressly/goose/v3/cmd/goose@latest
-
-    - name: debug
-      run: ls ~ && pwd && ls
+        ~/go/bin/goose postgres postgres://postgres:password@localhost:5432/postgres up
 
     - name: Start eve and test
       run: make start& sleep 10 && make test
