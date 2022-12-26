@@ -20,7 +20,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/georgysavva/scany/v2 v2.0.0
-	github.com/go-chi/chi v1.5.4
 	github.com/go-chi/httprate v0.7.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/jackc/pgio v1.0.0 // indirect
