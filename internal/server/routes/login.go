@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/ericzty/eve/internal/controllers"
@@ -45,9 +44,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send token to client
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	util.WriteResponse(map[string]string{
 		"token": userToken.String(),
-	})
+	}, w, http.StatusOK)
 }
