@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: copy over config
-      run: sudo mkdir /etc/eve && cp config.toml.ci /etc/eve/config.toml
+      run: sudo mkdir /etc/eve && sudo cp config.toml.ci /etc/eve/config.toml
 
     - name: Build
       run: make
