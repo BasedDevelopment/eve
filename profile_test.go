@@ -13,7 +13,7 @@ import (
 
 const (
 	host                  = "http://localhost:3000"
-	dbUrl                 = "postgres://postgres:test@localhost:5432/postgres"
+	dbUrl                 = "postgres://postgres:password@localhost:5432/postgres"
 	testAdminName         = "Admin Test"
 	testAdminEmail        = "admin@testing.com"
 	testAdminPassword     = "adminPasswordTest"

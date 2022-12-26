@@ -27,8 +27,10 @@ jobs:
     - name: Build
       run: make
 
-    - name: Run test
-      run: make test
+    - name: sql
+      run: |
+        go install github.com/pressly/goose/v3/cmd/goose@latest
+        goose postgres postgres://postgres:password@localhost:5432/postgres up
 
-    - name: Start eve
-      run: make start
+    - name: Start eve and test
+      run: make start& sleep 10 && make test
