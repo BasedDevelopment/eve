@@ -8,7 +8,7 @@ INSERT INTO public.profile (id, name, email, is_admin, password) VALUES ('b75498
 
 -- +goose Down
 -- +goose StatementBegin
-TRUNCATE token;
+TRUNCATE sessions;
 DELETE FROM public.hv WHERE id='85833bb8-2f0a-4b1e-981f-f9cb3597904c';
 DELETE FROM public.profile WHERE id='1636cad3-f638-4bb3-b0f2-dbe5fafe9b6e';
 -- +goose StatementEnd
