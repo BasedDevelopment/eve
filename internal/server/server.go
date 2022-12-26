@@ -12,7 +12,7 @@ import (
 	"github.com/go-chi/httprate"
 )
 
-func Start() *chi.Mux {
+func Service() *chi.Mux {
 	r := chi.NewMux()
 
 	// Middlewares

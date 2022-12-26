@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"net/http"
 	"os"
 	"os/signal"
@@ -73,30 +74,62 @@ func main() {
 		}
 	}
 
-	// Listen for sigterm and sigint and shutdown gracefully
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	// Create HTTP server
+	srv := &http.Server{
+		Addr:    config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port),
+		Handler: server.Service(),
+	}
+
+	srvCtx, srvStopCtx := context.WithCancel(context.Background())
+
+	// Watch for OS signals
+	sig := make(chan os.Signal, 1)
+	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+
 	go func() {
-		<-c
-		log.Info().Msg("Gracefully shutting down")
-		//TODO: Gracefully shutdown webserver, return code 1 if fails
-		//TODO: Gracefully shutdown libvirt, return code 1 if fails
+		<-sig
+
+		shutdownCtx, shutdownCtxCancel := context.WithTimeout(srvCtx, 30*time.Second)
+		defer shutdownCtxCancel() // release srvCtx if we take too long to shut down
+
+		go func() {
+			<-shutdownCtx.Done()
+			if shutdownCtx.Err() == context.DeadlineExceeded {
+				log.Warn().Msg("Graceful shutdown timed out... forcing regular exit.")
+			}
+		}()
+
+		// Actually shutdown server, *gracefully*
+		err := srv.Shutdown(shutdownCtx)
+
+		if err != nil {
+			log.Fatal().
+				Err(err).
+				Msg("Failed to shutdown HTTP listener")
+		}
+
+		// Close database pool while we're at it
 		db.Pool.Close()
-		os.Exit(0)
+
+		srvStopCtx()
 	}()
 
-	// Start server
-	listenAddress := config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port)
+	// Start the server
+	err := srv.ListenAndServe()
 
+	if err != nil && err != http.ErrServerClosed {
+		log.Fatal().
+			Err(err).
+			Msg("Failed to start HTTP listener")
+	}
+
+	// @todo Fix
 	log.Info().
 		Str("host", config.Config.API.Host).
 		Int("port", config.Config.API.Port).
 		Msg("Started HTTP server")
 
-	if err := http.ListenAndServe(listenAddress, server.Start()); err != nil {
-		log.Fatal().
-			Err(err).
-			Msg("Failed to start HTTP server")
-	}
-	<-c
+	// Wait for server context to be stopped
+	<-srvCtx.Done()
+	log.Info().Msg("Gracefully shutting down")
 }
