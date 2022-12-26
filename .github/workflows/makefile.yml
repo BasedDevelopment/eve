@@ -21,9 +21,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: debug
-      run: ls ~ && pwd && ls
-
     - name: copy over config
       run: sudo mkdir /etc/eve && sudo cp config.toml.ci /etc/eve/config.toml
 
@@ -37,6 +34,9 @@ jobs:
       run: |
         go install github.com/pressly/goose/v3/cmd/goose@latest
         goose postgres postgres://postgres:password@localhost:5432/postgres up
+
+    - name: debug
+      run: ls ~ && pwd && ls
 
     - name: Start eve and test
       run: make start& sleep 10 && make test
