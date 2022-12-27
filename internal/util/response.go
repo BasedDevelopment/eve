@@ -46,6 +46,7 @@ func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string
 	// Marshall response
 	json, err := json.Marshal(map[string]interface{}{
 		"message":   m,
+		"error":     e,
 		"requestID": reqId,
 	})
 
