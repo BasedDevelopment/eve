@@ -9,7 +9,7 @@ eve:
 
 test:
 	go clean -testcache
-	go test -v .
+	go test -v ./...
 
 # Build and execute Eve program
 start: eve
