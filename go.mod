@@ -6,7 +6,7 @@ require (
 	github.com/digitalocean/go-libvirt v0.0.0-20221122165534-e3cbf86fc1f6
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/google/uuid v1.3.0
-	github.com/jackc/pgx/v5 v5.1.1
+	github.com/jackc/pgx/v5 v5.2.0
 	github.com/knadh/koanf v1.4.4
 	github.com/rs/zerolog v1.28.0
 )
