@@ -12,7 +12,6 @@ import (
 	"github.com/ericzty/eve/internal/config"
 	"github.com/ericzty/eve/internal/controllers"
 	"github.com/ericzty/eve/internal/db"
-	"github.com/ericzty/eve/internal/libvirt"
 	"github.com/ericzty/eve/internal/server"
 
 	"github.com/rs/zerolog"
@@ -56,22 +55,7 @@ func main() {
 
 	for i := range cloud.HVs {
 		hv := cloud.HVs[i]
-
-		log.Info().
-			Str("hostname", hv.Hostname).
-			Msg("Connecting to HV")
-
-		if err := libvirt.InitHV(cloud.HVs[i]); err != nil {
-			log.Warn().
-				Err(err).
-				Str("hostname", hv.Hostname).
-				Msg("Failed to connect to HV")
-		} else {
-			log.Info().
-				Str("hostname", hv.Hostname).
-				Str("hv", hv.Hostname).
-				Msg("Connected to HV")
-		}
+		go connHV(hv)
 	}
 
 	// Create HTTP server
@@ -132,4 +116,22 @@ func main() {
 	// Wait for server context to be stopped
 	<-srvCtx.Done()
 	log.Info().Msg("Gracefully shutting down")
+}
+
+func connHV(hv *controllers.HV) {
+	log.Info().
+		Str("hostname", hv.Hostname).
+		Msg("Connecting to HV")
+
+	if err := hv.Init(); err != nil {
+		log.Warn().
+			Err(err).
+			Str("hostname", hv.Hostname).
+			Msg("Failed to connect to HV")
+	} else {
+		log.Info().
+			Str("hostname", hv.Hostname).
+			Str("hv", hv.Hostname).
+			Msg("Connected to HV")
+	}
 }

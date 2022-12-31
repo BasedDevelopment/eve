@@ -2,49 +2,59 @@ package libvirt
 
 import (
 	"fmt"
+	"net"
 	"strconv"
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/digitalocean/go-libvirt/socket/dialers"
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/google/uuid"
 )
 
-func InitHV(HV *controllers.HV) error {
-	l := libvirt.NewWithDialer(dialers.NewRemote(
-		HV.IP.String(),
-		dialers.UsePort(strconv.Itoa(HV.Port)),
+func InitHV(ip net.IP, port int) (l *libvirt.Libvirt) {
+	l = libvirt.NewWithDialer(dialers.NewRemote(
+		ip.String(),
+		dialers.UsePort(strconv.Itoa(port)),
 		dialers.WithRemoteTimeout(time.Second*2),
 	))
 
-	HV.Libvirt = l
-	return EnsureConn(HV)
+	return
 }
 
-func EnsureConn(HV *controllers.HV) error {
-	// Ensures the connection is alive
-	_, ok := <-HV.Libvirt.Disconnected()
-	if !ok {
-		// Connection lost
-		return connect(HV)
+func IsConnected(l *libvirt.Libvirt) bool {
+	// Check if the connection is alive
+	ok := true
+	select {
+	case _, ok = <-l.Disconnected():
+	default:
 	}
-	return nil
+	return ok
 }
 
-func connect(HV *controllers.HV) error {
-	l := HV.Libvirt
+func Connect(l *libvirt.Libvirt) (error, string) {
 	if err := l.Connect(); err != nil {
-		HV.Status = util.STATUS_OFFLINE
-		return fmt.Errorf("Failed to communicate with libvirt: %v", err)
+		err = fmt.Errorf("Failed to communicate with libvirt: %v", err)
+		return err, ""
 	}
 
-	if v, err := l.Version(); err != nil {
-		HV.Status = util.STATUS_OFFLINE
-		return fmt.Errorf("Failed to get libvirt version: %v", err)
-	} else {
-		HV.Version = v
-		HV.Status = util.STATUS_ONLINE
-		return nil
+	v, err := l.Version()
+	if err != nil {
+		err = fmt.Errorf("Failed to get libvirt version: %v", err)
+		return err, ""
 	}
+	return nil, v
+}
+
+func GetVMs(l *libvirt.Libvirt) (vms []uuid.UUID, err error) {
+	// Fetcheds list of all defined domains
+	doms, _, err := l.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
+	if err != nil {
+		return
+	}
+	for _, dom := range doms {
+		vmuuidbytes := fmt.Sprintf("%x", dom.UUID)
+		vmuuid, _ := uuid.Parse(vmuuidbytes)
+		vms = append(vms, vmuuid)
+	}
+	return
 }
