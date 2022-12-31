@@ -63,3 +63,8 @@ func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
 	}
 	return
 }
+
+//func (l Libvirt) GetVM(vmid string) (err error) {
+//	vmid := uuid.Parse(vmid)
+//	dom := l.conn.DomainLookupByUUIDString(vmid)
+//}

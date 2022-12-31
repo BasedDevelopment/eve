@@ -1,8 +1,8 @@
 # EVE Virtual Environment
 [![Go Report Card](https://goreportcard.com/badge/github.com/ericzty/eve)](https://goreportcard.com/report/github.com/ericzty/eve)
 [![Build Status](https://github.com/ericzty/eve/actions/workflows/makefile.yml/badge.svg)](https://github.com/ericzty/eve/actions/)
-[CodeQL](https://github.com/ericzty/eve/workflows/CodeQL/badge.svg)
-[License](https://img.shields.io/github/license/ericzty/eve?style=plastic)
+[![CodeQL]https://github.com/ericzty/eve/workflows/CodeQL/badge.svg)](https://github.com/ericzty/eve/actions/workflows/codeql.yml)
+[![License](https://img.shields.io/github/license/ericzty/eve?style=plastic)](https://github.com/ericzty/eve/blob/main/COPYING)
 
 
 > Eve is pre-alpha software and is not currently deployed anywhere, nor should it be. Once it reaches a usable state we will provide documentation on how you can use it for your own purposes.
