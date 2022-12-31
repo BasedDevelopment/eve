@@ -123,6 +123,7 @@ func (hv *HV) InitVMs() error {
 	if err := hv.ensureConn(); err != nil {
 		return err
 	}
+	//TODO: in the future we will use the database to fetch the list of VMs
 	vms, err := virt.GetVMs(hv.Libvirt)
 	if err != nil {
 		return err
