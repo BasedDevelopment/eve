@@ -1,6 +1,7 @@
 package libvirt
 
 import (
+	"encoding/hex"
 	"fmt"
 	"net"
 	"strconv"
@@ -57,14 +58,16 @@ func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
 		return
 	}
 	for _, dom := range doms {
-		vmuuidbytes := fmt.Sprintf("%x", dom.UUID)
-		vmuuid, _ := uuid.Parse(vmuuidbytes)
+		vmuuidstr := hex.EncodeToString(dom.UUID[:])
+		vmuuid, _ := uuid.Parse(vmuuidstr)
 		vms = append(vms, vmuuid)
 	}
 	return
 }
 
-//func (l Libvirt) GetVM(vmid string) (err error) {
-//	vmid := uuid.Parse(vmid)
+//func (l Libvirt) GetVM(vmid uuid.UUID) (err error) {
+//	vmid = vmid.String()
+//	vmid = [libvirt.UUIDBuflen]byte(vmid)
 //	dom := l.conn.DomainLookupByUUIDString(vmid)
+//	return
 //}
