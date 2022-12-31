@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/digitalocean/go-libvirt v0.0.0-20221122165534-e3cbf86fc1f6
-	github.com/go-chi/chi/v5 v5.0.7
+	github.com/go-chi/chi/v5 v5.0.8
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.1.1
 	github.com/knadh/koanf v1.4.4
@@ -13,10 +13,7 @@ require (
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
-	github.com/jackc/pgproto3/v2 v2.2.0 // indirect
-	github.com/yuin/goldmark v1.4.13 // indirect
-	golang.org/x/mod v0.7.0 // indirect
-	golang.org/x/tools v0.4.0 // indirect
+	github.com/lib/pq v1.10.2 // indirect
 )
 
 require (
@@ -25,10 +22,8 @@ require (
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/httprate v0.7.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
-	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.13.0
 	github.com/jackc/puddle/v2 v2.1.2 // indirect
 	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
