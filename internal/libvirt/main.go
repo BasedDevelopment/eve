@@ -11,33 +11,37 @@ import (
 	"github.com/google/uuid"
 )
 
-func InitHV(ip net.IP, port int) (l *libvirt.Libvirt) {
-	l = libvirt.NewWithDialer(dialers.NewRemote(
+type Libvirt struct {
+	conn *libvirt.Libvirt
+}
+
+func InitHV(ip net.IP, port int) *Libvirt {
+	conn := libvirt.NewWithDialer(dialers.NewRemote(
 		ip.String(),
 		dialers.UsePort(strconv.Itoa(port)),
 		dialers.WithRemoteTimeout(time.Second*2),
 	))
 
-	return
+	return &Libvirt{conn}
 }
 
-func IsConnected(l *libvirt.Libvirt) bool {
+func (l Libvirt) IsConnected() bool {
 	// Check if the connection is alive
 	ok := true
 	select {
-	case _, ok = <-l.Disconnected():
+	case _, ok = <-l.conn.Disconnected():
 	default:
 	}
 	return ok
 }
 
-func Connect(l *libvirt.Libvirt) (error, string) {
-	if err := l.Connect(); err != nil {
+func (l Libvirt) Connect() (error, string) {
+	if err := l.conn.Connect(); err != nil {
 		err = fmt.Errorf("Failed to communicate with libvirt: %v", err)
 		return err, ""
 	}
 
-	v, err := l.Version()
+	v, err := l.conn.Version()
 	if err != nil {
 		err = fmt.Errorf("Failed to get libvirt version: %v", err)
 		return err, ""
@@ -45,9 +49,10 @@ func Connect(l *libvirt.Libvirt) (error, string) {
 	return nil, v
 }
 
-func GetVMs(l *libvirt.Libvirt) (vms []uuid.UUID, err error) {
-	// Fetcheds list of all defined domains
-	doms, _, err := l.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
+func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
+	// Fetches list of all defined domains
+	// Won't be used to populate the HV's VM list, instead to check for inconsistencies
+	doms, _, err := l.conn.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
 	if err != nil {
 		return
 	}

@@ -7,9 +7,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/digitalocean/go-libvirt"
 	"github.com/ericzty/eve/internal/db"
-	virt "github.com/ericzty/eve/internal/libvirt"
+	"github.com/ericzty/eve/internal/libvirt"
 	"github.com/ericzty/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -88,7 +87,7 @@ func getHVs(cloud *HVList) (err error) {
 }
 
 func (hv *HV) ensureConn() error {
-	if !virt.IsConnected(hv.Libvirt) {
+	if !hv.Libvirt.IsConnected() {
 		return hv.connect()
 	}
 	return nil
@@ -98,7 +97,7 @@ func (hv *HV) connect() error {
 	hv.mutex.Lock()
 	defer hv.mutex.Unlock()
 
-	if err, v := virt.Connect(hv.Libvirt); err != nil {
+	if err, v := hv.Libvirt.Connect(); err != nil {
 		hv.Version = v
 		hv.Status = util.STATUS_ONLINE
 		return nil
@@ -109,7 +108,7 @@ func (hv *HV) connect() error {
 }
 
 func (hv *HV) Init() error {
-	hv.Libvirt = virt.InitHV(hv.IP, hv.Port)
+	hv.Libvirt = libvirt.InitHV(hv.IP, hv.Port)
 	if err := hv.ensureConn(); err != nil {
 		return err
 	}
@@ -124,7 +123,7 @@ func (hv *HV) InitVMs() error {
 		return err
 	}
 	//TODO: in the future we will use the database to fetch the list of VMs
-	vms, err := virt.GetVMs(hv.Libvirt)
+	vms, err := hv.Libvirt.GetVMs()
 	if err != nil {
 		return err
 	}
