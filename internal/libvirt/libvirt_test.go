@@ -1,1 +1,1 @@
-package libvirt
+package libvirt_test
