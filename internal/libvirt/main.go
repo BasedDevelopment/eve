@@ -59,15 +59,11 @@ func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
 	}
 	for _, dom := range doms {
 		vmuuidstr := hex.EncodeToString(dom.UUID[:])
-		vmuuid, _ := uuid.Parse(vmuuidstr)
+		vmuuid, err := uuid.Parse(vmuuidstr)
+		if err != nil {
+			return vms, err
+		}
 		vms = append(vms, vmuuid)
 	}
 	return
 }
-
-//func (l Libvirt) GetVM(vmid uuid.UUID) (err error) {
-//	vmid = vmid.String()
-//	vmid = [libvirt.UUIDBuflen]byte(vmid)
-//	dom := l.conn.DomainLookupByUUIDString(vmid)
-//	return
-//}

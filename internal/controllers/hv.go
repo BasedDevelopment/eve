@@ -97,13 +97,14 @@ func (hv *HV) connect() error {
 	hv.mutex.Lock()
 	defer hv.mutex.Unlock()
 
-	if err, v := hv.Libvirt.Connect(); err != nil {
-		hv.Version = v
-		hv.Status = util.STATUS_ONLINE
-		return nil
-	} else {
+	err, v := hv.Libvirt.Connect()
+	if err != nil {
 		hv.Status = util.STATUS_OFFLINE
 		return err
+	} else {
+		hv.Status = util.STATUS_ONLINE
+		hv.Version = v
+		return nil
 	}
 }
 
@@ -122,15 +123,16 @@ func (hv *HV) InitVMs() error {
 	if err := hv.ensureConn(); err != nil {
 		return err
 	}
-	//TODO: in the future we will use the database to fetch the list of VMs
-	vms, err := hv.Libvirt.GetVMs()
+
+	//TODO: Get VMs from db
+	uuids, err := hv.Libvirt.GetVMs()
 	if err != nil {
 		return err
 	}
-	for _, uuid := range vms {
-		//TODO: in the future this will be hv.VMs[uuid].Init()
-		vm := VM{ID: uuid}
-		hv.VMs[uuid] = &vm
-	}
+	fmt.Println(uuids)
+
+	//TODO: Compare DB's list of UUIDs and the list from libvirt
+
+	//TODO: Init VMs
 	return nil
 }
