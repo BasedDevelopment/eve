@@ -1,4 +1,4 @@
-module github.com/ericzty/eve
+module github.com/BasedDevelopment/eve
 
 go 1.18
 
