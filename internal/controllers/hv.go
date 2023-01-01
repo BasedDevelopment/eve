@@ -97,7 +97,7 @@ func (hv *HV) connect() error {
 	hv.mutex.Lock()
 	defer hv.mutex.Unlock()
 
-	err, v := hv.Libvirt.Connect()
+	v, err := hv.Libvirt.Connect()
 	if err != nil {
 		hv.Status = util.STATUS_OFFLINE
 		return err

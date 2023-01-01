@@ -27,27 +27,20 @@ func InitHV(ip net.IP, port int) *Libvirt {
 }
 
 func (l Libvirt) IsConnected() bool {
-	// Check if the connection is alive
-	ok := true
-	select {
-	case _, ok = <-l.conn.Disconnected():
-	default:
-	}
-	return ok
+	return l.conn.IsConnected()
 }
 
-func (l Libvirt) Connect() (error, string) {
+func (l Libvirt) Connect() (string, error) {
 	if err := l.conn.Connect(); err != nil {
-		err = fmt.Errorf("Failed to communicate with libvirt: %v", err)
-		return err, ""
+		return "", fmt.Errorf("failed to communicate with libvirt: %v", err)
 	}
 
-	v, err := l.conn.Version()
+	v, err := l.conn.ConnectGetVersion()
 	if err != nil {
-		err = fmt.Errorf("Failed to get libvirt version: %v", err)
-		return err, ""
+		return "", fmt.Errorf("failed to get libvirt version: %v", err)
 	}
-	return nil, v
+
+	return strconv.FormatInt(int64(v), 10), nil
 }
 
 func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
