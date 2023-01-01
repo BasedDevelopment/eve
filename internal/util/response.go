@@ -44,11 +44,14 @@ func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string
 	reqId := middleware.GetReqID(r.Context())
 
 	// Marshall response
-	json, err := json.Marshal(map[string]interface{}{
-		"message":   m,
-		"error":     e.Error(),
-		"requestID": reqId,
-	})
+	var response = map[string]interface{}{
+		"message": m,
+		"request": reqId,
+	}
+	if e != nil {
+		response["error"] = e.Error()
+	}
+	json, err := json.Marshal(response)
 
 	if err != nil {
 		log.Error().
