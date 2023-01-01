@@ -7,10 +7,10 @@ import (
 	"github.com/google/uuid"
 )
 
-func (l Libvirt) lookup(vmid uuid.UUID) (dom libvirt.Domain, err error) {
-	vmidhex, err := hex.DecodeString(vmid.String())
+func (l Libvirt) lookup(vmId uuid.UUID) (dom libvirt.Domain, err error) {
+	vmIdHex, _ := hex.DecodeString(vmId.String())
 	var libvirtUUID libvirt.UUID
-	copy(libvirtUUID[:], vmidhex[:])
+	copy(libvirtUUID[:], vmIdHex[:])
 	dom, err = l.conn.DomainLookupByUUID(libvirtUUID)
 	return
 }

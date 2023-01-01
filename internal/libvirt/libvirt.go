@@ -16,7 +16,8 @@ type Libvirt struct {
 	conn *libvirt.Libvirt
 }
 
-func InitHV(ip net.IP, port int) *Libvirt {
+// Initializes a Libvirt object for later connections
+func Init(ip net.IP, port int) *Libvirt {
 	conn := libvirt.NewWithDialer(dialers.NewRemote(
 		ip.String(),
 		dialers.UsePort(strconv.Itoa(port)),
@@ -51,12 +52,12 @@ func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
 		return
 	}
 	for _, dom := range doms {
-		vmuuidstr := hex.EncodeToString(dom.UUID[:])
-		vmuuid, err := uuid.Parse(vmuuidstr)
+		vmUuidStr := hex.EncodeToString(dom.UUID[:])
+		vmUuid, err := uuid.Parse(vmUuidStr)
 		if err != nil {
 			return vms, err
 		}
-		vms = append(vms, vmuuid)
+		vms = append(vms, vmUuid)
 	}
 	return
 }

@@ -76,8 +76,8 @@ func getHVs(cloud *HVList) (err error) {
 
 	cloud.HVs = make(map[string]*HV)
 	for i := range HVs {
-		hvid := HVs[i].ID.String()
-		cloud.HVs[hvid] = &HVs[i]
+		hvId := HVs[i].ID.String()
+		cloud.HVs[hvId] = &HVs[i]
 		HVs[i].Nics = make(map[uuid.UUID]*HVNic)
 		HVs[i].Storages = make(map[uuid.UUID]*HVStorage)
 		HVs[i].VMs = make(map[uuid.UUID]*VM)
@@ -109,7 +109,7 @@ func (hv *HV) connect() error {
 }
 
 func (hv *HV) Init() error {
-	hv.Libvirt = libvirt.InitHV(hv.IP, hv.Port)
+	hv.Libvirt = libvirt.Init(hv.IP, hv.Port)
 	if err := hv.ensureConn(); err != nil {
 		return err
 	}
