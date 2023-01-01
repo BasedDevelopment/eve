@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/google/uuid"
 )
 

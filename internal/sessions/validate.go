@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/ericzty/eve/internal/tokens"
+	"github.com/BasedDevelopment/eve/internal/tokens"
 	"golang.org/x/crypto/sha3"
 )
 

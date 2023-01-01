@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/ericzty/eve/internal/db"
+	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/google/uuid"
 )
 

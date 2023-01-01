@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ericzty/eve/internal/sessions"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/BasedDevelopment/eve/internal/sessions"
+	"github.com/BasedDevelopment/eve/internal/util"
 )
 
 // UserContext fetches the owner of the request from the current session and

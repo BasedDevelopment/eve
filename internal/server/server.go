@@ -3,10 +3,10 @@ package server
 import (
 	"time"
 
-	middleware "github.com/ericzty/eve/internal/server/middleware"
-	"github.com/ericzty/eve/internal/server/routes"
-	"github.com/ericzty/eve/internal/server/routes/admin"
-	"github.com/ericzty/eve/internal/server/routes/users"
+	middleware "github.com/BasedDevelopment/eve/internal/server/middleware"
+	"github.com/BasedDevelopment/eve/internal/server/routes"
+	"github.com/BasedDevelopment/eve/internal/server/routes/admin"
+	"github.com/BasedDevelopment/eve/internal/server/routes/users"
 	"github.com/go-chi/chi/v5"
 	cm "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/httprate"

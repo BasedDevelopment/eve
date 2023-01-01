@@ -9,10 +9,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/ericzty/eve/internal/config"
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/db"
-	"github.com/ericzty/eve/internal/server"
+	"github.com/BasedDevelopment/eve/internal/config"
+	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/db"
+	"github.com/BasedDevelopment/eve/internal/server"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"

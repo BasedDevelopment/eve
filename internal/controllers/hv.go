@@ -7,9 +7,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ericzty/eve/internal/db"
-	"github.com/ericzty/eve/internal/libvirt"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/BasedDevelopment/eve/internal/db"
+	"github.com/BasedDevelopment/eve/internal/libvirt"
+	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )

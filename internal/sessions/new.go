@@ -8,8 +8,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/tokens"
+	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/tokens"
 	"golang.org/x/crypto/sha3"
 )
 

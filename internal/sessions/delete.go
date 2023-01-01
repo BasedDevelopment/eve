@@ -3,8 +3,8 @@ package sessions
 import (
 	"context"
 
-	"github.com/ericzty/eve/internal/db"
-	"github.com/ericzty/eve/internal/tokens"
+	"github.com/BasedDevelopment/eve/internal/db"
+	"github.com/BasedDevelopment/eve/internal/tokens"
 )
 
 // Delete removes a session from the database (logout)

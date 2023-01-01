@@ -3,9 +3,9 @@ package routes
 import (
 	"net/http"
 
-	"github.com/ericzty/eve/internal/controllers"
-	"github.com/ericzty/eve/internal/sessions"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/sessions"
+	"github.com/BasedDevelopment/eve/internal/util"
 	"golang.org/x/crypto/bcrypt"
 )
 

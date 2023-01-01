@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/ericzty/eve/internal/db"
-	"github.com/ericzty/eve/internal/tokens"
+	"github.com/BasedDevelopment/eve/internal/db"
+	"github.com/BasedDevelopment/eve/internal/tokens"
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 )

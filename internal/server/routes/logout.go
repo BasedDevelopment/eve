@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ericzty/eve/internal/sessions"
-	"github.com/ericzty/eve/internal/tokens"
-	"github.com/ericzty/eve/internal/util"
+	"github.com/BasedDevelopment/eve/internal/sessions"
+	"github.com/BasedDevelopment/eve/internal/tokens"
+	"github.com/BasedDevelopment/eve/internal/util"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
