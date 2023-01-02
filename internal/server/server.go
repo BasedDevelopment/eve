@@ -21,7 +21,7 @@ package server
 import (
 	"time"
 
-	middleware "github.com/BasedDevelopment/eve/internal/server/middleware"
+	"github.com/BasedDevelopment/eve/internal/server/middleware"
 	"github.com/BasedDevelopment/eve/internal/server/routes"
 	"github.com/BasedDevelopment/eve/internal/server/routes/admin"
 	"github.com/BasedDevelopment/eve/internal/server/routes/users"
