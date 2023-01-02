@@ -19,7 +19,6 @@
 package libvirt
 
 import (
-	"encoding/hex"
 	"fmt"
 	"net"
 	"strconv"
@@ -27,7 +26,6 @@ import (
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/digitalocean/go-libvirt/socket/dialers"
-	"github.com/google/uuid"
 )
 
 type Libvirt struct {
@@ -60,22 +58,4 @@ func (l Libvirt) Connect() (string, error) {
 	}
 
 	return strconv.FormatInt(int64(v), 10), nil
-}
-
-func (l Libvirt) GetVMs() (vms []uuid.UUID, err error) {
-	// Fetches list of all defined domains
-	// Won't be used to populate the HV's VM list, instead to check for inconsistencies
-	doms, _, err := l.conn.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
-	if err != nil {
-		return
-	}
-	for _, dom := range doms {
-		vmUuidStr := hex.EncodeToString(dom.UUID[:])
-		vmUuid, err := uuid.Parse(vmUuidStr)
-		if err != nil {
-			return vms, err
-		}
-		vms = append(vms, vmUuid)
-	}
-	return
 }

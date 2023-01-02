@@ -82,6 +82,8 @@ func getHVs(cloud *HVList) (err error) {
 		return fmt.Errorf("Error reading hv: %w", queryErr)
 	}
 
+	defer rows.Close()
+
 	// Collect the rows into the HV struct
 	HVs, collectErr := pgx.CollectRows(rows, pgx.RowToStructByName[HV])
 
@@ -134,23 +136,5 @@ func (hv *HV) Init() error {
 	if err := hv.InitVMs(); err != nil {
 		return err
 	}
-	return nil
-}
-
-func (hv *HV) InitVMs() error {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	//TODO: Get VMs from db
-	uuids, err := hv.Libvirt.GetVMs()
-	if err != nil {
-		return err
-	}
-	fmt.Println(uuids)
-
-	//TODO: Compare DB's list of UUIDs and the list from libvirt
-
-	//TODO: Init VMs
 	return nil
 }
