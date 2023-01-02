@@ -34,7 +34,7 @@ type Profile struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	Name      string    `json:"name" db:"name"`
 	Email     string    `json:"email" db:"email"`
-	Password  string    `db:"password"`
+	Password  string    `json:"-" db:"password"`
 	Disabled  bool      `db:"disabled"`
 	IsAdmin   bool      `db:"is_admin"`
 	LastLogin time.Time `json:"last_login" db:"last_login"`

@@ -36,14 +36,16 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = util.WriteResponse(util.UserResponse{
-		ID:        profile.ID.String(),
-		Name:      profile.Name,
-		Email:     profile.Email,
-		LastLogin: profile.LastLogin,
-		Created:   profile.Created,
-		Updated:   profile.Updated,
-	}, w, http.StatusOK)
+	response := map[string]interface{}{
+		"id":         profile.ID,
+		"name":       profile.Name,
+		"email":      profile.Email,
+		"last_login": profile.LastLogin,
+		"created":    profile.Created,
+		"updated":    profile.Updated,
+	}
+
+	err = util.WriteResponse(response, w, http.StatusOK)
 
 	if err != nil {
 		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")

@@ -21,20 +21,10 @@ package util
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
-
-type UserResponse struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	LastLogin time.Time `json:"lastLogin"`
-	Created   time.Time `json:"created"`
-	Updated   time.Time `json:"updated"`
-}
 
 func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
 	json, err := json.Marshal(r)

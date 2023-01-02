@@ -137,8 +137,8 @@ func TestAdminGetProfile(t *testing.T) {
 	if response["email"] != testAdminEmail {
 		t.Fatalf("expected %v; got %v", testAdminEmail, response["email"])
 	}
-	if (response["lastLogin"] == nil) || (response["created"] == nil) || (response["updated"] == nil) {
-		t.Fatal("lastLogin, created, and/or updated is nil")
+	if (response["last_login"] == nil) || (response["created"] == nil) || (response["updated"] == nil) {
+		t.Fatal("last_login, created, and/or updated is nil")
 	}
 }
 
@@ -249,8 +249,8 @@ func TestUserGetProfile(t *testing.T) {
 	if response["email"] != testUserEmail {
 		t.Fatalf("expected %v; got %v", testUserEmail, response["email"])
 	}
-	if (response["lastLogin"] == nil) || (response["created"] == nil) || (response["updated"] == nil) {
-		t.Fatal("lastLogin, created, and/or updated is nil")
+	if (response["last_login"] == nil) || (response["created"] == nil) || (response["updated"] == nil) {
+		t.Fatal("last_login, created, and/or updated is nil")
 	}
 }
 

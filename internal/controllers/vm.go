@@ -87,9 +87,12 @@ func (hv *HV) InitVMs() error {
 		return err
 	}
 
+	hv.mutex.Lock()
+	defer hv.mutex.Unlock()
+
 	// Marshall the HV.VMs struct in
-	for _, vm := range dbVMs {
-		hv.VMs[vm.ID] = &vm
+	for i := range dbVMs {
+		hv.VMs[dbVMs[i].ID] = &dbVMs[i]
 	}
 
 	// Check if the VMs are consistent

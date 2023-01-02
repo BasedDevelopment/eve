@@ -36,6 +36,7 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	hv := controllers.Cloud.HVs[hvid]
+
 	var vms []*controllers.VM
 	for _, vm := range hv.VMs {
 		vms = append(vms, vm)
@@ -43,6 +44,31 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 
 	// Send response
 	if err := util.WriteResponse(vms, w, http.StatusOK); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}
+
+func GetVM(w http.ResponseWriter, r *http.Request) {
+	// Get hv ID from request
+	hvidStr := chi.URLParam(r, "hypervisor")
+	hvid, err := uuid.Parse(hvidStr)
+	if err != nil {
+		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		return
+	}
+	hv := controllers.Cloud.HVs[hvid]
+
+	// Get vm ID from request
+	vmidStr := chi.URLParam(r, "virtual_machine")
+	vmid, err := uuid.Parse(vmidStr)
+	if err != nil {
+		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid VM ID")
+		return
+	}
+	// TODO: polish response json
+
+	// Send response
+	if err := util.WriteResponse(hv.VMs[vmid], w, http.StatusOK); err != nil {
 		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }

@@ -38,6 +38,11 @@ func getToken(w http.ResponseWriter, r *http.Request) (token tokens.Token) {
 	}
 
 	splitHeader := strings.Split(authorizationHeader, "Bearer ")
+	if len(splitHeader) != 2 {
+		util.WriteError(w, r, nil, http.StatusBadRequest, "Invalid Authorization header")
+		return tokens.Token{}
+	}
+
 	token, err := tokens.Parse(splitHeader[1])
 	if err != nil {
 		util.WriteError(w, r, nil, http.StatusBadRequest, "Invalid token")

@@ -50,25 +50,35 @@ func Service() *chi.Mux {
 		r.Use(middleware.UserContext)
 		r.Use(middleware.MustBeAdmin)
 
-		// Hypervisor management
-		r.Get("/admin/hypervisors", admin.GetHVs)
-		r.Get("/admin/hypervisors/{id}", admin.GetHV)
-		// r.Post("/admin/hypervisors/{id}", routes.CreateHV)
-		// r.Patch("/admin/hypervisors/{id}", routes.UpdateHV)
-		// r.Delete("/admin/hypervisors/{id}", routes.RemoveHV)
-
-		// VM management
-		r.Get("/admin/hypervisors/{id}/virtual_machines", admin.GetVMs)
-		// r.Get("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.GetVM)
-		// r.Post("/admin/hypervisors/{id}/virtual_machines", routes.CreateVM)
-		// r.Patch("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.UpdateVM)
-		// r.Delete("/admin/hypervisors/{id}/virtual_machines/{vmid}", routes.DeleteVM)
-
-		// User management
-		r.Post("/admin/users", admin.CreateUser)
-		// r.Get("/admin/users", routes.GetUsers)
-		// r.Patch("/admin/users/{id}", routes.UpdateUser)
-		// r.Delete("/admin/users/{id}", routes.DeleteUser)
+		r.Route("/admin", func(r chi.Router) {
+			// Hypervisor management
+			r.Route("/hypervisors", func(r chi.Router) {
+				r.Get("/", admin.GetHVs)
+				//r.Post("/", admin.CreateHV)
+				r.Route("/{hypervisor}", func(r chi.Router) {
+					r.Get("/", admin.GetHV)
+					//r.Patch("/", admin.UpdateHV)
+					//r.Delete("/", admin.DeleteHV)
+					r.Route("/virtual_machines", func(r chi.Router) {
+						r.Get("/", admin.GetVMs)
+						//r.Post("/", admin.CreateVM)
+						r.Route("/{virtual_machine}", func(r chi.Router) {
+							r.Get("/", admin.GetVM)
+							//r.Patch("/", admin.UpdateVM)
+							//r.Delete("/", admin.DeleteVM)
+						})
+					})
+				})
+			})
+			r.Route("/users", func(r chi.Router) {
+				r.Post("/", admin.CreateUser)
+				//r.Get("/", admin.GetUsers)
+				//r.Route("/{user}", func(r chi.Router) {
+				//r.Get("/", admin.GetUser)
+				//r.Patch("/", admin.UpdateUser)
+				//r.Delete("/", admin.DeleteUser)
+			})
+		})
 	})
 
 	// User endpoints
@@ -76,11 +86,17 @@ func Service() *chi.Mux {
 		r.Use(middleware.Auth)
 		r.Use(middleware.UserContext)
 
-		r.Get("/users/me", users.GetSelf)
-		// r.Patch("/users/me", routes.UpdateUser)
-		r.Get("/users/me/virtual_machines", users.GetVirtualMachines)
-		// r.Get("/users/me/virtual_machines/{id}", routes.GetVM)
-		// r.Patch("/users/me/virtual_machines/{id}", routes.UpdateVM)
+		r.Route("/users", func(r chi.Router) {
+			r.Get("/me", users.GetSelf)
+			//r.Patch("/me", users.UpdateSelf)
+			r.Route("/virtual-machines", func(r chi.Router) {
+				r.Get("/", users.GetVMs)
+				r.Route("/{virtual_machines}", func(r chi.Router) {
+					//r.Get("/", users.GetVirtualMachine)
+					//r.Patch("/", users.UpdateVirtualMachine)
+				})
+			})
+		})
 
 		r.Post("/logout", routes.Logout)
 	})
