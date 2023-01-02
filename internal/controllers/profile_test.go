@@ -307,7 +307,6 @@ func TestUserLogout(t *testing.T) {
 }
 
 func TestCleanUp(t *testing.T) {
-	//TODO: Prlly remove this later
 	ctx := context.Background()
 	_, err := db.Pool.Exec(ctx, "DELETE FROM sessions WHERE owner = $1", testAdminId)
 	if err != nil {
