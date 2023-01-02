@@ -53,7 +53,7 @@ func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
 // Writes error response back to the client
 // Logs the error if it is an actual server error (err != nil)
 func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string) {
-	if e != nil {
+	if e != nil && s == http.StatusInternalServerError {
 		log.Error().
 			Err(e).
 			Str("message", m).
