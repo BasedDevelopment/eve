@@ -94,6 +94,7 @@ func getHVs(cloud *HVList) (err error) {
 	cloud.mutex.Lock()
 	defer cloud.mutex.Unlock()
 
+	// Populate the cloud struct with the HVs with a map of uuids to HVs
 	cloud.HVs = make(map[uuid.UUID]*HV)
 	for i := range HVs {
 		cloud.HVs[HVs[i].ID] = &HVs[i]
@@ -105,6 +106,19 @@ func getHVs(cloud *HVList) (err error) {
 	return
 }
 
+// Initialize the HV libvirt connection
+func (hv *HV) Init() error {
+	hv.Libvirt = libvirt.Init(hv.IP, hv.Port)
+	if err := hv.ensureConn(); err != nil {
+		return err
+	}
+	if err := hv.InitVMs(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Ensure the HV libvirt connection is alive
 func (hv *HV) ensureConn() error {
 	if !hv.Libvirt.IsConnected() {
 		return hv.connect()
@@ -112,6 +126,7 @@ func (hv *HV) ensureConn() error {
 	return nil
 }
 
+// Connect to the HV libvirt
 func (hv *HV) connect() error {
 	hv.mutex.Lock()
 	defer hv.mutex.Unlock()
@@ -125,15 +140,4 @@ func (hv *HV) connect() error {
 		hv.Version = v
 		return nil
 	}
-}
-
-func (hv *HV) Init() error {
-	hv.Libvirt = libvirt.Init(hv.IP, hv.Port)
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-	if err := hv.InitVMs(); err != nil {
-		return err
-	}
-	return nil
 }

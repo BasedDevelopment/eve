@@ -30,8 +30,10 @@ type HVList struct {
 	HVs   map[uuid.UUID]*HV `json:"hvs"`
 }
 
+// The cloud struct that will be used by the rest of the app
 var Cloud *HVList
 
+// Initialize the cloud struct that will hold all of the hypervisors
 func InitCloud() *HVList {
 	Cloud = new(HVList)
 	if err := getHVs(Cloud); err != nil {

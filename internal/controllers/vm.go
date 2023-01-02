@@ -67,6 +67,9 @@ type VMStorage struct {
 	Remarks string
 }
 
+// Fetch VMs from the DB and Libvirt, marshall them into the HV struct,
+// and check for consistency
+// TODO: concurrency
 func (hv *HV) InitVMs() error {
 	if err := hv.ensureConn(); err != nil {
 		return err
@@ -97,7 +100,10 @@ func (hv *HV) InitVMs() error {
 	return nil
 }
 
+// Get the list of VMs from the DB
+// Will be used to check consistency
 func (hv *HV) getVMsFromDB() (vms []VM, err error) {
+	// Query DB
 	rows, queryErr := db.Pool.Query(context.Background(), "SELECT * FROM vm WHERE hv_id = $1", hv.ID)
 	if queryErr != nil {
 		err := fmt.Errorf("failed to query VMs: %w", queryErr)
@@ -115,7 +121,13 @@ func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 	return
 }
 
+// Get the list of VMs from libvirt
+// Will be used to check consistency
 func (hv *HV) getVMsFromLibvirt() (doms map[uuid.UUID]libvirt.Dom, err error) {
+	if err := hv.ensureConn(); err != nil {
+		return nil, err
+	}
+
 	doms, err = hv.Libvirt.GetVMs()
 	if err != nil {
 		return nil, err
@@ -124,15 +136,23 @@ func (hv *HV) getVMsFromLibvirt() (doms map[uuid.UUID]libvirt.Dom, err error) {
 }
 
 func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.UUID]*VM) error {
+	if err := hv.ensureConn(); err != nil {
+		return err
+	}
+
 	for uuid, dom := range libvirt {
+
+		// Get the VM specs from libvirt
 		domSpec, err := hv.Libvirt.GetVMSpecs(dom)
 		if err != nil {
 			return err
 		}
+
 		// Check if the VM is in the DB
 		if _, ok := db[uuid]; !ok {
 			return fmt.Errorf("VM %s is not in the DB", uuid)
 		}
+
 		// Check for CPU count
 		if domSpec.Vcpu.Text != strconv.Itoa(db[uuid].CPU) {
 			return fmt.Errorf("CPU count mismatch for VM %s", uuid)

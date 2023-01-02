@@ -66,6 +66,7 @@ func (p *Profile) New(ctx context.Context) (id string, err error) {
 var QueryErr = errors.New("Query error:")
 var CollectErr = errors.New("Collect error:")
 
+// Get profile by email(for logins) or id(for everything else)
 func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 	var rows pgx.Rows
 
@@ -90,6 +91,7 @@ func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 func (p *Profile) Update() {}
 func (p *Profile) Delete() {}
 
+// Check if profile already exists by email (for create users)
 func (p *Profile) Exists(ctx context.Context) bool {
 	var exists bool
 	err := db.Pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM profile WHERE email = $1)", p.Email).Scan(&exists)

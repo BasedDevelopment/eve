@@ -37,6 +37,7 @@ func GetVirtualMachines(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch users virtual machines
+	// TODO: not done yet, filter by user
 	cloud := controllers.Cloud
 	var hvs []map[string]interface{}
 

@@ -141,6 +141,7 @@ func connHV(hv *controllers.HV) {
 		Str("hostname", hv.Hostname).
 		Msg("Connecting to HV and fetching VMs")
 
+	// Connect to hypervisors, fetch VMs, and check for VM consistency
 	if err := hv.Init(); err != nil {
 		log.Warn().
 			Err(err).

@@ -20,8 +20,8 @@ package config
 
 import "fmt"
 
+// Check for required fields in the config file
 func validate() error {
-	// Check for required fields
 	if Config.Name == "" {
 		return fmt.Errorf("Configuration: name is required")
 	}

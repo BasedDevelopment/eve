@@ -50,6 +50,8 @@ func WriteResponse[R any](r R, w http.ResponseWriter, status int) error {
 	return nil
 }
 
+// Writes error response back to the client
+// Logs the error if it is an actual server error (err != nil)
 func WriteError(w http.ResponseWriter, r *http.Request, e error, s int, m string) {
 	if e != nil {
 		log.Error().

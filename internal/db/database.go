@@ -25,13 +25,16 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// The database connection pool that will be used by the rest of the app
 var Pool *pgxpool.Pool
 
 func Init(url string) {
 	config, err := pgxpool.ParseConfig(url)
+
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to parse database URL")
 	}
+
 	Pool, err = pgxpool.NewWithConfig(context.Background(), config)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to connect to database")
