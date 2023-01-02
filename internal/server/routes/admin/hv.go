@@ -20,30 +20,35 @@ package admin
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
 
 func GetHVs(w http.ResponseWriter, r *http.Request) {
 	cloud := controllers.Cloud
-	var vms []*controllers.HV
+	var hvs []*controllers.HV
 	for _, hv := range cloud.HVs {
 		hv.VMs = make(map[uuid.UUID]*controllers.VM)
-		vms = append(vms, hv)
+		hvs = append(hvs, hv)
 	}
 
 	// Send response
-	if err := util.WriteResponse(vms, w, http.StatusOK); err != nil {
+	if err := util.WriteResponse(hvs, w, http.StatusOK); err != nil {
 		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 
 func GetHV(w http.ResponseWriter, r *http.Request) {
 	// Get hv ID from request
-	hvid := strings.Split(r.URL.Path, "/")[3]
+	hvidStr := chi.URLParam(r, "hypervisor")
+	hvid, err := uuid.Parse(hvidStr)
+	if err != nil {
+		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		return
+	}
 
 	hv := controllers.Cloud.HVs[hvid]
 

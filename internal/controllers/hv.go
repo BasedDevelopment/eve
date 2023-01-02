@@ -94,10 +94,9 @@ func getHVs(cloud *HVList) (err error) {
 	cloud.mutex.Lock()
 	defer cloud.mutex.Unlock()
 
-	cloud.HVs = make(map[string]*HV)
+	cloud.HVs = make(map[uuid.UUID]*HV)
 	for i := range HVs {
-		hvId := HVs[i].ID.String()
-		cloud.HVs[hvId] = &HVs[i]
+		cloud.HVs[HVs[i].ID] = &HVs[i]
 		HVs[i].Nics = make(map[uuid.UUID]*HVNic)
 		HVs[i].Storages = make(map[uuid.UUID]*HVStorage)
 		HVs[i].VMs = make(map[uuid.UUID]*VM)

@@ -21,7 +21,6 @@ package libvirt
 import (
 	"encoding/hex"
 	"encoding/xml"
-	"fmt"
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/google/uuid"
@@ -31,16 +30,18 @@ type Dom struct {
 	Dom libvirt.Domain
 }
 
-func (l Libvirt) GetVMs() (doms []libvirt.Domain, err error) {
+func (l Libvirt) GetVMs() (vms map[uuid.UUID]Dom, err error) {
 	// Fetches list of all defined domains
 	// Won't be used to populate the HV's VM list, instead to check for inconsistencies
-	doms, _, err = l.conn.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
+	doms, _, err := l.conn.ConnectListAllDomains(1, libvirt.ConnectListDomainsPersistent)
 	if err != nil {
 		return
 	}
+	vms = make(map[uuid.UUID]Dom)
 	for _, dom := range doms {
-		l.GetVMSpecs(dom)
-		l.GetVMState(dom)
+		vmuuidstr := hex.EncodeToString(dom.UUID[:])
+		vmuuid := uuid.MustParse(vmuuidstr)
+		vms[vmuuid] = Dom{dom}
 	}
 	return
 }
@@ -55,25 +56,29 @@ func (l Libvirt) GetVMFromUUID(vmId uuid.UUID) (dom Dom, err error) {
 	return
 }
 
-func (l Libvirt) GetVMSpecs(dom libvirt.Domain) (err error) {
-	domXml, err := l.conn.DomainGetXMLDesc(dom, 0)
+func (l Libvirt) GetVMSpecs(dom Dom) (specs DomSpecs, err error) {
+	domXml, err := l.conn.DomainGetXMLDesc(dom.Dom, 0)
 	if err != nil {
 		return
 	}
-	fmt.Println(domXml)
-	var specs domSpecs
+
 	domXmlBytes := []byte(domXml)
 	err = xml.Unmarshal([]byte(domXmlBytes), &specs)
 	if err != nil {
 		return
 	}
-	fmt.Println(specs)
 	return
 }
 
 func (l Libvirt) GetVMState(dom libvirt.Domain) (state int32, reason int32, err error) {
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainRunningReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainPausedReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainBlockedReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainShutdownReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainShutoffReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainCrashedReason
+	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainPMSuspendedReason
 	state, reason, err = l.conn.DomainGetState(dom, 0)
-	fmt.Println("state")
-	fmt.Println(state, reason)
 	return
 }

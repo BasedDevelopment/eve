@@ -24,11 +24,17 @@ import (
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 func GetVMs(w http.ResponseWriter, r *http.Request) {
 	// Get hv ID from request
-	hvid := chi.URLParam(r, "id")
+	hvidStr := chi.URLParam(r, "hypervisor")
+	hvid, err := uuid.Parse(hvidStr)
+	if err != nil {
+		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		return
+	}
 	hv := controllers.Cloud.HVs[hvid]
 	var vms []*controllers.VM
 	for _, vm := range hv.VMs {

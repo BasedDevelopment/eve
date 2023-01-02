@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/BasedDevelopment/eve/internal/db"
@@ -83,12 +84,16 @@ func (hv *HV) InitVMs() error {
 		return err
 	}
 
+	// Marshall the HV.VMs struct in
+	for _, vm := range dbVMs {
+		hv.VMs[vm.ID] = &vm
+	}
+
 	// Check if the VMs are consistent
-	if err := checkVMConsistency(libvirtVMs, dbVMs); err != nil {
+	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
 		return err
 	}
 
-	//Fill in the structs
 	return nil
 }
 
@@ -110,19 +115,28 @@ func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 	return
 }
 
-func (hv *HV) getVMsFromLibvirt() (vms []VM, err error) {
-	uuids, err := hv.Libvirt.GetVMs()
+func (hv *HV) getVMsFromLibvirt() (doms map[uuid.UUID]libvirt.Dom, err error) {
+	doms, err = hv.Libvirt.GetVMs()
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(uuids)
 	return
 }
 
-func checkVMConsistency(libvirt []VM, db []VM) error {
-	fmt.Println("libvirt")
-	fmt.Println(libvirt)
-	fmt.Println("db")
-	fmt.Println(db)
+func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.UUID]*VM) error {
+	for uuid, dom := range libvirt {
+		domSpec, err := hv.Libvirt.GetVMSpecs(dom)
+		if err != nil {
+			return err
+		}
+		// Check if the VM is in the DB
+		if _, ok := db[uuid]; !ok {
+			return fmt.Errorf("VM %s is not in the DB", uuid)
+		}
+		// Check for CPU count
+		if domSpec.Vcpu.Text != strconv.Itoa(db[uuid].CPU) {
+			return fmt.Errorf("CPU count mismatch for VM %s", uuid)
+		}
+	}
 	return nil
 }

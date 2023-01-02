@@ -139,17 +139,18 @@ func main() {
 func connHV(hv *controllers.HV) {
 	log.Info().
 		Str("hostname", hv.Hostname).
-		Msg("Connecting to HV")
+		Msg("Connecting to HV and fetching VMs")
 
 	if err := hv.Init(); err != nil {
 		log.Warn().
 			Err(err).
 			Str("hostname", hv.Hostname).
-			Msg("Failed to connect to HV")
+			Msg("Failed to connect to HV and fetch VMs")
 	} else {
 		log.Info().
 			Str("hostname", hv.Hostname).
 			Str("hv", hv.Hostname).
-			Msg("Connected to HV")
+			Int("vms", len(hv.VMs)).
+			Msg("Connected to HV and fetched VMs")
 	}
 }

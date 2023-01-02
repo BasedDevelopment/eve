@@ -21,12 +21,13 @@ package controllers
 import (
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
 type HVList struct {
 	mutex sync.Mutex
-	HVs   map[string]*HV `json:"hvs"`
+	HVs   map[uuid.UUID]*HV `json:"hvs"`
 }
 
 var Cloud *HVList

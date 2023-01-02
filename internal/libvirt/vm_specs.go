@@ -21,7 +21,7 @@ package libvirt
 import "encoding/xml"
 
 // Generated from https://www.onlinetool.io/xmltogo/
-type domSpecs struct {
+type DomSpecs struct {
 	XMLName  xml.Name `xml:"domain"`
 	Text     string   `xml:",chardata"`
 	Type     string   `xml:"type,attr"`
