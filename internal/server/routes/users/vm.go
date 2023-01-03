@@ -27,7 +27,34 @@ import (
 	"github.com/google/uuid"
 )
 
+func GetVMs(w http.ResponseWriter, r *http.Request) {
+	// Fetch a list of VMs owner by the user across all HVs
+	ctx := r.Context()
+	userID := ctx.Value("owner").(uuid.UUID)
+
+	cloud := controllers.Cloud
+	var hvs []map[string]interface{}
+
+	for _, hv := range cloud.HVs {
+		for _, vm := range hv.VMs {
+			if vm.UserID == userID {
+				hvs = append(hvs, map[string]interface{}{
+					"hypervisor": hv.Hostname,
+					"vm":         vm,
+				})
+			}
+		}
+	}
+
+	// Send response
+	if err := util.WriteResponse(hvs, w, http.StatusOK); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+
+}
+
 func GetVM(w http.ResponseWriter, r *http.Request) {
+	// Fetch VM owned by the user
 	ctx := r.Context()
 	userID := ctx.Value("owner").(uuid.UUID)
 
