@@ -46,7 +46,7 @@ type VM struct {
 	Updated     time.Time
 	Remarks     string
 	Domain      libvirt.Dom `db:"-" json:"-"`
-	State       util.Status `db:"-" json:"-"`
+	State       util.Status `db:"-"`
 	StateStr    string      `db:"-"`
 	StateReason string      `db:"-"`
 }
