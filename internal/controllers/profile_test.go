@@ -108,7 +108,7 @@ func TestAdminLogin(t *testing.T) {
 }
 
 func TestAdminGetProfile(t *testing.T) {
-	req, err := http.NewRequest("GET", host+"/users/me", nil)
+	req, err := http.NewRequest("GET", host+"/me", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func TestUserLogin(t *testing.T) {
 }
 
 func TestUserGetProfile(t *testing.T) {
-	req, err := http.NewRequest("GET", host+"/users/me", nil)
+	req, err := http.NewRequest("GET", host+"/me", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
