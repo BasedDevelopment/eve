@@ -33,22 +33,22 @@ import (
 )
 
 type VM struct {
-	ID          uuid.UUID
-	HV          uuid.UUID `db:"hv_id"`
-	Hostname    string
-	UserID      uuid.UUID `db:"profile_id"`
-	User        *Profile  `db:"-"`
-	CPU         int
-	Memory      int64
-	Nics        map[string]VMNic     `db:"-"`
-	Storages    map[string]VMStorage `db:"-"`
-	Created     time.Time
-	Updated     time.Time
-	Remarks     string
-	Domain      libvirt.Dom `db:"-" json:"-"`
-	State       util.Status `db:"-"`
-	StateStr    string      `db:"-" json:"state_str"`
-	StateReason string      `db:"-" json:"state_reason"`
+	ID          uuid.UUID            `json:"id"`
+	HV          uuid.UUID            `db:"hv_id" json:"hv"`
+	Hostname    string               `json:"hostname"`
+	UserID      uuid.UUID            `db:"profile_id" json:"user"`
+	User        *Profile             `db:"-" json:"-"`
+	CPU         int                  `json:"cpu"`
+	Memory      int64                `json:"memory"`
+	Nics        map[string]VMNic     `db:"-" json:"nics"`
+	Storages    map[string]VMStorage `db:"-" json:"storages"`
+	Created     time.Time            `json:"created"`
+	Updated     time.Time            `json:"updated"`
+	Remarks     string               `json:"remarks"`
+	Domain      libvirt.Dom          `db:"-" json:"-"`
+	State       util.Status          `db:"-" json:"state"`
+	StateStr    string               `db:"-" json:"state_str"`
+	StateReason string               `db:"-" json:"state_reason"`
 }
 
 type VMNic struct {

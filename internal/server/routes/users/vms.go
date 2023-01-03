@@ -42,11 +42,14 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	var hvs []map[string]interface{}
 
 	for _, hv := range cloud.HVs {
-		hv.VMs = make(map[uuid.UUID]*controllers.VM)
-		hvs = append(hvs, map[string]interface{}{
-			"hv":  hv.Hostname,
-			"vms": hv.VMs,
-		})
+		for _, vm := range hv.VMs {
+			if vm.UserID == profile.ID {
+				hvs = append(hvs, map[string]interface{}{
+					"hypervisor": hv.Hostname,
+					"vm":         vm,
+				})
+			}
+		}
 	}
 
 	// Send response
