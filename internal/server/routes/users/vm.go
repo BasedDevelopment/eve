@@ -17,3 +17,52 @@
  */
 
 package users
+
+import (
+	"net/http"
+
+	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
+)
+
+func GetVM(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userID := ctx.Value("owner").(uuid.UUID)
+
+	cloud := controllers.Cloud
+
+	reqVmid := chi.URLParam(r, "virtual_machine")
+	vmid, err := uuid.Parse(reqVmid)
+	if err != nil {
+		util.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
+		return
+	}
+
+	response := new(controllers.VM)
+
+	for _, hv := range cloud.HVs {
+		for _, vm := range hv.VMs {
+			if vm.ID == vmid {
+				if vm.UserID != userID {
+					util.WriteError(w, r, nil, http.StatusForbidden, "forbidden")
+					return
+				} else {
+					response = cloud.HVs[hv.ID].VMs[vmid]
+					break
+				}
+			}
+		}
+	}
+
+	if response.ID == uuid.Nil {
+		util.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+		return
+	}
+
+	// Send response
+	if err := util.WriteResponse(response, w, http.StatusOK); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}

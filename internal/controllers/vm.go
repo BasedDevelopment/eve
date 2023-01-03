@@ -37,7 +37,6 @@ type VM struct {
 	HV          uuid.UUID            `db:"hv_id" json:"hv"`
 	Hostname    string               `json:"hostname"`
 	UserID      uuid.UUID            `db:"profile_id" json:"user"`
-	User        *Profile             `db:"-" json:"-"`
 	CPU         int                  `json:"cpu"`
 	Memory      int64                `json:"memory"`
 	Nics        map[string]VMNic     `db:"-" json:"nics"`

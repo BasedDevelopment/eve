@@ -27,23 +27,16 @@ import (
 )
 
 func GetVMs(w http.ResponseWriter, r *http.Request) {
+	// Fetch a list of VMs owner by the user across all HVs
 	ctx := r.Context()
-	profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
-	profile, err := profile.Get(ctx)
+	userID := ctx.Value("owner").(uuid.UUID)
 
-	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
-		return
-	}
-
-	// Fetch users virtual machines
-	// TODO: not done yet, filter by user
 	cloud := controllers.Cloud
 	var hvs []map[string]interface{}
 
 	for _, hv := range cloud.HVs {
 		for _, vm := range hv.VMs {
-			if vm.UserID == profile.ID {
+			if vm.UserID == userID {
 				hvs = append(hvs, map[string]interface{}{
 					"hypervisor": hv.Hostname,
 					"vm":         vm,
