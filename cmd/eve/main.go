@@ -84,6 +84,12 @@ func main() {
 
 	srvCtx, srvStopCtx := context.WithCancel(context.Background())
 
+	// TODO: remove this later
+	log.Info().
+		Str("host", config.Config.API.Host).
+		Int("port", config.Config.API.Port).
+		Msg("Started HTTP server")
+
 	// Watch for OS signals
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
