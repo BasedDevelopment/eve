@@ -23,36 +23,36 @@ type Status int8
 // Status constants for HVs, VMs, etc..
 // https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
 const (
-	STATUS_UNKNOWN Status = iota
-	STATUS_RUNNING
-	STATUS_BLOCKED
-	STATUS_PAUSED
-	STATUS_SHUTDOWN
-	STATUS_SHUTOFF
-	STATUS_CRASHED
-	STATUS_PMSUSPENDED
-	STATUS_LAST
+	StatusUnknown Status = iota
+	StatusRunning
+	StatusBlocked
+	StatusPaused
+	StatusShutdown
+	StatusShutoff
+	StatusCrashed
+	StatusPMSuspended
+	StatusLast
 )
 
 func (s Status) String() string {
 	switch s {
-	case STATUS_UNKNOWN:
+	case StatusUnknown:
 		return "unknown"
-	case STATUS_RUNNING:
+	case StatusRunning:
 		return "running"
-	case STATUS_BLOCKED:
+	case StatusBlocked:
 		return "blocked"
-	case STATUS_PAUSED:
+	case StatusPaused:
 		return "paused"
-	case STATUS_SHUTDOWN:
+	case StatusShutdown:
 		return "shutdown"
-	case STATUS_SHUTOFF:
+	case StatusShutoff:
 		return "shutoff"
-	case STATUS_CRASHED:
+	case StatusCrashed:
 		return "crashed"
-	case STATUS_PMSUSPENDED:
+	case StatusPMSuspended:
 		return "pmsuspended"
-	case STATUS_LAST:
+	case StatusLast:
 		return "last"
 	default:
 		return "unknown"

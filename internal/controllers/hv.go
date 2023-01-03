@@ -134,11 +134,11 @@ func (hv *HV) connect() error {
 
 	v, err := hv.Libvirt.Connect()
 	if err != nil {
-		hv.Status = util.STATUS_UNKNOWN
+		hv.Status = util.StatusUnknown
 		hv.StatusReason = err.Error()
 		return err
 	} else {
-		hv.Status = util.STATUS_RUNNING
+		hv.Status = util.StatusRunning
 		hv.StatusReason = "Connected to libvirt"
 		hv.Version = v
 		return nil
