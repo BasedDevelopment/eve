@@ -18,23 +18,43 @@
 
 package util
 
-type Status int64
+type Status int8
 
+// Status constants for HVs, VMs, etc..
+// https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
 const (
-	STATUS_OFFLINE Status = iota
-	STATUS_ONLINE
-	STATUS_SUSPENDED
+	STATUS_UNKNOWN Status = iota
+	STATUS_RUNNING
+	STATUS_BLOCKED
+	STATUS_PAUSED
+	STATUS_SHUTDOWN
+	STATUS_SHUTOFF
+	STATUS_CRASHED
+	STATUS_PMSUSPENDED
+	STATUS_LAST
 )
 
 func (s Status) String() string {
 	switch s {
-	case STATUS_OFFLINE:
-		return "offline"
-	case STATUS_ONLINE:
-		return "online"
-	case STATUS_SUSPENDED:
-		return "suspended"
+	case STATUS_UNKNOWN:
+		return "unknown"
+	case STATUS_RUNNING:
+		return "running"
+	case STATUS_BLOCKED:
+		return "blocked"
+	case STATUS_PAUSED:
+		return "paused"
+	case STATUS_SHUTDOWN:
+		return "shutdown"
+	case STATUS_SHUTOFF:
+		return "shutoff"
+	case STATUS_CRASHED:
+		return "crashed"
+	case STATUS_PMSUSPENDED:
+		return "pmsuspended"
+	case STATUS_LAST:
+		return "last"
+	default:
+		return "unknown"
 	}
-
-	return "unknown"
 }

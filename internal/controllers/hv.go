@@ -33,21 +33,22 @@ import (
 )
 
 type HV struct {
-	mutex    sync.Mutex               `db:"-"`
-	ID       uuid.UUID                `json:"id"`
-	Hostname string                   `json:"hostname"`
-	IP       net.IP                   `json:"ip"`
-	Port     int                      `json:"port"`
-	Site     string                   `json:"site"`
-	Nics     map[uuid.UUID]*HVNic     `json:"nics" db:"-"`
-	Storages map[uuid.UUID]*HVStorage `json:"storages" db:"-"`
-	VMs      map[uuid.UUID]*VM        `json:"vms" db:"-"`
-	Created  time.Time                `json:"created"`
-	Updated  time.Time                `json:"updated"`
-	Remarks  string                   `json:"remarks"`
-	Status   util.Status              `json:"status" db:"-"`
-	Version  string                   `json:"version" db:"-"`
-	Libvirt  *libvirt.Libvirt         `json:"-" db:"-"`
+	mutex        sync.Mutex               `db:"-"`
+	ID           uuid.UUID                `json:"id"`
+	Hostname     string                   `json:"hostname"`
+	IP           net.IP                   `json:"ip"`
+	Port         int                      `json:"port"`
+	Site         string                   `json:"site"`
+	Nics         map[uuid.UUID]*HVNic     `json:"nics" db:"-"`
+	Storages     map[uuid.UUID]*HVStorage `json:"storages" db:"-"`
+	VMs          map[uuid.UUID]*VM        `json:"vms" db:"-"`
+	Created      time.Time                `json:"created"`
+	Updated      time.Time                `json:"updated"`
+	Remarks      string                   `json:"remarks"`
+	Status       util.Status              `json:"status" db:"-"`
+	StatusReason string                   `json:"status_reason" db:"-"`
+	Version      string                   `json:"version" db:"-"`
+	Libvirt      *libvirt.Libvirt         `json:"-" db:"-"`
 }
 
 type HVNic struct {
@@ -133,10 +134,12 @@ func (hv *HV) connect() error {
 
 	v, err := hv.Libvirt.Connect()
 	if err != nil {
-		hv.Status = util.STATUS_OFFLINE
+		hv.Status = util.STATUS_UNKNOWN
+		hv.StatusReason = err.Error()
 		return err
 	} else {
-		hv.Status = util.STATUS_ONLINE
+		hv.Status = util.STATUS_RUNNING
+		hv.StatusReason = "Connected to libvirt"
 		hv.Version = v
 		return nil
 	}
