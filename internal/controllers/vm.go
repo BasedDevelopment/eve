@@ -27,25 +27,28 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/libvirt"
+	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
 type VM struct {
-	ID       uuid.UUID
-	HV       uuid.UUID `db:"hv_id"`
-	Hostname string
-	UserID   uuid.UUID `db:"profile_id"`
-	User     *Profile  `db:"-"`
-	CPU      int
-	Memory   int
-	Nics     map[string]VMNic     `db:"-"`
-	Storages map[string]VMStorage `db:"-"`
-	Created  time.Time
-	Updated  time.Time
-	Remarks  string
-	Domain   *libvirt.Dom `db:"-"`
-	State    string       `db:"-"`
+	ID          uuid.UUID
+	HV          uuid.UUID `db:"hv_id"`
+	Hostname    string
+	UserID      uuid.UUID `db:"profile_id"`
+	User        *Profile  `db:"-"`
+	CPU         int
+	Memory      int
+	Nics        map[string]VMNic     `db:"-"`
+	Storages    map[string]VMStorage `db:"-"`
+	Created     time.Time
+	Updated     time.Time
+	Remarks     string
+	Domain      libvirt.Dom `db:"-" json:"-"`
+	State       util.Status `db:"-" json:"-"`
+	StateStr    string      `db:"-"`
+	StateReason string      `db:"-"`
 }
 
 type VMNic struct {
@@ -93,11 +96,19 @@ func (hv *HV) InitVMs() error {
 	// Marshall the HV.VMs struct in
 	for i := range dbVMs {
 		hv.VMs[dbVMs[i].ID] = &dbVMs[i]
+		hv.VMs[dbVMs[i].ID].Domain = libvirtVMs[dbVMs[i].ID]
 	}
 
 	// Check if the VMs are consistent
 	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
 		return err
+	}
+
+	// Fetch VM state and state reason
+	for uuid := range hv.VMs {
+		if err := hv.GetVMState(hv.VMs[uuid]); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -161,5 +172,21 @@ func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.
 			return fmt.Errorf("CPU count mismatch for VM %s", uuid)
 		}
 	}
+	return nil
+}
+
+func (hv *HV) GetVMState(vm *VM) (err error) {
+	if err := hv.ensureConn(); err != nil {
+		return err
+	}
+
+	stateInt, stateStr, reasonStr, err := hv.Libvirt.GetVMState(vm.Domain)
+	if err != nil {
+		return err
+	}
+
+	vm.State = stateInt
+	vm.StateStr = stateStr
+	vm.StateReason = reasonStr
 	return nil
 }

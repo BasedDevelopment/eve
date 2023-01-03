@@ -31,7 +31,6 @@ const (
 	StatusShutoff
 	StatusCrashed
 	StatusPMSuspended
-	StatusLast
 )
 
 func (s Status) String() string {
@@ -52,8 +51,6 @@ func (s Status) String() string {
 		return "crashed"
 	case StatusPMSuspended:
 		return "pmsuspended"
-	case StatusLast:
-		return "last"
 	default:
 		return "unknown"
 	}

@@ -74,10 +74,11 @@ func (l Libvirt) GetVMSpecs(dom Dom) (specs DomSpecs, err error) {
 }
 
 // Get the state of a domain(vm)
-func (l Libvirt) GetVMState(dom libvirt.Domain) (state util.Status, reason int32, err error) {
+func (l Libvirt) GetVMState(dom Dom) (stateInt util.Status, stateStr string, reasonStr string, err error) {
 	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
 	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainRunningReason
-	libState, reason, err := l.conn.DomainGetState(dom, 0)
-	state = util.Status(libState)
+	lState, lReason, err := l.conn.DomainGetState(dom.Dom, 0)
+	stateInt = util.Status(lState)
+	stateStr, reasonStr = getStateReason(lState, lReason)
 	return
 }
