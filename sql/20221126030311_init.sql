@@ -60,7 +60,7 @@ CREATE TABLE public.vm (
     hostname character varying(255) NOT NULL,
     profile_id uuid NOT NULL REFERENCES profile (id),
     cpu integer NOT NULL,
-    memory integer NOT NULL,
+    memory bigint NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),
     remarks text NOT NULL DEFAULT ''

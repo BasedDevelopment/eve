@@ -39,7 +39,7 @@ type VM struct {
 	UserID      uuid.UUID `db:"profile_id"`
 	User        *Profile  `db:"-"`
 	CPU         int
-	Memory      int
+	Memory      int64
 	Nics        map[string]VMNic     `db:"-"`
 	Storages    map[string]VMStorage `db:"-"`
 	Created     time.Time
@@ -47,8 +47,8 @@ type VM struct {
 	Remarks     string
 	Domain      libvirt.Dom `db:"-" json:"-"`
 	State       util.Status `db:"-"`
-	StateStr    string      `db:"-"`
-	StateReason string      `db:"-"`
+	StateStr    string      `db:"-" json:"state_str"`
+	StateReason string      `db:"-" json:"state_reason"`
 }
 
 type VMNic struct {
