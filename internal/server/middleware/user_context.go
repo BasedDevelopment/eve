@@ -20,14 +20,11 @@ package middleware
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/util"
-	"github.com/jackc/pgx/v5"
 )
 
 // UserContext fetches the owner of the request from the current session and
@@ -42,7 +39,7 @@ func UserContext(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		// Get session
-		requestToken := getToken(w, r) // function from auth middleware; ges token from authorization header
+		requestToken := getToken(w, r) // function from auth middleware; gets token from authorization header
 		session, err := sessions.GetSession(ctx, requestToken)
 
 		if err != nil {
@@ -54,15 +51,9 @@ func UserContext(next http.Handler) http.Handler {
 		profile := controllers.Profile{ID: session.Owner}
 		profile, err = profile.Get(ctx)
 
-		fmt.Println(err)
-
-		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
-			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
-			return
-		}
-
-		if errors.Is(err, pgx.ErrNoRows) || profile.Disabled {
-			util.WriteError(w, r, nil, http.StatusBadRequest, "user either does not exist or was suspended")
+		// Error if user is suspended
+		if profile.Disabled {
+			util.WriteError(w, r, nil, http.StatusUnauthorized, "user suspended")
 			return
 		}
 
