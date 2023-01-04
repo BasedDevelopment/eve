@@ -90,17 +90,3 @@ func (p *Profile) Get(ctx context.Context) (profile Profile, err error) {
 
 func (p *Profile) Update() {}
 func (p *Profile) Delete() {}
-
-// Check if profile already exists by email (for create users)
-func (p *Profile) Exists(ctx context.Context) bool {
-	var exists bool
-	err := db.Pool.QueryRow(ctx, "SELECT EXISTS(SELECT 1 FROM profile WHERE email = $1)", p.Email).Scan(&exists)
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(exists)
-
-	return exists
-}
