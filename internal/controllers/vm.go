@@ -30,6 +30,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/rs/zerolog/log"
 )
 
 type VM struct {
@@ -71,7 +72,6 @@ type VMStorage struct {
 
 // Fetch VMs from the DB and Libvirt, marshall them into the HV struct,
 // and check for consistency
-// TODO: concurrency
 func (hv *HV) InitVMs() error {
 	if err := hv.ensureConn(); err != nil {
 		return err
@@ -98,19 +98,35 @@ func (hv *HV) InitVMs() error {
 		hv.VMs[dbVMs[i].ID].Domain = libvirtVMs[dbVMs[i].ID]
 	}
 
-	// Check if the VMs are consistent
 	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
 		return err
 	}
 
-	// Fetch VM state and state reason
-	for uuid := range hv.VMs {
-		if err := hv.GetVMState(hv.VMs[uuid]); err != nil {
-			return err
-		}
-	}
+	go consistencyCheck(libvirtVMs, hv)
+	go fetchVMState(hv)
 
 	return nil
+}
+
+// Check if the VMs are consistent
+func consistencyCheck(libvirtVMs map[uuid.UUID]libvirt.Dom, hv *HV) {
+	// Check if the VMs are consistent
+	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
+		log.Error().Err(err).Msg("VM consistency check failed")
+		return
+	}
+	log.Info().Str("hv", hv.Hostname).Msg("VM consistency check passed")
+}
+
+// Fetch VM state and state reason
+func fetchVMState(hv *HV) {
+	for uuid := range hv.VMs {
+		if err := hv.GetVMState(hv.VMs[uuid]); err != nil {
+			log.Error().Err(err).Msg("failed to get VM state")
+			return
+		}
+	}
+	log.Info().Str("hv", hv.Hostname).Msg("VM state fetched")
 }
 
 // Get the list of VMs from the DB

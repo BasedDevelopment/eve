@@ -59,3 +59,7 @@ func (l Libvirt) Connect() (string, error) {
 
 	return strconv.FormatInt(int64(v), 10), nil
 }
+
+func (l Libvirt) Close() error {
+	return l.conn.Disconnect()
+}
