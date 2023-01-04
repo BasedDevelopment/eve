@@ -58,7 +58,7 @@ func UserContext(next http.Handler) http.Handler {
 			return
 		}
 
-		if !profile.Exists(ctx) && !profile.Disabled {
+		if errors.Is(err, pgx.ErrNoRows) || !profile.Disabled {
 			util.WriteError(w, r, nil, http.StatusBadRequest, "user either does not exist or was suspended")
 			return
 		}
