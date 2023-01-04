@@ -48,6 +48,21 @@ func (l Libvirt) GetVMs() (vms map[uuid.UUID]Dom, err error) {
 	return
 }
 
+// Fetch list of all undefined domains
+func (l Libvirt) GetUndefinedVMs() (vms map[uuid.UUID]Dom, err error) {
+	doms, _, err := l.conn.ConnectListAllDomains(1, libvirt.ConnectListDomainsTransient)
+	if err != nil {
+		return
+	}
+	vms = make(map[uuid.UUID]Dom)
+	for _, dom := range doms {
+		vmuuidstr := hex.EncodeToString(dom.UUID[:])
+		vmuuid := uuid.MustParse(vmuuidstr)
+		vms[vmuuid] = Dom{dom}
+	}
+	return
+}
+
 // Fetches a domain from a UUID
 func (l Libvirt) GetVMFromUUID(vmId uuid.UUID) (dom Dom, err error) {
 	vmIdHex, _ := hex.DecodeString(vmId.String())

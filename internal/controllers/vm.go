@@ -108,6 +108,7 @@ func (hv *HV) InitVMs() error {
 
 	go consistencyCheck(libvirtVMs, hv)
 	go fetchVMState(hv)
+	go hv.checkUndefinedVMs()
 
 	return nil
 }
@@ -213,10 +214,29 @@ func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.
 	return nil
 }
 
+func (hv *HV) checkUndefinedVMs() {
+	if err := hv.ensureConn(); err != nil {
+		log.Error().Err(err).Msg("failed to connect to libvirt while checking for undefined VMs")
+	}
+
+	doms, err := hv.Libvirt.GetUndefinedVMs()
+	if err != nil {
+		log.Error().Err(err).Msg("failed to get undefined VMs")
+	}
+	if len(doms) > 0 {
+		log.Warn().Str("hv", hv.Hostname).Int("count", len(doms)).Msg("undefined VMs found")
+	} else {
+		log.Info().Str("hv", hv.Hostname).Msg("no undefined VMs found")
+	}
+}
+
 func (hv *HV) GetVMState(vm *VM) (err error) {
 	if err := hv.ensureConn(); err != nil {
 		return err
 	}
+
+	vm.mutex.Lock()
+	defer vm.mutex.Unlock()
 
 	stateInt, stateStr, reasonStr, err := hv.Libvirt.GetVMState(vm.Domain)
 	if err != nil {
