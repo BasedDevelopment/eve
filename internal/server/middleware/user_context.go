@@ -20,10 +20,13 @@ package middleware
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
+	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/jackc/pgx/v5"
 )
 
 // UserContext fetches the owner of the request from the current session and
@@ -43,7 +46,20 @@ func UserContext(next http.Handler) http.Handler {
 
 		if err != nil {
 			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
 
+		// Check if the user exists and is not disabled
+		profile := controllers.Profile{ID: session.Owner}
+		profile, err = profile.Get(ctx)
+
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+			return
+		}
+
+		if !profile.Exists(ctx) && !profile.Disabled {
+			util.WriteError(w, r, nil, http.StatusBadRequest, "user either does not exist or was suspended")
 			return
 		}
 
