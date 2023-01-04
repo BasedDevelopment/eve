@@ -170,6 +170,25 @@ func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.
 		if domSpec.Vcpu.Text != strconv.Itoa(db[uuid].CPU) {
 			return fmt.Errorf("CPU count mismatch for VM %s", uuid)
 		}
+
+		// Check for memory size
+		lMem, err := strconv.ParseInt(domSpec.Memory.Text, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		switch domSpec.Memory.Unit {
+		case "KiB":
+			lMem = lMem * 1024
+		case "MiB":
+			lMem = lMem * 1024 * 1024
+		case "GiB":
+			lMem = lMem * 1024 * 1024 * 1024
+		}
+
+		if lMem != db[uuid].Memory {
+			return fmt.Errorf("Memory size mismatch for VM %s", uuid)
+		}
 	}
 	return nil
 }
