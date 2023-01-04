@@ -37,11 +37,6 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if profile, _ := profile.Get(ctx); profile.Name != "" {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "User already exists")
-		return
-	}
-
 	// New profile instance
 	profile := controllers.Profile{
 		Email:    req.Email,
@@ -49,6 +44,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		Disabled: req.Disabled,
 		IsAdmin:  req.IsAdmin,
 		Remarks:  req.Remarks,
+	}
+
+	if profile, _ := profile.Get(ctx); profile.Name != "" {
+		util.WriteError(w, r, nil, http.StatusBadRequest, "User already exists")
+		return
 	}
 
 	// Hash password
