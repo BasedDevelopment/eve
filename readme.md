@@ -13,7 +13,7 @@ Eve deliberately does not include a dashboard. If you need a dashboard check out
 
 ## License
 
-Copyright (C) 2022 Tianyu Zhu <eric@ericz.me>
+Copyright (C) 2022-2023  BNS Services LLC
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as published by
