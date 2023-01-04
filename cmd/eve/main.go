@@ -195,7 +195,7 @@ func connHV(hv *controllers.HV) {
 	} else {
 		log.Info().
 			Str("hostname", hv.Hostname).
-			Str("hv", hv.Hostname).
+			Str("hvs", hv.Hostname).
 			Int("vms", len(hv.VMs)).
 			Msg("Connected to HV and fetched VMs")
 	}
