@@ -61,7 +61,7 @@ func TestSetup(t *testing.T) {
 }
 
 func TestHealthCheck(t *testing.T) {
-	resp, err := http.Get(host + "/health")
+	resp, err := http.Get(host + "/")
 	if err != nil {
 		t.Fatal(err)
 	}
