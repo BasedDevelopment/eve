@@ -20,6 +20,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"net/http"
 	"os"
 	"os/signal"
@@ -41,20 +42,20 @@ const (
 	version         = "0.0.1"
 )
 
-func init() {
-	// Init logger
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+var (
+	configPath = flag.String("config", "/etc/eve/config.toml", "Path to configuration file")
+	logLevel   = flag.String("log-level", "debug", "Log level (trace, debug, info, warn, error, fatal, panic)")
+	logFormat  = flag.String("log-format", "json", "Log format (json, pretty)")
+	noSplash   = flag.Bool("nosplash", false, "Disable splash screen")
+)
 
-	log.Info().Msg("+-----------------------------------+")
-	log.Info().Msg("|      EVE Virtual Environment      |")
-	log.Info().Msg("|               v" + version + "              |")
-	log.Info().Msg("+-----------------------------------+")
+func init() {
+	configureLogger()
 
 	// Load configuration
 	log.Info().Msg("Loading configuration")
 
-	if err := config.Load(); err != nil {
+	if err := config.Load(configPath); err != nil {
 		log.Fatal().Err(err).Msg("Failed to load configuration")
 	}
 
@@ -140,6 +141,44 @@ func main() {
 	// Wait for server context to be stopped
 	<-srvCtx.Done()
 	log.Info().Msg("Gracefully shutting down")
+}
+
+func configureLogger() {
+	// Command line flags
+	flag.Parse()
+
+	if *logFormat == "pretty" {
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	}
+
+	switch *logLevel {
+	case "debug":
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case "info":
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	case "warn":
+		zerolog.SetGlobalLevel(zerolog.WarnLevel)
+	case "error":
+		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
+	case "fatal":
+		zerolog.SetGlobalLevel(zerolog.FatalLevel)
+	case "panic":
+		zerolog.SetGlobalLevel(zerolog.PanicLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	// Init logger
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
+	if !*noSplash {
+		log.Info().Msg("+-----------------------------------+")
+		log.Info().Msg("|      EVE Virtual Environment      |")
+		log.Info().Msg("|               v" + version + "              |")
+		log.Info().Msg("+-----------------------------------+")
+	} else {
+		log.Info().Msg("EVE Virtual Environment v" + version)
+	}
 }
 
 func connHV(hv *controllers.HV) {

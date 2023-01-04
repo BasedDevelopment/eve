@@ -19,9 +19,12 @@
 package middleware
 
 import (
+	"bytes"
+	"io"
 	"net/http"
 	"time"
 
+	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
@@ -34,20 +37,48 @@ func Logger(next http.Handler) http.Handler {
 
 		reqId := middleware.GetReqID(r.Context())
 
+		// Copy the request body so we can log it
+		var bodyStr string
+		if r.Method == "POST" && r.Body != nil && r.RequestURI != "/login" {
+			bodyBytes, err := io.ReadAll(r.Body)
+			bodyStr = string(bodyBytes)
+			if err != nil {
+				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to read request body")
+			}
+			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
+		}
+
 		defer func() {
-			log.Info().
-				Str("reqId", reqId).
-				Str("method", r.Method).
-				Str("host", r.Host).
-				Str("client", r.RemoteAddr).
-				Str("page", r.RequestURI).
-				Str("protocol", r.Proto).
-				Str("user-agent", r.UserAgent()).
-				Int64("duration(μs)", time.Since(t).Microseconds()).
-				Int("status", ww.Status()).
-				Str("bytes_in", r.Header.Get("Content-Length")).
-				Int("bytes_out", ww.BytesWritten()).
-				Msg("HTTP Request")
+			if ww.Status() >= 500 {
+				log.Error().
+					Str("reqId", reqId).
+					Str("method", r.Method).
+					Str("host", r.Host).
+					Str("client", r.RemoteAddr).
+					Str("page", r.RequestURI).
+					Str("protocol", r.Proto).
+					Str("user-agent", r.UserAgent()).
+					Int64("duration(μs)", time.Since(t).Microseconds()).
+					Int("status", ww.Status()).
+					Str("bytes_in", r.Header.Get("Content-Length")).
+					Int("bytes_out", ww.BytesWritten()).
+					Str("body", bodyStr).
+					Msg("HTTP Request")
+			} else {
+				log.Info().
+					Str("reqId", reqId).
+					Str("method", r.Method).
+					Str("host", r.Host).
+					Str("client", r.RemoteAddr).
+					Str("page", r.RequestURI).
+					Str("protocol", r.Proto).
+					Str("user-agent", r.UserAgent()).
+					Int64("duration(μs)", time.Since(t).Microseconds()).
+					Int("status", ww.Status()).
+					Str("bytes_in", r.Header.Get("Content-Length")).
+					Int("bytes_out", ww.BytesWritten()).
+					Msg("HTTP Request")
+			}
 		}()
 
 		next.ServeHTTP(ww, r)

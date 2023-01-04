@@ -24,8 +24,6 @@ import (
 	"github.com/knadh/koanf/providers/file"
 )
 
-const configPath = "/etc/eve/config.toml"
-
 var (
 	k      = koanf.New(".")
 	parser = toml.Parser()
@@ -44,7 +42,8 @@ var (
 	}
 )
 
-func Load() (err error) {
+func Load(configPathPtr *string) (err error) {
+	configPath := *configPathPtr
 	// Load from toml
 	if err := k.Load(file.Provider(configPath), toml.Parser()); err != nil {
 		return err

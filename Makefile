@@ -13,7 +13,7 @@ test:
 
 # Build and execute Eve program
 start: eve
-	./bin/eve
+	./bin/eve --log-format pretty
 
 # Format Sojourner source code with Go toolchain
 format:

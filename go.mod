@@ -14,6 +14,7 @@ require (
 require (
 	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
 	github.com/lib/pq v1.10.2 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 )
 
 require (
