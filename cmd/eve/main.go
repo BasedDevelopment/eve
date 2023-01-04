@@ -148,7 +148,7 @@ func main() {
 
 	// Wait for server context to be stopped
 	<-srvCtx.Done()
-	log.Info().Msg("Graceful shutdown complete, thank you for using eve!")
+	log.Info().Msg("Graceful shutdown complete. Thank you for using eve!")
 }
 
 func configureLogger() {
