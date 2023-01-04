@@ -37,12 +37,12 @@ func Service() *chi.Mux {
 	r.Use(cm.RealIP)
 	r.Use(cm.RequestID)
 	r.Use(middleware.Logger)
+	r.Use(cm.GetHead)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
 	r.Use(cm.AllowContentType("application/json"))
 	r.Use(cm.CleanPath)
 	r.Use(cm.NoCache)
-	r.Use(cm.Heartbeat("/health"))
-	r.Use(cm.GetHead)
+	r.Use(cm.Heartbeat("/"))
 	r.Use(middleware.Recoverer)
 
 	// Login
