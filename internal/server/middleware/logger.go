@@ -22,6 +22,7 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/BasedDevelopment/eve/internal/util"
@@ -38,46 +39,43 @@ func Logger(next http.Handler) http.Handler {
 		reqId := middleware.GetReqID(r.Context())
 
 		// Copy the request body so we can log it
-		var bodyStr string
-		if r.Method == "POST" && r.Body != nil && r.RequestURI != "/login" {
-			bodyBytes, err := io.ReadAll(r.Body)
+		var (
+			bodyStr   string
+			bodyBytes []byte
+			err       error
+		)
+
+		// Log r.body if the request does not contain a password
+		if !(r.Body == nil || strings.Contains(r.RequestURI, "login") || strings.Contains(r.RequestURI, "/admin/user")) {
+			bodyBytes, err = io.ReadAll(r.Body)
 			bodyStr = string(bodyBytes)
+
 			if err != nil {
 				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to read request body")
 			}
+
 			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 		}
 
 		defer func() {
+			logger := log.With().
+				Str("reqId", reqId).
+				Str("method", r.Method).
+				Str("host", r.Host).
+				Str("client", r.RemoteAddr).
+				Str("page", r.RequestURI).
+				Str("protocol", r.Proto).
+				Str("user-agent", r.UserAgent()).
+				Float64("duration(ms)", float64(time.Since(t).Nanoseconds())/1000000.0).
+				Int("status", ww.Status()).
+				Int("bytes_in", len(bodyBytes)).
+				Int("bytes_out", ww.BytesWritten()).
+				Logger()
+
 			if ww.Status() >= 500 {
-				log.Error().
-					Str("reqId", reqId).
-					Str("method", r.Method).
-					Str("host", r.Host).
-					Str("client", r.RemoteAddr).
-					Str("page", r.RequestURI).
-					Str("protocol", r.Proto).
-					Str("user-agent", r.UserAgent()).
-					Int64("duration(μs)", time.Since(t).Microseconds()).
-					Int("status", ww.Status()).
-					Str("bytes_in", r.Header.Get("Content-Length")).
-					Int("bytes_out", ww.BytesWritten()).
-					Str("body", bodyStr).
-					Msg("HTTP Request")
+				logger.Error().Str("body", bodyStr).Msg("Request failed")
 			} else {
-				log.Info().
-					Str("reqId", reqId).
-					Str("method", r.Method).
-					Str("host", r.Host).
-					Str("client", r.RemoteAddr).
-					Str("page", r.RequestURI).
-					Str("protocol", r.Proto).
-					Str("user-agent", r.UserAgent()).
-					Int64("duration(μs)", time.Since(t).Microseconds()).
-					Int("status", ww.Status()).
-					Str("bytes_in", r.Header.Get("Content-Length")).
-					Int("bytes_out", ww.BytesWritten()).
-					Msg("HTTP Request")
+				logger.Info().Msg("Request completed")
 			}
 		}()
 
