@@ -52,6 +52,11 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 
 	hv := controllers.Cloud.HVs[hvid]
 
+	if hv == nil {
+		util.WriteError(w, r, err, http.StatusNotFound, "Hypervisor not found")
+		return
+	}
+
 	// Send response
 	if err := util.WriteResponse(hv, w, http.StatusOK); err != nil {
 		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
