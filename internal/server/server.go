@@ -21,6 +21,7 @@ package server
 import (
 	"time"
 
+	"github.com/BasedDevelopment/eve/internal/config"
 	"github.com/BasedDevelopment/eve/internal/server/middleware"
 	"github.com/BasedDevelopment/eve/internal/server/routes"
 	"github.com/BasedDevelopment/eve/internal/server/routes/admin"
@@ -34,7 +35,9 @@ func Service() *chi.Mux {
 	r := chi.NewMux()
 
 	// Middlewares
-	r.Use(cm.RealIP)
+	if config.Config.API.BehindProxy {
+		r.Use(cm.RealIP)
+	}
 	r.Use(cm.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(cm.GetHead)

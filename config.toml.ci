@@ -5,6 +5,7 @@ name = "eveCI"
 [api]
 host = "0.0.0.0"
 port = 3000
+behind_proxy = false
 
 [database]
 url = "postgres://postgres:password@localhost:5432/postgres"

@@ -32,8 +32,9 @@ var (
 		Name string `koanf:"name"`
 
 		API struct {
-			Host string `koanf:"host"`
-			Port int    `koanf:"port"`
+			Host        string `koanf:"host"`
+			Port        int    `koanf:"port"`
+			BehindProxy bool   `koanf:"behind_proxy"`
 		} `koanf:"api"`
 
 		Database struct {
