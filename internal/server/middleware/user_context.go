@@ -21,6 +21,7 @@ package middleware
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
@@ -53,12 +54,14 @@ func UserContext(next http.Handler) http.Handler {
 		profile := controllers.Profile{ID: session.Owner}
 		profile, err = profile.Get(ctx)
 
+		fmt.Println(err)
+
 		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
-		if errors.Is(err, pgx.ErrNoRows) || !profile.Disabled {
+		if errors.Is(err, pgx.ErrNoRows) || profile.Disabled {
 			util.WriteError(w, r, nil, http.StatusBadRequest, "user either does not exist or was suspended")
 			return
 		}
