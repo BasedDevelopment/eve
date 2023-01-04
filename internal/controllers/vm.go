@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/BasedDevelopment/eve/internal/db"
@@ -34,6 +35,7 @@ import (
 )
 
 type VM struct {
+	mutex       sync.Mutex           `db:"-" json:"-"`
 	ID          uuid.UUID            `json:"id"`
 	HV          uuid.UUID            `db:"hv_id" json:"hv"`
 	Hostname    string               `json:"hostname"`
@@ -52,6 +54,7 @@ type VM struct {
 }
 
 type VMNic struct {
+	mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
 	name    string
 	MAC     string
@@ -63,6 +66,7 @@ type VMNic struct {
 }
 
 type VMStorage struct {
+	mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
 	Size    int
 	Created time.Time

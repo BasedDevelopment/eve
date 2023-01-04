@@ -33,7 +33,7 @@ import (
 )
 
 type HV struct {
-	mutex        sync.Mutex               `db:"-"`
+	mutex        sync.Mutex               `db:"-" json:"-"`
 	ID           uuid.UUID                `json:"id"`
 	Hostname     string                   `json:"hostname"`
 	IP           net.IP                   `json:"ip"`
