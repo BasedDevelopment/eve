@@ -39,7 +39,22 @@ func UserContext(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		// Get session
-		requestToken := getToken(w, r) // function from auth middleware; gets token from authorization header
+		requestToken, err := getToken(w, r) // function from auth middleware; gets token from authorization header
+
+		if err != nil {
+			switch err {
+			case ErrBadHeader:
+				util.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
+				return
+			case ErrBadToken:
+				util.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
+				return
+			case ErrMissingHeader:
+				util.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
+				return
+			}
+		}
+
 		session, err := sessions.GetSession(ctx, requestToken)
 
 		if err != nil {

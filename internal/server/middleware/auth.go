@@ -19,6 +19,7 @@
 package middleware
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -29,37 +30,54 @@ import (
 	"github.com/google/uuid"
 )
 
-func getToken(w http.ResponseWriter, r *http.Request) (token tokens.Token) {
+var (
+	ErrMissingHeader = errors.New("missing Authorization header")
+	ErrBadHeader     = errors.New("invalid Authorization header")
+	ErrBadToken      = errors.New("invalid token")
+)
+
+func getToken(w http.ResponseWriter, r *http.Request) (tokens.Token, error) {
 	authorizationHeader := r.Header.Get("Authorization")
 
 	if authorizationHeader == "" {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "Missing Authorization header")
-		return tokens.Token{}
+		return tokens.Token{}, ErrMissingHeader
 	}
 
 	splitHeader := strings.Split(authorizationHeader, "Bearer ")
 	if len(splitHeader) != 2 {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "Invalid Authorization header")
-		return tokens.Token{}
+		return tokens.Token{}, ErrBadHeader
 	}
 
 	token, err := tokens.Parse(splitHeader[1])
 	if err != nil {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "Invalid token")
-		return
+		return tokens.Token{}, ErrBadToken
 	}
-	return
+
+	return token, nil
 }
 
 // Auth forces a user to be authenticated before continuing to the route
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		requestToken := getToken(w, r)
+		requestToken, err := getToken(w, r)
+
+		if err != nil {
+			switch err {
+			case ErrBadHeader:
+				util.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
+				return
+			case ErrBadToken:
+				util.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
+				return
+			case ErrMissingHeader:
+				util.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
+				return
+			}
+		}
 
 		if !sessions.ValidateSession(ctx, requestToken) {
 			util.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
-
 			return
 		}
 
