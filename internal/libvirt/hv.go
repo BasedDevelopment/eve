@@ -26,6 +26,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/BasedDevelopment/eve/internal/util"
 	"github.com/digitalocean/go-libvirt"
 	"github.com/digitalocean/go-libvirt/socket/dialers"
 )
@@ -65,7 +66,7 @@ func (l Libvirt) GetHVQemuVersion() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get libvirt version: %v", err)
 	}
-	return ver(int(v)), nil
+	return util.VerFromDec(int(v)), nil
 }
 
 func (l Libvirt) GetHVLibvirtVersion() (string, error) {
@@ -73,20 +74,7 @@ func (l Libvirt) GetHVLibvirtVersion() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to get libvirt version: %v", err)
 	}
-	return ver(int(v)), nil
-}
-
-// Parse xyyzz to x.yy.zz
-func ver(version int) string {
-	major, remainder := divmod(version, 1_000_000)
-	minor, remainder := divmod(remainder, 1000)
-	patch := remainder % 1000
-	str := []string{strconv.Itoa(major), strconv.Itoa(minor), strconv.Itoa(patch)}
-	return strings.Join(str, ".")
-}
-
-func divmod(a, b int) (int, int) {
-	return a / b, a % b
+	return util.VerFromDec(int(v)), nil
 }
 
 func (l Libvirt) GetHVSpecs() (specs HVSpecs, err error) {
