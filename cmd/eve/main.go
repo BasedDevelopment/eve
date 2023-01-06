@@ -77,6 +77,7 @@ func main() {
 		go connHV(hv)
 	}
 
+	// This logs before the HTTP server actually starts; Not ideal, we should find something better
 	log.Info().
 		Str("host", config.Config.API.Host).
 		Int("port", config.Config.API.Port).
