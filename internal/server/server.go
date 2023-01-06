@@ -99,7 +99,7 @@ func Service() *chi.Mux {
 			r.Get("/", users.GetVMs)
 			r.Route("/{virtual_machine}", func(r chi.Router) {
 				r.Get("/", users.GetVM)
-				//r.Patch("/", users.UpdateVM)
+				r.Patch("/", users.UpdateVM)
 			})
 		})
 

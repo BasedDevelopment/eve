@@ -50,9 +50,9 @@ type HV struct {
 	IP             net.IP                   `json:"ip"`
 	Port           int                      `json:"port"`
 	Site           string                   `json:"site"`
-	Nics           map[uuid.UUID]*HVNic     `json:"nics" db:"-"`
-	Storages       map[uuid.UUID]*HVStorage `json:"storages" db:"-"`
-	VMs            map[uuid.UUID]*VM        `json:"vms" db:"-"`
+	Nics           map[uuid.UUID]*HVNic     `json:"-" db:"-"`
+	Storages       map[uuid.UUID]*HVStorage `json:"-" db:"-"`
+	VMs            map[uuid.UUID]*VM        `json:"-" db:"-"`
 	Created        time.Time                `json:"created"`
 	Updated        time.Time                `json:"updated"`
 	Remarks        string                   `json:"remarks"`

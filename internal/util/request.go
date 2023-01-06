@@ -31,6 +31,12 @@ type Validatable[T any] interface {
 	*T
 }
 
+type Request interface {
+	CreateRequest |
+		LoginRequest |
+		UserVMUpdateRequest
+}
+
 type CreateRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
@@ -60,7 +66,20 @@ func (s LoginRequest) Validate() error {
 	)
 }
 
-func ParseRequest[R LoginRequest | CreateRequest, T Validatable[R]](r *http.Request, rq T) error {
+type UserVMUpdateRequest struct {
+	State    string `json:"state"`
+	Hostname string `json:"hostname"`
+	//TODO: ISO
+}
+
+func (s UserVMUpdateRequest) Validate() error {
+	return validation.ValidateStruct(&s,
+		validation.Field(&s.State, validation.In("start", "stop", "restart", "reset", "reinstall")),
+		validation.Field(&s.Hostname, validation.Length(2, 20), is.DNSName),
+	)
+}
+
+func ParseRequest[R Request, T Validatable[R]](r *http.Request, rq T) error {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 

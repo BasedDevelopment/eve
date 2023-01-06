@@ -97,3 +97,23 @@ func (l Libvirt) GetVMState(dom Dom) (stateInt util.Status, stateStr string, rea
 	stateStr, reasonStr = getStateReason(lState, lReason)
 	return
 }
+
+func (l Libvirt) VMStart(dom Dom) (err error) {
+	return l.conn.DomainCreate(dom.Dom)
+}
+
+func (l Libvirt) VMReboot(dom Dom) error {
+	return l.conn.DomainReboot(dom.Dom, libvirt.DomainRebootDefault)
+}
+
+func (l Libvirt) VMPowerOff(dom Dom) error {
+	return l.conn.DomainShutdownFlags(dom.Dom, libvirt.DomainShutdownDefault)
+}
+
+func (l Libvirt) VMStop(dom Dom) error {
+	return l.conn.DomainDestroy(dom.Dom)
+}
+
+func (l Libvirt) VMReset(dom Dom) error {
+	return l.conn.DomainReset(dom.Dom, 0)
+}

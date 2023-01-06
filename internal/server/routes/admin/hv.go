@@ -31,7 +31,6 @@ func GetHVs(w http.ResponseWriter, r *http.Request) {
 	cloud := controllers.Cloud
 	var hvs []*controllers.HV
 	for _, hv := range cloud.HVs {
-		hv.VMs = make(map[uuid.UUID]*controllers.VM)
 		hvs = append(hvs, hv)
 	}
 
