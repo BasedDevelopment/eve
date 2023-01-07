@@ -44,6 +44,10 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	for _, hv := range cloud.HVs {
 		for _, vm := range hv.VMs {
 			if vm.UserID == userID {
+				if err := hv.GetVMState(vm); err != nil {
+					util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+					return
+				}
 				hvs = append(hvs, map[string]interface{}{
 					"hypervisor": hv.Hostname,
 					"vm":         vm,
@@ -71,7 +75,7 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, targetVM, err := getUserVM(userID, vmid)
+	targetHV, targetVM, err := getUserVM(userID, vmid)
 	if err != nil {
 		if err == errNotFound {
 			util.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
@@ -83,6 +87,11 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 			util.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
 			return
 		}
+	}
+
+	if err := targetHV.GetVMState(targetVM); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+		return
 	}
 
 	// Send response
@@ -159,8 +168,13 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if err := targetHV.GetVMState(targetVM); err != nil {
+		util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+		return
+	}
+
 	response := map[string]interface{}{
-		"vm": targetVM.ID,
+		"state": targetVM.StateStr,
 	}
 
 	// Send response
