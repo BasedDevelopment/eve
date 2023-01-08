@@ -118,3 +118,26 @@ func (l Libvirt) GetHVStats() (arch string, memoryTotal uint64, memoryFree uint6
 
 	return
 }
+
+func (l Libvirt) GetHVBrs() (hvnics []HVNicSpecs, err error) {
+	// List active interfaces
+	nics, _, err := l.conn.ConnectListAllInterfaces(0, 2)
+	if err != nil {
+		return
+	}
+
+	for i := range nics {
+		// Get the XML for each interface and marshall it into a list of HVNicSpecs
+		nicxml, err := l.conn.InterfaceGetXMLDesc(nics[i], 0)
+
+		nicXmlBytes := []byte(nicxml)
+
+		var nic HVNicSpecs
+		err = xml.Unmarshal([]byte(nicXmlBytes), &nic)
+		if err != nil {
+			return hvnics, err
+		}
+		hvnics = append(hvnics, nic)
+	}
+	return
+}

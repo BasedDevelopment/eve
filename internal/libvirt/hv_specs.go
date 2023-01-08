@@ -72,3 +72,36 @@ type HVSpecs struct {
 		Entry string `xml:"entry"`
 	} `xml:"oemStrings"`
 }
+
+type HVNicSpecs struct {
+	XMLName  xml.Name `xml:"interface"`
+	Text     string   `xml:",chardata"`
+	Type     string   `xml:"type,attr"`
+	Name     string   `xml:"name,attr"`
+	Protocol []struct {
+		Text   string `xml:",chardata"`
+		Family string `xml:"family,attr"`
+		Ip     struct {
+			Text    string `xml:",chardata"`
+			Address string `xml:"address,attr"`
+			Prefix  string `xml:"prefix,attr"`
+		} `xml:"ip"`
+	} `xml:"protocol"`
+	Bridge struct {
+		Text      string `xml:",chardata"`
+		Interface struct {
+			Text string `xml:",chardata"`
+			Type string `xml:"type,attr"`
+			Name string `xml:"name,attr"`
+			Link struct {
+				Text  string `xml:",chardata"`
+				Speed string `xml:"speed,attr"`
+				State string `xml:"state,attr"`
+			} `xml:"link"`
+			Mac struct {
+				Text    string `xml:",chardata"`
+				Address string `xml:"address,attr"`
+			} `xml:"mac"`
+		} `xml:"interface"`
+	} `xml:"bridge"`
+}

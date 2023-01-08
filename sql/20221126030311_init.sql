@@ -34,26 +34,6 @@ CREATE TABLE public.hv (
     remarks text NOT NULL DEFAULT ''
 );
 
-CREATE TABLE public.hv_nic (
-    id uuid NOT NULL PRIMARY KEY,
-    hv_id uuid NOT NULL REFERENCES public.hv(id),
-    name character varying(255) NOT NULL,
-    mac character varying(255) NOT NULL,
-    ip inet[] NOT NULL,
-    created timestamp with time zone NOT NULL DEFAULT now(),
-    updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text NOT NULL DEFAULT ''
-);
-
-CREATE TABLE public.hv_storage (
-    id uuid NOT NULL PRIMARY KEY,
-    hv_id uuid NOT NULL REFERENCES hv (id),
-    size integer NOT NULL,
-    created timestamp with time zone NOT NULL DEFAULT now(),
-    updated timestamp with time zone NOT NULL DEFAULT now(),
-    remarks text NOT NULL DEFAULT ''
-);
-
 CREATE TABLE public.vm (
     id uuid NOT NULL PRIMARY KEY,
     hv_id uuid NOT NULL REFERENCES hv (id),
