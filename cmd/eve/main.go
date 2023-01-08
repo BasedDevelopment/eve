@@ -116,12 +116,12 @@ func main() {
 				Err(err).
 				Msg("Failed to shutdown HTTP listener")
 		} else {
-			log.Info().Msg("Webserver shutdown succees")
+			log.Info().Msg("Webserver shutdown success")
 		}
 
 		// Database pool
 		db.Pool.Close()
-		log.Info().Msg("Database pool shutdown succees")
+		log.Info().Msg("Database pool shutdown success")
 
 		// Libvirt connections
 		for i := range cloud.HVs {
@@ -133,7 +133,7 @@ func main() {
 					Msg("Failed to close HV connection")
 			}
 		}
-		log.Info().Msg("Libvirt connections shutdown succees")
+		log.Info().Msg("Libvirt connections shutdown success")
 
 		srvStopCtx()
 	}()
