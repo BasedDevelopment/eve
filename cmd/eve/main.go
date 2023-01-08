@@ -33,7 +33,6 @@ import (
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/server"
 
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -150,58 +149,4 @@ func main() {
 	// Wait for server context to be stopped
 	<-srvCtx.Done()
 	log.Info().Msg("Graceful shutdown complete. Thank you for using eve!")
-}
-
-func configureLogger() {
-	// Command line flags
-	flag.Parse()
-
-	if *logFormat == "pretty" {
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	}
-
-	switch *logLevel {
-	case "debug":
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	case "info":
-		zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	case "warn":
-		zerolog.SetGlobalLevel(zerolog.WarnLevel)
-	case "error":
-		zerolog.SetGlobalLevel(zerolog.ErrorLevel)
-	case "fatal":
-		zerolog.SetGlobalLevel(zerolog.FatalLevel)
-	case "panic":
-		zerolog.SetGlobalLevel(zerolog.PanicLevel)
-	default:
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
-
-	// Init logger
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-
-	if !*noSplash {
-		log.Info().Msg("+-----------------------------------+")
-		log.Info().Msg("|      EVE Virtual Environment      |")
-		log.Info().Msg("|               v" + version + "              |")
-		log.Info().Msg("+-----------------------------------+")
-	} else {
-		log.Info().Msg("EVE Virtual Environment v" + version)
-	}
-}
-
-func connHV(hv *controllers.HV) {
-	// Connect to hypervisors, fetch VMs, and check for VM consistency
-	if err := hv.Init(); err != nil {
-		log.Warn().
-			Err(err).
-			Str("hostname", hv.Hostname).
-			Msg("Failed to connect to hypervisor and fetch virtual machines")
-	} else {
-		log.Info().
-			Str("hostname", hv.Hostname).
-			Str("hvs", hv.Hostname).
-			Int("vms", len(hv.VMs)).
-			Msg("Connected to hypervisor and fetched virtual machines")
-	}
 }

@@ -5,7 +5,7 @@ all: eve
 # Build executable for Eve program
 eve:
 	go mod download
-	go build --ldflags "-s -w" -o bin/eve ./cmd/eve/main.go
+	go build --ldflags "-s -w" -o bin/eve ./cmd/eve/
 
 test:
 	go clean -testcache
