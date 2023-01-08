@@ -28,6 +28,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/server/routes/users"
 	"github.com/go-chi/chi/v5"
 	cm "github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/httprate"
 )
 
@@ -45,6 +46,14 @@ func Service() *chi.Mux {
 	r.Use(cm.AllowContentType("application/json"))
 	r.Use(cm.CleanPath)
 	r.Use(cm.NoCache)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
 	r.Use(cm.Heartbeat("/"))
 	r.Use(middleware.Recoverer)
 
