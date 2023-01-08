@@ -26,6 +26,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/server/routes"
 	"github.com/BasedDevelopment/eve/internal/server/routes/admin"
 	"github.com/BasedDevelopment/eve/internal/server/routes/users"
+	em "github.com/BasedDevelopment/eve/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	cm "github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -40,7 +41,7 @@ func Service() *chi.Mux {
 		r.Use(cm.RealIP)
 	}
 	r.Use(cm.RequestID)
-	r.Use(middleware.Logger)
+	r.Use(em.Logger)
 	r.Use(cm.GetHead)
 	r.Use(httprate.LimitByIP(100, 1*time.Minute))
 	r.Use(cm.AllowContentType("application/json"))
@@ -55,7 +56,7 @@ func Service() *chi.Mux {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 	r.Use(cm.Heartbeat("/"))
-	r.Use(middleware.Recoverer)
+	r.Use(em.Recoverer)
 
 	// Login
 	r.Post("/login", routes.Login)

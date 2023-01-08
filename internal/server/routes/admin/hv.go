@@ -22,7 +22,7 @@ import (
 	"net/http"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -35,8 +35,8 @@ func GetHVs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send response
-	if err := util.WriteResponse(hvs, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(hvs, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 
@@ -45,19 +45,19 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 	hvidStr := chi.URLParam(r, "hypervisor")
 	hvid, err := uuid.Parse(hvidStr)
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
 		return
 	}
 
 	hv := controllers.Cloud.HVs[hvid]
 
 	if hv == nil {
-		util.WriteError(w, r, err, http.StatusNotFound, "Hypervisor not found")
+		eUtil.WriteError(w, r, err, http.StatusNotFound, "Hypervisor not found")
 		return
 	}
 
 	// Send response
-	if err := util.WriteResponse(hv, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(hv, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }

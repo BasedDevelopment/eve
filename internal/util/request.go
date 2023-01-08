@@ -34,7 +34,8 @@ type Validatable[T any] interface {
 type Request interface {
 	CreateRequest |
 		LoginRequest |
-		UserVMUpdateRequest
+		UserVMUpdateRequest |
+		AutoCreateRequest
 }
 
 type CreateRequest struct {
@@ -76,6 +77,20 @@ func (s UserVMUpdateRequest) Validate() error {
 	return validation.ValidateStruct(&s,
 		validation.Field(&s.State, validation.In("start", "stop", "restart", "reset", "reinstall")),
 		validation.Field(&s.Hostname, validation.Length(2, 20), is.DNSName),
+	)
+}
+
+type AutoCreateRequest struct {
+	Hostname string `json:"hostname"`
+	Site     string `json:"site"`
+	CSR      string `json:"csr"`
+}
+
+func (s AutoCreateRequest) Validate() error {
+	return validation.ValidateStruct(&s,
+		validation.Field(&s.Hostname, validation.Length(2, 20), is.DNSName),
+		validation.Field(&s.Site, validation.Length(2, 20)),
+		validation.Field(&s.CSR, validation.Required, is.PrintableASCII),
 	)
 }
 

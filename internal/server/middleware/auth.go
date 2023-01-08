@@ -26,7 +26,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/tokens"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/google/uuid"
 )
 
@@ -65,19 +65,19 @@ func Auth(next http.Handler) http.Handler {
 		if err != nil {
 			switch err {
 			case ErrBadHeader:
-				util.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
+				eUtil.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
 				return
 			case ErrBadToken:
-				util.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
+				eUtil.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
 				return
 			case ErrMissingHeader:
-				util.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
+				eUtil.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
 				return
 			}
 		}
 
 		if !sessions.ValidateSession(ctx, requestToken) {
-			util.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
+			eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
 			return
 		}
 
@@ -94,13 +94,13 @@ func MustBeAdmin(next http.Handler) http.Handler {
 		profile, err := profile.Get(ctx)
 
 		if err != nil {
-			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 
 			return
 		}
 
 		if !profile.IsAdmin {
-			util.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
+			eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
 
 			return
 		}

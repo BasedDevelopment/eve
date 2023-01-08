@@ -22,7 +22,7 @@ import (
 	"net/http"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -32,7 +32,7 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	hvidStr := chi.URLParam(r, "hypervisor")
 	hvid, err := uuid.Parse(hvidStr)
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
 		return
 	}
 	hv := controllers.Cloud.HVs[hvid]
@@ -43,8 +43,8 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send response
-	if err := util.WriteResponse(vms, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(vms, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 
@@ -53,7 +53,7 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	hvidStr := chi.URLParam(r, "hypervisor")
 	hvid, err := uuid.Parse(hvidStr)
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
 		return
 	}
 	hv := controllers.Cloud.HVs[hvid]
@@ -62,13 +62,13 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	vmidStr := chi.URLParam(r, "virtual_machine")
 	vmid, err := uuid.Parse(vmidStr)
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Invalid VM ID")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid VM ID")
 		return
 	}
 	// TODO: polish response json
 
 	// Send response
-	if err := util.WriteResponse(hv.VMs[vmid], w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(hv.VMs[vmid], w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }

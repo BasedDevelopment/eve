@@ -23,6 +23,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,7 +34,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	req := new(util.CreateRequest)
 
 	if err := util.ParseRequest(r, req); err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
 		return
 	}
 
@@ -47,7 +48,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if profile, _ := profile.Get(ctx); profile.Name != "" {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "User already exists")
+		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "User already exists")
 		return
 	}
 
@@ -55,7 +56,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 10)
 
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to hash password")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to hash password")
 		return
 	}
 
@@ -63,7 +64,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	uuid, err := profile.New(ctx)
 
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to create user")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to create user")
 		return
 	}
 
@@ -71,5 +72,5 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		"uuid": uuid,
 	})
 
-	util.WriteResponse(resp, w, http.StatusCreated)
+	eUtil.WriteResponse(resp, w, http.StatusCreated)
 }

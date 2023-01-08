@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/rs/zerolog/log"
 )
@@ -51,7 +51,7 @@ func Logger(next http.Handler) http.Handler {
 			bodyStr = string(bodyBytes)
 
 			if err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to read request body")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to read request body")
 			}
 
 			r.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))

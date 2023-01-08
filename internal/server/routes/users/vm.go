@@ -24,6 +24,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )
@@ -45,7 +46,7 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 		for _, vm := range hv.VMs {
 			if vm.UserID == userID {
 				if err := hv.GetVMState(vm); err != nil {
-					util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+					eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
 					return
 				}
 				hvs = append(hvs, map[string]interface{}{
@@ -57,8 +58,8 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send response
-	if err := util.WriteResponse(hvs, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(hvs, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 
 }
@@ -71,32 +72,32 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	reqVmid := chi.URLParam(r, "virtual_machine")
 	vmid, err := uuid.Parse(reqVmid)
 	if err != nil {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
+		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
 		return
 	}
 
 	targetHV, targetVM, err := getUserVM(userID, vmid)
 	if err != nil {
 		if err == errNotFound {
-			util.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+			eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
 			return
 		} else if err == errForbidden {
-			util.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
+			eUtil.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
 			return
 		} else {
-			util.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
+			eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
 			return
 		}
 	}
 
 	if err := targetHV.GetVMState(targetVM); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
 		return
 	}
 
 	// Send response
-	if err := util.WriteResponse(targetVM, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(targetVM, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 
@@ -108,7 +109,7 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 	req := new(util.UserVMUpdateRequest)
 
 	if err := util.ParseRequest(r, req); err != nil {
-		util.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
 		return
 	}
 
@@ -117,20 +118,20 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 	reqVmid := chi.URLParam(r, "virtual_machine")
 	vmid, err := uuid.Parse(reqVmid)
 	if err != nil {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
+		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
 		return
 	}
 
 	targetHV, targetVM, err := getUserVM(userID, vmid)
 	if err != nil {
 		if err == errNotFound {
-			util.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+			eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
 			return
 		} else if err == errForbidden {
-			util.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
+			eUtil.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
 			return
 		} else {
-			util.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
+			eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
 			return
 		}
 	}
@@ -142,34 +143,34 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 		switch req.State {
 		case "start":
 			if err := targetHV.Libvirt.VMStart(targetVM.Domain); err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to start virtual machine")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to start virtual machine")
 				return
 			}
 		case "reboot":
 			if err := targetHV.Libvirt.VMReboot(targetVM.Domain); err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to reboot virtual machine")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to reboot virtual machine")
 				return
 			}
 		case "poweroff":
 			if err := targetHV.Libvirt.VMPowerOff(targetVM.Domain); err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to power off virtual machine")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to power off virtual machine")
 				return
 			}
 		case "stop":
 			if err := targetHV.Libvirt.VMStop(targetVM.Domain); err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to stop virtual machine")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to stop virtual machine")
 				return
 			}
 		case "reset":
 			if err := targetHV.Libvirt.VMReset(targetVM.Domain); err != nil {
-				util.WriteError(w, r, err, http.StatusInternalServerError, "failed to reset virtual machine")
+				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to reset virtual machine")
 				return
 			}
 		}
 	}
 
 	if err := targetHV.GetVMState(targetVM); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
 		return
 	}
 
@@ -178,8 +179,8 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send response
-	if err := util.WriteResponse(response, w, http.StatusOK); err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	if err := eUtil.WriteResponse(response, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 

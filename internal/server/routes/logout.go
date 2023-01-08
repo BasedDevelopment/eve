@@ -24,7 +24,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/tokens"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 )
 
 func Logout(w http.ResponseWriter, r *http.Request) {
@@ -33,18 +33,18 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	header := strings.Split(r.Header.Get("Authorization"), "Bearer ")
 	reqToken, err := tokens.Parse(header[1])
 	if err != nil {
-		util.WriteError(w, r, nil, http.StatusBadRequest, "Invalid token")
+		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "Invalid token")
 		return
 	}
 
 	sessions.Delete(ctx, reqToken)
 
 	if err := sessions.Delete(ctx, reqToken); err != nil {
-		util.WriteError(w, r, nil, http.StatusInternalServerError, "Internal Server Error")
+		eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
-	util.WriteResponse(map[string]interface{}{
+	eUtil.WriteResponse(map[string]interface{}{
 		"message": "logout success",
 	}, w, http.StatusOK)
 }

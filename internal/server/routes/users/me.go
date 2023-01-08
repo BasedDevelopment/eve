@@ -22,7 +22,7 @@ import (
 	"net/http"
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/google/uuid"
 )
 
@@ -32,7 +32,7 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 
@@ -45,10 +45,10 @@ func GetSelf(w http.ResponseWriter, r *http.Request) {
 		"updated":    profile.Updated,
 	}
 
-	err = util.WriteResponse(response, w, http.StatusOK)
+	err = eUtil.WriteResponse(response, w, http.StatusOK)
 
 	if err != nil {
-		util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 		return
 	}
 }

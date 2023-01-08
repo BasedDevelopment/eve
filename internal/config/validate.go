@@ -18,24 +18,30 @@
 
 package config
 
-import "fmt"
+import (
+	"fmt"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/go-ozzo/ozzo-validation/v4/is"
+)
 
 // Check for required fields in the config file
 func validate() error {
-	if Config.Name == "" {
-		return fmt.Errorf("Configuration: name is required")
+	if err := validation.Validate(Config.Name, validation.Required, is.DNSName); err != nil {
+		return fmt.Errorf("Configuration(name): %w", err)
 	}
 
-	if Config.API.Host == "" {
-		return fmt.Errorf("Configuration: api.host is required")
+	if err := validation.Validate(Config.API.Host, validation.Required, is.Host); err != nil {
+		return fmt.Errorf("Configuration(api.host): %w", err)
 	}
 
-	if Config.API.Port == 0 {
-		return fmt.Errorf("Configuration: api.port is required")
+	if err := validation.Validate(Config.API.Port, validation.Required, validation.Min(1), validation.Max(65535)); err != nil {
+		return fmt.Errorf("Configuration(api.port): %w", err)
 	}
 
-	if Config.Database.URL == "" {
-		return fmt.Errorf("Configuration: database.url is required")
+	if err := validation.Validate(Config.Database.URL, validation.Required); err != nil {
+		return fmt.Errorf("Configuration(database.url): %w", err)
 	}
+
 	return nil
 }

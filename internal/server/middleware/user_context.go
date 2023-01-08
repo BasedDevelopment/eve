@@ -24,7 +24,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/sessions"
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 )
 
 // UserContext fetches the owner of the request from the current session and
@@ -44,13 +44,13 @@ func UserContext(next http.Handler) http.Handler {
 		if err != nil {
 			switch err {
 			case ErrBadHeader:
-				util.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
+				eUtil.WriteError(w, r, nil, http.StatusBadRequest, ErrBadHeader.Error())
 				return
 			case ErrBadToken:
-				util.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
+				eUtil.WriteError(w, r, nil, http.StatusUnauthorized, ErrBadToken.Error())
 				return
 			case ErrMissingHeader:
-				util.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
+				eUtil.WriteError(w, r, nil, http.StatusBadRequest, ErrMissingHeader.Error())
 				return
 			}
 		}
@@ -58,7 +58,7 @@ func UserContext(next http.Handler) http.Handler {
 		session, err := sessions.GetSession(ctx, requestToken)
 
 		if err != nil {
-			util.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
 			return
 		}
 
@@ -68,7 +68,7 @@ func UserContext(next http.Handler) http.Handler {
 
 		// Error if user is suspended
 		if profile.Disabled {
-			util.WriteError(w, r, nil, http.StatusUnauthorized, "user suspended")
+			eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "user suspended")
 			return
 		}
 

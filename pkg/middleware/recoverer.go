@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	"github.com/BasedDevelopment/eve/internal/util"
+	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/rs/zerolog/log"
 )
 
@@ -43,7 +43,7 @@ func Recoverer(next http.Handler) http.Handler {
 					return
 				}
 
-				util.WriteError(w, r, nil, http.StatusInternalServerError, "internal server error")
+				eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "internal server error")
 			}
 		}()
 
