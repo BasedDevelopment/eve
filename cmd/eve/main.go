@@ -55,7 +55,7 @@ func init() {
 	// Load configuration
 	log.Info().Msg("Loading configuration")
 
-	if err := config.Load(configPath); err != nil {
+	if err := config.Load(*configPath); err != nil {
 		log.Fatal().Err(err).Msg("Failed to load configuration")
 	}
 

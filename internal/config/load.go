@@ -43,8 +43,7 @@ var (
 	}
 )
 
-func Load(configPathPtr *string) (err error) {
-	configPath := *configPathPtr
+func Load(configPath string) (err error) {
 	// Load from toml
 	if err := k.Load(file.Provider(configPath), toml.Parser()); err != nil {
 		return err
