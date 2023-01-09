@@ -1,11 +1,15 @@
 .PHONY: clean
 
-all: eve
+all: eve eve-tools
 
 # Build executable for Eve program
 eve:
 	go mod download
 	go build --ldflags "-s -w" -o bin/eve ./cmd/eve/
+
+eve-tools:
+	go mod download
+	go build --ldflags "-s -w" -o bin/eve-tools ./cmd/eve-tools/
 
 test:
 	go clean -testcache

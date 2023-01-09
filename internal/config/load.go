@@ -29,7 +29,7 @@ var (
 	parser = toml.Parser()
 
 	Config struct {
-		Name string `koanf:"name"`
+		Hostname string `koanf:"hostname"`
 
 		API struct {
 			Host        string `koanf:"host"`

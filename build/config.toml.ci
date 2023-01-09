@@ -1,6 +1,6 @@
 # Move this file to /etc/eve/config.toml
 
-name = "eveCI"
+hostname = "eveCI"
 
 [api]
 host = "0.0.0.0"

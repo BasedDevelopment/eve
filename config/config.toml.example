@@ -1,6 +1,6 @@
 # Move this file to /etc/eve/config.toml
 
-name = "evetest"
+hostname = "evetest"
 
 [api]
 host = "0.0.0.0"

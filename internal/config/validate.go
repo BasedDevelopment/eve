@@ -27,8 +27,8 @@ import (
 
 // Check for required fields in the config file
 func validate() error {
-	if err := validation.Validate(Config.Name, validation.Required, is.DNSName); err != nil {
-		return fmt.Errorf("Configuration(name): %w", err)
+	if err := validation.Validate(Config.Hostname, validation.Required, is.DNSName); err != nil {
+		return fmt.Errorf("Configuration(hostname): %w", err)
 	}
 
 	if err := validation.Validate(Config.API.Host, validation.Required, is.Host); err != nil {
