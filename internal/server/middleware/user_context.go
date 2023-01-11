@@ -22,7 +22,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 )
@@ -63,7 +63,7 @@ func UserContext(next http.Handler) http.Handler {
 		}
 
 		// Check if the user exists and is not disabled
-		profile := controllers.Profile{ID: session.Owner}
+		profile := profile.Profile{ID: session.Owner}
 		profile, err = profile.Get(ctx)
 
 		if err != nil {

@@ -21,14 +21,14 @@ package users
 import (
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/google/uuid"
 )
 
 func GetSelf(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
+	profile := profile.Profile{ID: ctx.Value("owner").(uuid.UUID)}
 	profile, err := profile.Get(ctx)
 
 	if err != nil {

@@ -23,7 +23,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/tokens"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
@@ -90,7 +90,7 @@ func MustBeAdmin(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		profile := controllers.Profile{ID: ctx.Value("owner").(uuid.UUID)}
+		profile := profile.Profile{ID: ctx.Value("owner").(uuid.UUID)}
 		profile, err := profile.Get(ctx)
 
 		if err != nil {

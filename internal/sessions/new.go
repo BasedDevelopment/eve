@@ -26,7 +26,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/tokens"
 	"golang.org/x/crypto/sha3"
 )
@@ -59,7 +59,7 @@ func generateStrings(bits []int) (a, b, c string, err error) {
 }
 
 // New creates a new authentication session in the database (login)
-func NewSession(ctx context.Context, user controllers.Profile) (tokens.Token, error) {
+func NewSession(ctx context.Context, user profile.Profile) (tokens.Token, error) {
 	// Generate three pseudo-random numbers (in a string)
 	public, secret, salt, err := generateStrings([]int{64, 64, 32})
 

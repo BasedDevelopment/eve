@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package controllers_test
+package profile_test
 
 import (
 	"bytes"
@@ -144,7 +144,7 @@ func TestAdminGetProfile(t *testing.T) {
 
 var testUserId string
 
-func TestCreateUser(t *testing.T) {
+func TestNew(t *testing.T) {
 	request := map[string]string{
 		"name":     testUserName,
 		"email":    testUserEmail,

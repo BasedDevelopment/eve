@@ -21,7 +21,7 @@ package admin
 import (
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"golang.org/x/crypto/bcrypt"
@@ -39,7 +39,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// New profile instance
-	profile := controllers.Profile{
+	profile := profile.Profile{
 		Email:    req.Email,
 		Name:     req.Name,
 		Disabled: req.Disabled,

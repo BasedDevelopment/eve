@@ -21,7 +21,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/sessions"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
@@ -40,7 +40,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// New profile instance
-	profile := controllers.Profile{Email: req.Email}
+	profile := profile.Profile{Email: req.Email}
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
