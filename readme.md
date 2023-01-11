@@ -1,6 +1,6 @@
 # EVE Virtual Environment
 [![Go Report Card](https://goreportcard.com/badge/github.com/BasedDevelopment/eve)](https://goreportcard.com/report/github.com/BasedDevelopment/eve)
-[![Build Status](https://github.com/BasedDevelopment/eve/actions/workflows/makefile.yml/badge.svg)](https://github.com/BasedDevelopment/eve/actions/)
+[![Build Status](https://github.com/BasedDevelopment/eve/actions/workflows/test.yml/badge.svg)](https://github.com/BasedDevelopment/eve/actions/)
 [![CodeQL](https://github.com/BasedDevelopment/eve/workflows/CodeQL/badge.svg)](https://github.com/BasedDevelopment/eve/actions/workflows/codeql.yml)
 [![License](https://img.shields.io/github/license/BasedDevelopment/eve?style=plastic)](https://github.com/BasedDevelopment/eve/blob/main/COPYING)
 

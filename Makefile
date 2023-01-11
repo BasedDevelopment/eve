@@ -13,7 +13,7 @@ eve-tools:
 
 test:
 	go clean -testcache
-	go test -v ./...
+	go test ./... -v -race -coverprofile=coverage.out -covermode=atomic
 
 # Build and execute Eve program
 start: eve
