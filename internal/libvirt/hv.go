@@ -130,6 +130,10 @@ func (l Libvirt) GetHVBrs() (hvnics []HVNicSpecs, err error) {
 		// Get the XML for each interface and marshall it into a list of HVNicSpecs
 		nicxml, err := l.conn.InterfaceGetXMLDesc(nics[i], 0)
 
+		if err != nil {
+			return hvnics, err
+		}
+
 		nicXmlBytes := []byte(nicxml)
 
 		var nic HVNicSpecs

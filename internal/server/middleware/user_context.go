@@ -58,13 +58,17 @@ func UserContext(next http.Handler) http.Handler {
 		session, err := sessions.GetSession(ctx, requestToken)
 
 		if err != nil {
-			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "internal server error")
 			return
 		}
 
 		// Check if the user exists and is not disabled
 		profile := controllers.Profile{ID: session.Owner}
 		profile, err = profile.Get(ctx)
+
+		if err != nil {
+			eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "internal server error")
+		}
 
 		// Error if user is suspended
 		if profile.Disabled {
