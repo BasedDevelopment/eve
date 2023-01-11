@@ -31,6 +31,10 @@ func validate() error {
 		return fmt.Errorf("Configuration(hostname): %w", err)
 	}
 
+	if Config.TLSPath == "" {
+		return fmt.Errorf("Configuration(tls_path): is required")
+	}
+
 	if err := validation.Validate(Config.API.Host, validation.Required, is.Host); err != nil {
 		return fmt.Errorf("Configuration(api.host): %w", err)
 	}

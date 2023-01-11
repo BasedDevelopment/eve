@@ -30,6 +30,7 @@ var (
 
 	Config struct {
 		Hostname string `koanf:"hostname"`
+		TLSPath  string `koanf:"tls_path"`
 
 		API struct {
 			Host        string `koanf:"host"`
