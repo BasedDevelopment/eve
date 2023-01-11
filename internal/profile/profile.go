@@ -32,17 +32,17 @@ import (
 )
 
 type Profile struct {
-	mutex     sync.Mutex `db:"-" json:"-"`
-	ID        uuid.UUID  `json:"id" db:"id"`
-	Name      string     `json:"name" db:"name"`
-	Email     string     `json:"email" db:"email"`
-	Password  string     `json:"-" db:"password"`
-	Disabled  bool       `db:"disabled"`
-	IsAdmin   bool       `db:"is_admin"`
-	LastLogin time.Time  `json:"last_login" db:"last_login"`
-	Created   time.Time  `json:"created" db:"created"`
-	Updated   time.Time  `json:"updated" db:"updated"`
-	Remarks   string     `db:"remarks"`
+	mutex     *sync.Mutex `db:"-" json:"-"`
+	ID        uuid.UUID   `json:"id" db:"id"`
+	Name      string      `json:"name" db:"name"`
+	Email     string      `json:"email" db:"email"`
+	Password  string      `json:"-" db:"password"`
+	Disabled  bool        `db:"disabled"`
+	IsAdmin   bool        `db:"is_admin"`
+	LastLogin time.Time   `json:"last_login" db:"last_login"`
+	Created   time.Time   `json:"created" db:"created"`
+	Updated   time.Time   `json:"updated" db:"updated"`
+	Remarks   string      `db:"remarks"`
 }
 
 func (p *Profile) New(ctx context.Context) (id string, err error) {
