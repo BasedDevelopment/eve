@@ -1,6 +1,7 @@
 # Move this file to /etc/eve/config.toml
 
 hostname = "eveCI"
+tls_path = "/etc/eve/tls"
 
 [api]
 host = "0.0.0.0"
