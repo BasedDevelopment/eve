@@ -91,6 +91,7 @@ func main() {
 		caPriv := pki.ReadKey(caPrivBytes)
 		caCrt := pki.GenCA(caPriv)
 		writeFile(caCrtPath, caCrt)
+		return
 	}
 
 	if *makeCrtKey {
