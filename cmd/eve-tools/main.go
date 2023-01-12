@@ -81,6 +81,9 @@ func main() {
 		log.Info().Msg("Creating CA key")
 		b := pki.GenKey()
 		util.WriteFile(caPrivPath, b)
+		log.Info().
+			Str("path", caPrivPath).
+			Msg("CA key written")
 		return
 	}
 
@@ -102,6 +105,9 @@ func main() {
 		log.Info().Msg("Creating eve key")
 		b := pki.GenKey()
 		util.WriteFile(evePrivPath, b)
+		log.Info().
+			Str("path", evePrivPath).
+			Msg("eve key written")
 		return
 	}
 
