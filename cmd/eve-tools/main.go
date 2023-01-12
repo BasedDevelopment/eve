@@ -2,12 +2,12 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/BasedDevelopment/eve/internal/config"
 	"github.com/BasedDevelopment/eve/pkg/pki"
+	"github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -80,16 +80,16 @@ func main() {
 	if *makeCAKey {
 		log.Info().Msg("Creating CA key")
 		b := pki.GenKey()
-		writeFile(caPrivPath, b)
+		util.WriteFile(caPrivPath, b)
 		return
 	}
 
 	if *makeCA {
 		log.Info().Msg("Creating CA certificate")
-		caPrivBytes := readFile(caPrivPath)
+		caPrivBytes := util.ReadFile(caPrivPath)
 		caPriv := pki.ReadKey(caPrivBytes)
 		caCrt := pki.GenCA(caPriv)
-		writeFile(caCrtPath, caCrt)
+		util.WriteFile(caCrtPath, caCrt)
 		sum := pki.PemSum(caCrt)
 		log.Info().
 			Str("path", caCrtPath).
@@ -101,26 +101,26 @@ func main() {
 	if *makeCrtKey {
 		log.Info().Msg("Creating eve key")
 		b := pki.GenKey()
-		writeFile(evePrivPath, b)
+		util.WriteFile(evePrivPath, b)
 		return
 	}
 
 	if *makeCrt {
 		log.Info().Msg("Creating eve certificate")
 		// First we make a CSR for eve
-		evePrivBytes := readFile(evePrivPath)
+		evePrivBytes := util.ReadFile(evePrivPath)
 		evePriv := pki.ReadKey(evePrivBytes)
 		eveCsrBytes := pki.GenCSR(evePriv, config.Config.Hostname)
 		eveCsr := pki.ReadCSR(eveCsrBytes)
 
 		// Then we take the CA's key and sign the CSR
-		caPrivBytes := readFile(caPrivPath)
+		caPrivBytes := util.ReadFile(caPrivPath)
 		caPriv := pki.ReadKey(caPrivBytes)
-		caCrtBytes := readFile(caCrtPath)
+		caCrtBytes := util.ReadFile(caCrtPath)
 		caCrt := pki.ReadCrt(caCrtBytes)
 		crt := pki.SignCrt(caCrt, caPriv, eveCsr)
 
-		writeFile(eveCrtPath, crt)
+		util.WriteFile(eveCrtPath, crt)
 
 		sum := pki.PemSum(crt)
 		log.Info().
@@ -138,7 +138,7 @@ func main() {
 		}
 
 		// Read the CSR
-		csrBytes := readFile(*signCSR)
+		csrBytes := util.ReadFile(*signCSR)
 		csrSum := pki.PemSum(csrBytes)
 		csr := pki.ReadCSR(csrBytes)
 		log.Info().
@@ -147,13 +147,13 @@ func main() {
 			Msg("CSR checksum")
 
 		// Fetch the CA's key and certificate
-		caCrtBytes := readFile(caCrtPath)
+		caCrtBytes := util.ReadFile(caCrtPath)
 		caCrt := pki.ReadCrt(caCrtBytes)
-		caPrivBytes := readFile(caPrivPath)
+		caPrivBytes := util.ReadFile(caPrivPath)
 		caPriv := pki.ReadKey(caPrivBytes)
 
 		crtBytes := pki.SignCrt(caCrt, caPriv, csr)
-		writeFile(host+".crt", crtBytes)
+		util.WriteFile(host+".crt", crtBytes)
 
 		crtSum := pki.PemSum(crtBytes)
 		log.Info().
@@ -164,7 +164,7 @@ func main() {
 	}
 
 	if *checkSum != "" {
-		b := readFile(*checkSum)
+		b := util.ReadFile(*checkSum)
 		result := pki.PemSum(b)
 		log.Info().
 			Str("path", *checkSum).
@@ -175,34 +175,4 @@ func main() {
 
 	log.Info().Msg("No action specified, checking PKI")
 	checkPKI()
-}
-
-// Read a file, exit if err
-func readFile(path string) []byte {
-	b, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Fatal().
-			Str("path", path).
-			Err(err).
-			Msg("Failed to read file")
-	}
-	return b
-}
-
-// Write a file, exit if err
-func writeFile(path string, data []byte) {
-	if err := ioutil.WriteFile(path, data, 0600); err != nil {
-		log.Fatal().
-			Str("path", path).
-			Err(err).
-			Msg("Failed to write file")
-	}
-}
-
-// Check if a file exists
-func fileExists(path string) bool {
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return false
-	}
-	return true
 }

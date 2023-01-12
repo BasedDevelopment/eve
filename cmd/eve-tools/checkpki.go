@@ -3,29 +3,30 @@ package main
 import (
 	"github.com/BasedDevelopment/eve/internal/config"
 	"github.com/BasedDevelopment/eve/pkg/pki"
+	"github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/rs/zerolog/log"
 )
 
 // Ensure that CA key, CA cert, eve key, eve cert are all present, create them if not. Log the checksum of all the certs.
 func checkPKI() {
-	if !fileExists(caPrivPath) {
+	if !util.FileExists(caPrivPath) {
 		log.Info().
 			Str("path", caPrivPath).
 			Msg("CA key not found, creating a new one")
 		caPriv := pki.GenKey()
-		writeFile(caPrivPath, caPriv)
+		util.WriteFile(caPrivPath, caPriv)
 	}
-	caPrivBytes := readFile(caPrivPath)
+	caPrivBytes := util.ReadFile(caPrivPath)
 	caPriv := pki.ReadKey(caPrivBytes)
 
-	if !fileExists(caCrtPath) {
+	if !util.FileExists(caCrtPath) {
 		log.Info().
 			Str("path", caCrtPath).
 			Msg("CA cert not found, creating a new one")
 		caCrt := pki.GenCA(caPriv)
-		writeFile(caCrtPath, caCrt)
+		util.WriteFile(caCrtPath, caCrt)
 	}
-	caCrtBytes := readFile(caCrtPath)
+	caCrtBytes := util.ReadFile(caCrtPath)
 	caCrt := pki.ReadCrt(caCrtBytes)
 
 	caCrtChecksum := pki.PemSum(caCrtBytes)
@@ -34,27 +35,27 @@ func checkPKI() {
 		Str("SHA1", caCrtChecksum).
 		Msg("CA cert")
 
-	if !fileExists(evePrivPath) {
+	if !util.FileExists(evePrivPath) {
 		log.Info().
 			Str("path", evePrivPath).
 			Msg("Eve key not found, creating a new one")
 		evePriv := pki.GenKey()
-		writeFile(evePrivPath, evePriv)
+		util.WriteFile(evePrivPath, evePriv)
 	}
-	evePrivBytes := readFile(evePrivPath)
+	evePrivBytes := util.ReadFile(evePrivPath)
 	evePriv := pki.ReadKey(evePrivBytes)
 
-	if !fileExists(eveCrtPath) {
+	if !util.FileExists(eveCrtPath) {
 		log.Info().
 			Str("path", eveCrtPath).
 			Msg("Eve cert not found, creating a new one")
 		eveCSRBytes := pki.GenCSR(evePriv, config.Config.Hostname)
-		writeFile(eveCSRPath, eveCSRBytes)
+		util.WriteFile(eveCSRPath, eveCSRBytes)
 		eveCSR := pki.ReadCSR(eveCSRBytes)
 		eveCrt := pki.SignCrt(caCrt, caPriv, eveCSR)
-		writeFile(eveCrtPath, eveCrt)
+		util.WriteFile(eveCrtPath, eveCrt)
 	}
-	eveCrt := readFile(eveCrtPath)
+	eveCrt := util.ReadFile(eveCrtPath)
 	eveCrtSum := pki.PemSum(eveCrt)
 	log.Info().
 		Str("path", eveCrtPath).
