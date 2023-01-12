@@ -167,7 +167,10 @@ func main() {
 	if *checkSum != "" {
 		b := readFile(*checkSum)
 		result := pki.PemSum(b)
-		log.Info().Str("SHA1", result)
+		log.Info().
+			Str("path", *checkSum).
+			Str("SHA1", result).
+			Msg("Checksum")
 		return
 	}
 
