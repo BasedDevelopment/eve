@@ -24,6 +24,7 @@ var (
 	makeCrt    = flag.Bool("make-crt", false, "Make a certificate")
 	signCSR    = flag.String("sign-csr", "", "Sign a CSR, put path to CSR here")
 	checkSum   = flag.String("checksum", "", "Check the checksum of a pem encoded file")
+	verifyCrt  = flag.String("verify-crt", "", "Verify a certificate")
 )
 
 var (
@@ -176,6 +177,29 @@ func main() {
 			Str("path", *checkSum).
 			Str("SHA1", result).
 			Msg("Checksum")
+		return
+	}
+
+	if *verifyCrt != "" {
+		crtBytes := util.ReadFile(*verifyCrt)
+		crt := pki.ReadCrt(crtBytes)
+		caCrtBytes := util.ReadFile(caCrtPath)
+		caCrt := pki.ReadCrt(caCrtBytes)
+		if err := pki.VerifyCrt(caCrt, crt); err != nil {
+			log.Fatal().
+				Err(err).
+				Str("cert path", *verifyCrt).
+				Str("CA path", caCrtPath).
+				Msg("Failed to verify certificate")
+		}
+		crtSum := pki.PemSum(crtBytes)
+		caSum := pki.PemSum(caCrtBytes)
+		log.Info().
+			Str("cert path", *verifyCrt).
+			Str("cert SHA1", crtSum).
+			Str("CA path", caCrtPath).
+			Str("CA SHA1", caSum).
+			Msg("Certificate verified")
 		return
 	}
 

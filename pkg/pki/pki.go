@@ -16,7 +16,12 @@ import (
 )
 
 var commonName string = "eve ca"
+
+// TODO: Make this proper
 var serialNumber *big.Int = big.NewInt((time.Now().Unix() + int64(mrand.Intn(4096))))
+var today time.Time = time.Now()
+var CaExpirey time.Time = time.Now().AddDate(10, 0, 0)
+var CertExpirey time.Time = time.Now().AddDate(3, 0, 0)
 
 // Take a PEM encoded SEC1,ASN1 DER private key and return the *ed25519.PrivateKey object
 func ReadKey(keyPEMBytes []byte) ed25519.PrivateKey {
@@ -72,12 +77,16 @@ func ReadCSR(certPEMBytes []byte) *x509.CertificateRequest {
 // Take a privat key object and a hostname and return a PEM encoded CA with the commonname of the hostname
 func GenCA(caKey ed25519.PrivateKey) []byte {
 	caTemplate := x509.Certificate{
-		// TODO: make serial number generation proper
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			CommonName: commonName,
 		},
-		IsCA: true,
+		NotBefore:             today,
+		NotAfter:              CaExpirey,
+		BasicConstraintsValid: true,
+		IsCA:                  true,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 	}
 	caBytes, err := x509.CreateCertificate(rand.Reader, &caTemplate, &caTemplate, caKey.Public(), caKey)
 	if err != nil {
@@ -115,12 +124,15 @@ func GenCSR(privKey any, hostname string) []byte {
 // Generate a cert from the CSA and sign with the CA supplied
 func SignCrt(caCert *x509.Certificate, caPriv ed25519.PrivateKey, csr *x509.CertificateRequest) []byte {
 	certBytes, err := x509.CreateCertificate(rand.Reader, &x509.Certificate{
-		// TODO: make serial number generation proper
 		SerialNumber: serialNumber,
 		Subject: pkix.Name{
 			CommonName: csr.Subject.CommonName,
 		},
-		DNSNames: csr.DNSNames,
+		NotBefore:   today,
+		NotAfter:    CertExpirey,
+		DNSNames:    csr.DNSNames,
+		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:    x509.KeyUsageDigitalSignature,
 	}, caCert, csr.PublicKey, caPriv)
 
 	if err != nil {
@@ -133,6 +145,23 @@ func SignCrt(caCert *x509.Certificate, caPriv ed25519.PrivateKey, csr *x509.Cert
 	})
 
 	return certPem
+}
+
+// Verify if a cert was signed by the CA
+func VerifyCrt(caCert *x509.Certificate, cert *x509.Certificate) error {
+	caPool := x509.NewCertPool()
+	caPool.AddCert(caCert)
+
+	opts := x509.VerifyOptions{
+		Roots:     caPool,
+		KeyUsages: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+	}
+
+	if _, err := cert.Verify(opts); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Return the sum of any PEM encoded object
