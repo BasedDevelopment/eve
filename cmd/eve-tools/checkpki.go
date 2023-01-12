@@ -31,7 +31,7 @@ func checkPKI() {
 	caCrtChecksum := pki.PemSum(caCrtBytes)
 	log.Info().
 		Str("path", caCrtPath).
-		Str("checksum", caCrtChecksum).
+		Str("SHA1", caCrtChecksum).
 		Msg("CA cert")
 
 	if !fileExists(evePrivPath) {
@@ -58,6 +58,6 @@ func checkPKI() {
 	eveCrtSum := pki.PemSum(eveCrt)
 	log.Info().
 		Str("path", eveCrtPath).
-		Str("checksum", eveCrtSum).
+		Str("SHA1", eveCrtSum).
 		Msg("Eve cert")
 }

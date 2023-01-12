@@ -91,6 +91,11 @@ func main() {
 		caPriv := pki.ReadKey(caPrivBytes)
 		caCrt := pki.GenCA(caPriv)
 		writeFile(caCrtPath, caCrt)
+		sum := pki.PemSum(caCrt)
+		log.Info().
+			Str("path", caCrtPath).
+			Str("SHA1", sum).
+			Msg("Wrote CA certificate")
 		return
 	}
 
@@ -117,6 +122,13 @@ func main() {
 		crt := pki.SignCrt(caCrt, caPriv, eveCsr)
 
 		writeFile(eveCrtPath, crt)
+
+		sum := pki.PemSum(crt)
+		log.Info().
+			Str("path", eveCrtPath).
+			Str("SHA1", sum).
+			Msg("Wrote EVE certificate")
+
 		return
 	}
 
@@ -131,7 +143,7 @@ func main() {
 		csrSum := pki.PemSum(csrBytes)
 		csr := pki.ReadCSR(csrBytes)
 		log.Info().
-			Str("Checksum", csrSum).
+			Str("SHA1", csrSum).
 			Str("host", host).
 			Msg("CSR checksum")
 
@@ -146,7 +158,7 @@ func main() {
 
 		crtSum := pki.PemSum(crtBytes)
 		log.Info().
-			Str("Checksum", crtSum).
+			Str("SHA1", crtSum).
 			Str("host", host).
 			Msg("Certificate signed")
 		return
@@ -155,7 +167,7 @@ func main() {
 	if *checkSum != "" {
 		b := readFile(*checkSum)
 		result := pki.PemSum(b)
-		log.Info().Str("Checksum", result)
+		log.Info().Str("SHA1", result)
 		return
 	}
 
