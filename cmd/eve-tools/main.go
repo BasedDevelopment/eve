@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -67,12 +66,12 @@ func init() {
 	if _, err := os.Stat(tlsPath); os.IsNotExist(err) {
 		log.Info().
 			Str("path", tlsPath).
-			Msg("TLS Path does not exist, Creating.")
+			Msg("TLS Path does not exist, creating.")
 		if err := os.MkdirAll(tlsPath, 0700); err != nil {
 			log.Fatal().
 				Err(err).
 				Str("path", tlsPath).
-				Msg("Failed to create TLS Path")
+				Msg("Failed to create TLS path")
 		}
 	}
 }
@@ -174,7 +173,7 @@ func main() {
 		return
 	}
 
-	fmt.Println("No action specified, checking PKI")
+	log.Info().Msg("No action specified, checking PKI")
 	checkPKI()
 }
 
