@@ -40,7 +40,7 @@ func init() {
 	flag.Parse()
 
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
-	log.Info().Msg("eve-tools, tools to manage the CA on an eve instance")
+	log.Info().Msg("eve-tools, tools to manage the CA on an eve instance " + version)
 
 	if err := config.Load(*configPath); err != nil {
 		log.Fatal().Err(err).Msg("Failed to load configuration")
