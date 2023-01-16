@@ -21,7 +21,7 @@ require (
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/go-chi/cors v1.2.1
-	github.com/go-chi/httprate v0.7.0
+	github.com/go-chi/httprate v0.7.1
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
