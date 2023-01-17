@@ -22,7 +22,7 @@ import (
 	"encoding/hex"
 	"encoding/xml"
 
-	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/BasedDevelopment/eve/pkg/status"
 	"github.com/digitalocean/go-libvirt"
 	"github.com/google/uuid"
 )
@@ -89,11 +89,11 @@ func (l Libvirt) GetVMSpecs(dom Dom) (specs DomSpecs, err error) {
 }
 
 // Get the state of a domain(vm)
-func (l Libvirt) GetVMState(dom Dom) (stateInt util.Status, stateStr string, reasonStr string, err error) {
+func (l Libvirt) GetVMState(dom Dom) (stateInt status.Status, stateStr string, reasonStr string, err error) {
 	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainState
 	//https://libvirt.org/html/libvirt-libvirt-domain.html#virDomainRunningReason
 	lState, lReason, err := l.conn.DomainGetState(dom.Dom, 0)
-	stateInt = util.Status(lState)
+	stateInt = status.Status(lState)
 	stateStr, reasonStr = getStateReason(lState, lReason)
 	return
 }

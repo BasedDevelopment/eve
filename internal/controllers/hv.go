@@ -27,7 +27,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/libvirt"
-	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/BasedDevelopment/eve/pkg/status"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
@@ -56,7 +56,7 @@ type HV struct {
 	Created        time.Time             `json:"created"`
 	Updated        time.Time             `json:"updated"`
 	Remarks        string                `json:"remarks"`
-	Status         util.Status           `json:"status" db:"-"`
+	Status         status.Status         `json:"status" db:"-"`
 	StatusReason   string                `json:"status_reason" db:"-"`
 	QemuVersion    string                `json:"qemu_version" db:"-"`
 	LibvirtVersion string                `json:"libvirt_version" db:"-"`
@@ -215,11 +215,11 @@ func (hv *HV) connect() error {
 
 	err := hv.Libvirt.Connect()
 	if err != nil {
-		hv.Status = util.StatusUnknown
+		hv.Status = status.StatusUnknown
 		hv.StatusReason = err.Error()
 		return err
 	} else {
-		hv.Status = util.StatusRunning
+		hv.Status = status.StatusRunning
 		hv.StatusReason = "Connected to libvirt"
 	}
 	if err := hv.getHVSpecs(); err != nil {

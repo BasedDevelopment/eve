@@ -28,7 +28,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/libvirt"
-	"github.com/BasedDevelopment/eve/internal/util"
+	"github.com/BasedDevelopment/eve/pkg/status"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/rs/zerolog/log"
@@ -48,7 +48,7 @@ type VM struct {
 	Updated     time.Time            `json:"updated"`
 	Remarks     string               `json:"remarks"`
 	Domain      libvirt.Dom          `db:"-" json:"-"`
-	State       util.Status          `db:"-" json:"state"`
+	State       status.Status        `db:"-" json:"state"`
 	StateStr    string               `db:"-" json:"state_str"`
 	StateReason string               `db:"-" json:"state_reason"`
 }
