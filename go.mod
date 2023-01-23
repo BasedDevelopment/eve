@@ -7,7 +7,7 @@ require (
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.2.0
-	github.com/knadh/koanf v1.4.5
+	github.com/knadh/koanf v1.5.0
 	github.com/rs/zerolog v1.28.0
 )
 
