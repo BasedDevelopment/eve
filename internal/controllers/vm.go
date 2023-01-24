@@ -70,12 +70,14 @@ type VMStorage struct {
 }
 
 func (hv *HV) getVMsFromDB() (vms []VM, err error) {
-	// Query DB
-	rows, queryErr := db.Pool.Query(context.Background(), "SELECT * FROM vm WHERE hv_id = $1", hv.ID)
+	// Fetch VMs from database for this hypervisor
+	rows, queryErr := db.Pool.Query(context.Background(),
+		"SELECT * FROM vm WHERE hv_id = $1", hv.ID)
+
 	if queryErr != nil {
-		err := fmt.Errorf("failed to query VMs: %w", queryErr)
-		return nil, err
+		return nil, fmt.Errorf("failed to query VMs: %w", queryErr)
 	}
+
 	defer rows.Close()
 
 	// Collect the rows into the VM struct
@@ -85,14 +87,15 @@ func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 		err := fmt.Errorf("error collecting VMs: %w", collectErr)
 		return nil, err
 	}
+
 	return
 }
 
-// Fetch VMs from the DB and Libvirt, marshall them into the HV struct,
-// and check for consistency
+// Fetch VMs from the DB and Libvirt, marshall them into the HV struct, and
+// check for inconsistencies
 func (hv *HV) InitVMs() error {
-	// Fetch VMs from HV
-	libvirtVMs, err := hv.Auto.GetLibvirtVMs()
+	// Use Auto to
+	vms, err := hv.Auto.GetLibvirtVMs()
 	if err != nil {
 		return err
 	}
@@ -103,11 +106,12 @@ func (hv *HV) InitVMs() error {
 		return err
 	}
 
-	if len(dbVMs) != len(libvirtVMs) {
+	// Check for mismatch in amount of VM's on libvirt vs in database
+	if len(dbVMs) != len(vms) {
 		log.Warn().
 			Str("hv", hv.Hostname).
 			Int("db", len(dbVMs)).
-			Int("libvirt", len(libvirtVMs)).
+			Int("libvirt", len(vms)).
 			Msg("VM count mismatch")
 	}
 
@@ -119,11 +123,11 @@ func (hv *HV) InitVMs() error {
 		hv.VMs[id] = &dbVMs[i]
 
 		// Consistency check w/ libvirt
-		for j := range libvirtVMs {
+		for j := range vms {
 			// Check if libvirt VM id == database ID
-			if libvirtVMs[j].ID == id {
+			if vms[j].ID == id {
 				// Domain is the VM object, direct from libvirt
-				hv.VMs[id].Domain = libvirtVMs[j]
+				hv.VMs[id].Domain = vms[j]
 
 				// Check consistency between our database & libvirt/auto.
 				go hv.checkVMConsistency(hv.VMs[id])
