@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: copy over config
-        run: sudo mkdir /etc/eve && sudo cp build/config.toml.ci /etc/eve/config.toml
+        run: sudo mkdir -p /etc/eve/tls && sudo cp build/config.toml.ci /etc/eve/config.toml
       - name: Build
         run: make
       - name: sql
