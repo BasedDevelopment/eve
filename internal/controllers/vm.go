@@ -111,13 +111,21 @@ func (hv *HV) InitVMs() error {
 			Msg("VM count mismatch")
 	}
 
-	// Marshall the HV.VMs struct in
+	// Load the VMs of a hypervisor into memory
 	for i := range dbVMs {
 		id := dbVMs[i].ID
+
+		// Load from database
 		hv.VMs[id] = &dbVMs[i]
+
+		// Consistency check w/ libvirt
 		for j := range libvirtVMs {
-			if libvirtVMs[j].ID == dbVMs[i].ID {
+			// Check if libvirt VM id == database ID
+			if libvirtVMs[j].ID == id {
+				// Domain is the VM object, direct from libvirt
 				hv.VMs[id].Domain = libvirtVMs[j]
+
+				// Check consistency between our database & libvirt/auto.
 				go hv.checkVMConsistency(hv.VMs[id])
 			}
 		}
@@ -157,7 +165,7 @@ func (hv *HV) checkVMConsistency(dbvm *VM) {
 	}
 }
 
-//TODO
+// TODO
 func (hv *HV) checkUndefinedVMs() {
 	//doms, err := hv.Libvirt.GetUndefinedVMs()
 	//if err != nil {
