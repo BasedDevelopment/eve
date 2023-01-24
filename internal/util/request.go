@@ -32,13 +32,12 @@ type Validatable[T any] interface {
 }
 
 type Request interface {
-	CreateRequest |
+	UserCreateRequest |
 		LoginRequest |
-		UserVMUpdateRequest |
-		AutoCreateRequest
+		SetStateRequest
 }
 
-type CreateRequest struct {
+type UserCreateRequest struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -47,7 +46,7 @@ type CreateRequest struct {
 	Remarks  string `json:"remarks"`
 }
 
-func (s CreateRequest) Validate() error {
+func (s UserCreateRequest) Validate() error {
 	return validation.ValidateStruct(&s,
 		validation.Field(&s.Name, validation.Required, validation.Length(2, 20)),
 		validation.Field(&s.Email, validation.Required, is.Email),
@@ -67,30 +66,13 @@ func (s LoginRequest) Validate() error {
 	)
 }
 
-type UserVMUpdateRequest struct {
-	State    string `json:"state"`
-	Hostname string `json:"hostname"`
-	//TODO: ISO
+type SetStateRequest struct {
+	State string `json:"state"`
 }
 
-func (s UserVMUpdateRequest) Validate() error {
+func (s SetStateRequest) Validate() error {
 	return validation.ValidateStruct(&s,
-		validation.Field(&s.State, validation.In("start", "stop", "restart", "reset", "reinstall")),
-		validation.Field(&s.Hostname, validation.Length(2, 20), is.DNSName),
-	)
-}
-
-type AutoCreateRequest struct {
-	Hostname string `json:"hostname"`
-	Site     string `json:"site"`
-	CSR      string `json:"csr"`
-}
-
-func (s AutoCreateRequest) Validate() error {
-	return validation.ValidateStruct(&s,
-		validation.Field(&s.Hostname, validation.Length(2, 20), is.DNSName),
-		validation.Field(&s.Site, validation.Length(2, 20)),
-		validation.Field(&s.CSR, validation.Required, is.PrintableASCII),
+		validation.Field(&s.State, validation.Required, validation.In("start", "reboot", "poweroff", "stop", "reset")),
 	)
 }
 

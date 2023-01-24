@@ -19,19 +19,14 @@
 package users
 
 import (
-	"errors"
 	"net/http"
 
+	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-)
-
-var (
-	errNotFound  = errors.New("not found")
-	errForbidden = errors.New("forbidden")
 )
 
 func GetVMs(w http.ResponseWriter, r *http.Request) {
@@ -46,8 +41,9 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 		for _, vm := range hv.VMs {
 			if vm.UserID == userID {
 				response = append(response, map[string]interface{}{
-					"hypervisor": hv,
+					"hypervisor": hv.Hostname,
 					"name":       vm.Hostname,
+					"id":         vm.ID,
 				})
 			}
 		}
@@ -60,123 +56,94 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetVM(w http.ResponseWriter, r *http.Request) {
-	// Fetch VM owned by the user
+func getUserVM(w http.ResponseWriter, r *http.Request) (*controllers.HV, *controllers.VM) {
 	ctx := r.Context()
+	cloud := controllers.Cloud
 	userID := ctx.Value("owner").(uuid.UUID)
-
 	reqVmid := chi.URLParam(r, "virtual_machine")
 	vmid, err := uuid.Parse(reqVmid)
 	if err != nil {
 		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
+		return nil, nil
+	}
+
+	for _, hv := range cloud.HVs {
+		for _, vm := range hv.VMs {
+			if vm.ID == vmid {
+				if vm.UserID != userID {
+					eUtil.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
+					return nil, nil
+				} else {
+					return hv, vm
+				}
+			}
+		}
+	}
+	eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+	return nil, nil
+}
+
+func GetVM(w http.ResponseWriter, r *http.Request) {
+	_, vm := getUserVM(w, r)
+	if vm == nil {
 		return
 	}
 
-	targetHV, targetVM, err := getUserVM(userID, vmid)
-	if err != nil {
-		if err == errNotFound {
-			eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
-			return
-		} else if err == errForbidden {
-			eUtil.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
-			return
-		} else {
-			eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
-			return
-		}
-	}
-	//TODO
-	_ = targetHV
-
 	// Send response
-	if err := eUtil.WriteResponse(targetVM, w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(vm, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
 
-func UpdateVM(w http.ResponseWriter, r *http.Request) {
-	// Fetch VM owned by the user
-	ctx := r.Context()
+func GetVMState(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getUserVM(w, r)
+	if vm == nil {
+		return
+	}
 
-	// Decode request
-	req := new(util.UserVMUpdateRequest)
+	state, err := hv.Auto.GetVMState(vm.ID.String())
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to get VM state")
+	}
 
+	if err := eUtil.WriteResponse(state, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}
+
+func SetVMState(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getUserVM(w, r)
+	if vm == nil {
+		return
+	}
+
+	req := new(util.SetStateRequest)
 	if err := util.ParseRequest(r, req); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
 		return
 	}
 
-	// Fetch VM
-	userID := ctx.Value("owner").(uuid.UUID)
-	reqVmid := chi.URLParam(r, "virtual_machine")
-	vmid, err := uuid.Parse(reqVmid)
+	var status uint8
+	switch req.State {
+	case "start":
+		status = auto.Start
+	case "reboot":
+		status = auto.Reboot
+	case "poweroff":
+		status = auto.Poweroff
+	case "stop":
+		status = auto.Stop
+	case "reset":
+		status = auto.Reset
+	}
+
+	respState, err := hv.Auto.SetVMState(vm.ID.String(), status)
 	if err != nil {
-		eUtil.WriteError(w, r, nil, http.StatusBadRequest, "invalid virtual machine id")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to set VM state")
 		return
 	}
 
-	targetHV, targetVM, err := getUserVM(userID, vmid)
-	if err != nil {
-		if err == errNotFound {
-			eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
-			return
-		} else if err == errForbidden {
-			eUtil.WriteError(w, r, nil, http.StatusForbidden, "virtual machine not owned by user")
-			return
-		} else {
-			eUtil.WriteError(w, r, nil, http.StatusInternalServerError, "failed to fetch virtual machine")
-			return
-		}
-	}
-
-	if req.Hostname != "" {
-	}
-
-	if req.State != "" {
-		switch req.State {
-		case "start":
-			//		if err := targetHV.Libvirt.VMStart(targetVM.Domain); err != nil {
-			//			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to start virtual machine")
-			//			return
-			//		}
-		case "reboot":
-		case "poweroff":
-		case "stop":
-		case "reset":
-		}
-	}
-
-	//if err := targetHV.fetchVMState(targetVM); err != nil {
-	//	eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
-	//	return
-	//}
-	_ = targetHV
-	_ = targetVM
-
-	response := map[string]interface{}{
-		//	"state": targetVM.StateStr,
-	}
-
-	// Send response
-	if err := eUtil.WriteResponse(response, w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(respState, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
-}
-
-func getUserVM(userid uuid.UUID, vmid uuid.UUID) (*controllers.HV, *controllers.VM, error) {
-	// Fetch VM owned by the user
-	cloud := controllers.Cloud
-
-	for _, hv := range cloud.HVs {
-		for _, vm := range hv.VMs {
-			if vm.ID == vmid {
-				if vm.UserID != userid {
-					return nil, nil, errForbidden
-				} else {
-					return hv, vm, nil
-				}
-			}
-		}
-	}
-	return nil, nil, errNotFound
 }

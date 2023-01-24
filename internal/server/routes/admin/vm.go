@@ -19,9 +19,12 @@
 package admin
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/controllers"
+	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -48,27 +51,89 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetVM(w http.ResponseWriter, r *http.Request) {
-	// Get hv ID from request
-	hvidStr := chi.URLParam(r, "hypervisor")
-	hvid, err := uuid.Parse(hvidStr)
+func getVM(w http.ResponseWriter, r *http.Request) (*controllers.HV, *controllers.VM) {
+	hvid, err := uuid.Parse(chi.URLParam(r, "hypervisor"))
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
-		return
+		return nil, nil
 	}
-	hv := controllers.Cloud.HVs[hvid]
 
-	// Get vm ID from request
-	vmidStr := chi.URLParam(r, "virtual_machine")
-	vmid, err := uuid.Parse(vmidStr)
+	vmid, err := uuid.Parse(chi.URLParam(r, "virtual_machine"))
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid VM ID")
+		return nil, nil
+	}
+
+	vm, ok := controllers.Cloud.HVs[hvid].VMs[vmid]
+	if !ok {
+		eUtil.WriteError(w, r, fmt.Errorf("VM not found"), http.StatusNotFound, "Invalid VM ID")
+		return nil, nil
+	}
+
+	return controllers.Cloud.HVs[hvid], vm
+}
+
+func GetVM(w http.ResponseWriter, r *http.Request) {
+	_, vm := getVM(w, r)
+	if vm == nil {
 		return
 	}
+
 	// TODO: polish response json
 
 	// Send response
-	if err := eUtil.WriteResponse(hv.VMs[vmid], w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(vm, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}
+
+func GetVMState(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getVM(w, r)
+
+	state, err := hv.Auto.GetVMState(vm.ID.String())
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to get VM state")
+		return
+	}
+
+	if err := eUtil.WriteResponse(state, w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}
+
+func SetVMState(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getVM(w, r)
+	if vm == nil {
+		return
+	}
+
+	req := new(util.SetStateRequest)
+	if err := util.ParseRequest(r, req); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
+		return
+	}
+
+	var status uint8
+	switch req.State {
+	case "start":
+		status = auto.Start
+	case "reboot":
+		status = auto.Reboot
+	case "poweroff":
+		status = auto.Poweroff
+	case "stop":
+		status = auto.Stop
+	case "reset":
+		status = auto.Reset
+	}
+
+	respState, err := hv.Auto.SetVMState(vm.ID.String(), status)
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to set VM state")
+		return
+	}
+
+	if err := eUtil.WriteResponse(respState, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }

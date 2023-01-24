@@ -81,6 +81,10 @@ func Service() *chi.Mux {
 						//r.Post("/", admin.CreateVM)
 						r.Route("/{virtual_machine}", func(r chi.Router) {
 							r.Get("/", admin.GetVM)
+							r.Route("/state", func(r chi.Router) {
+								r.Get("/", admin.GetVMState)
+								r.Patch("/", admin.SetVMState)
+							})
 							//r.Patch("/", admin.UpdateVM)
 							//r.Delete("/", admin.DeleteVM)
 						})
@@ -109,7 +113,11 @@ func Service() *chi.Mux {
 			r.Get("/", users.GetVMs)
 			r.Route("/{virtual_machine}", func(r chi.Router) {
 				r.Get("/", users.GetVM)
-				r.Patch("/", users.UpdateVM)
+				r.Route("/state", func(r chi.Router) {
+					r.Get("/", users.GetVMState)
+					r.Patch("/", users.SetVMState)
+				})
+				//	r.Patch("/", users.UpdateVM)
 			})
 		})
 

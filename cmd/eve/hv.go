@@ -33,7 +33,6 @@ func connHV(hv *controllers.HV) {
 	} else {
 		log.Info().
 			Str("hostname", hv.Hostname).
-			Str("hvs", hv.Hostname).
 			Int("vms", len(hv.VMs)).
 			Msg("Connected to hypervisor and fetched virtual machines")
 	}

@@ -31,7 +31,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Decode request
-	req := new(util.CreateRequest)
+	req := new(util.UserCreateRequest)
 
 	if err := util.ParseRequest(r, req); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
