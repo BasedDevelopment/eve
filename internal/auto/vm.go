@@ -3,11 +3,13 @@ package auto
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
 	"github.com/BasedDevelopment/auto/pkg/models"
+	"github.com/BasedDevelopment/eve/pkg/status"
 )
 
 func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
@@ -139,6 +141,11 @@ func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, e
 	defer resp.Body.Close()
 
 	err = json.Unmarshal(respBytes, &respState)
+
+	if respState.State == status.StatusUnknown {
+		respStr := string(respBytes)
+		return respState, fmt.Errorf(respStr)
+	}
 
 	return
 }
