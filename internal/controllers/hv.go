@@ -91,5 +91,9 @@ func (hv *HV) Init() error {
 		hv.Libvirt = &libvirt
 	}
 
+	if err := hv.InitVMs(); err != nil {
+		return err
+	}
+
 	return nil
 }
