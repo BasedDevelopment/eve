@@ -40,25 +40,21 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	userID := ctx.Value("owner").(uuid.UUID)
 
 	cloud := controllers.Cloud
-	var hvs []map[string]interface{}
+	var response []interface{}
 
 	for _, hv := range cloud.HVs {
 		for _, vm := range hv.VMs {
 			if vm.UserID == userID {
-				if err := hv.GetVMState(vm); err != nil {
-					eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
-					return
-				}
-				hvs = append(hvs, map[string]interface{}{
-					"hypervisor": hv.Hostname,
-					"vm":         vm,
+				response = append(response, map[string]interface{}{
+					"hypervisor": hv,
+					"name":       vm.Hostname,
 				})
 			}
 		}
 	}
 
 	// Send response
-	if err := eUtil.WriteResponse(hvs, w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(response, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 
@@ -89,11 +85,8 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	if err := targetHV.GetVMState(targetVM); err != nil {
-		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
-		return
-	}
+	//TODO
+	_ = targetHV
 
 	// Send response
 	if err := eUtil.WriteResponse(targetVM, w, http.StatusOK); err != nil {
@@ -142,40 +135,26 @@ func UpdateVM(w http.ResponseWriter, r *http.Request) {
 	if req.State != "" {
 		switch req.State {
 		case "start":
-			if err := targetHV.Libvirt.VMStart(targetVM.Domain); err != nil {
-				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to start virtual machine")
-				return
-			}
+			//		if err := targetHV.Libvirt.VMStart(targetVM.Domain); err != nil {
+			//			eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to start virtual machine")
+			//			return
+			//		}
 		case "reboot":
-			if err := targetHV.Libvirt.VMReboot(targetVM.Domain); err != nil {
-				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to reboot virtual machine")
-				return
-			}
 		case "poweroff":
-			if err := targetHV.Libvirt.VMPowerOff(targetVM.Domain); err != nil {
-				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to power off virtual machine")
-				return
-			}
 		case "stop":
-			if err := targetHV.Libvirt.VMStop(targetVM.Domain); err != nil {
-				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to stop virtual machine")
-				return
-			}
 		case "reset":
-			if err := targetHV.Libvirt.VMReset(targetVM.Domain); err != nil {
-				eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to reset virtual machine")
-				return
-			}
 		}
 	}
 
-	if err := targetHV.GetVMState(targetVM); err != nil {
-		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
-		return
-	}
+	//if err := targetHV.fetchVMState(targetVM); err != nil {
+	//	eUtil.WriteError(w, r, err, http.StatusInternalServerError, "failed to fetch virtual machine state")
+	//	return
+	//}
+	_ = targetHV
+	_ = targetVM
 
 	response := map[string]interface{}{
-		"state": targetVM.StateStr,
+		//	"state": targetVM.StateStr,
 	}
 
 	// Send response

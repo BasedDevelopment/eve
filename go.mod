@@ -12,6 +12,7 @@ require (
 )
 
 require (
+	github.com/BasedDevelopment/auto v0.0.0-20230123154220-108c4da7aaa1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
 	github.com/lib/pq v1.10.7 // indirect
 )

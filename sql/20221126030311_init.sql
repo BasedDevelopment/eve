@@ -26,8 +26,8 @@ CREATE TABLE public.sessions (
 CREATE TABLE public.hv (
     id uuid NOT NULL PRIMARY KEY,
     hostname character varying(255) NOT NULL,
-    ip inet NOT NULL,
-    port integer NOT NULL DEFAULT 16509,
+    auto_url character varying(255) NOT NULL,
+    auto_serial character varying(255) NOT NULL,
     site character varying(255) NOT NULL,
     created timestamp with time zone NOT NULL DEFAULT now(),
     updated timestamp with time zone NOT NULL DEFAULT now(),

@@ -126,14 +126,17 @@ func main() {
 		caPriv := pki.ReadKey(caPrivBytes)
 		caCrtBytes := util.ReadFile(caCrtPath)
 		caCrt := pki.ReadCrt(caCrtBytes)
-		crt := pki.SignCrt(caCrt, caPriv, eveCsr)
+		crtBytes := pki.SignCrt(caCrt, caPriv, eveCsr)
+		crt := pki.ReadCrt(crtBytes)
+		serial := crt.SerialNumber.String()
 
-		util.WriteFile(eveCrtPath, crt)
+		util.WriteFile(eveCrtPath, crtBytes)
 
-		sum := pki.PemSum(crt)
+		sum := pki.PemSum(crtBytes)
 		log.Info().
 			Str("path", eveCrtPath).
 			Str("SHA1", sum).
+			Str("serial", serial).
 			Msg("Wrote EVE certificate")
 
 		return
@@ -163,10 +166,14 @@ func main() {
 		crtBytes := pki.SignCrt(caCrt, caPriv, csr)
 		util.WriteFile(host+".crt", crtBytes)
 
+		crt := pki.ReadCrt(crtBytes)
+		serial := crt.SerialNumber.String()
+
 		crtSum := pki.PemSum(crtBytes)
 		log.Info().
 			Str("SHA1", crtSum).
 			Str("host", host).
+			Str("serial", serial).
 			Msg("Certificate signed")
 		return
 	}

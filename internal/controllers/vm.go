@@ -22,35 +22,31 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"strconv"
 	"sync"
 	"time"
 
+	"github.com/BasedDevelopment/auto/pkg/models"
 	"github.com/BasedDevelopment/eve/internal/db"
-	"github.com/BasedDevelopment/eve/internal/libvirt"
-	"github.com/BasedDevelopment/eve/pkg/status"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 )
 
+// TODO: Delete a bunch of this and start using auto method
+// TODO: don't forget to consistency check
 type VM struct {
-	mutex       sync.Mutex           `db:"-" json:"-"`
-	ID          uuid.UUID            `json:"id"`
-	HV          uuid.UUID            `db:"hv_id" json:"hv"`
-	Hostname    string               `json:"hostname"`
-	UserID      uuid.UUID            `db:"profile_id" json:"user"`
-	CPU         int                  `json:"cpu"`
-	Memory      int64                `json:"memory"`
-	Nics        map[string]VMNic     `db:"-" json:"nics"`
-	Storages    map[string]VMStorage `db:"-" json:"storages"`
-	Created     time.Time            `json:"created"`
-	Updated     time.Time            `json:"updated"`
-	Remarks     string               `json:"remarks"`
-	Domain      libvirt.Dom          `db:"-" json:"-"`
-	State       status.Status        `db:"-" json:"state"`
-	StateStr    string               `db:"-" json:"state_str"`
-	StateReason string               `db:"-" json:"state_reason"`
+	mutex    sync.Mutex           `db:"-" json:"-"`
+	ID       uuid.UUID            `json:"id"`
+	HV       uuid.UUID            `db:"hv_id" json:"hv"`
+	Hostname string               `json:"hostname"`
+	UserID   uuid.UUID            `db:"profile_id" json:"user"`
+	CPU      int                  `json:"cpu"`
+	Memory   int64                `json:"memory"`
+	Nics     map[string]VMNic     `db:"-" json:"nics"`
+	Storages map[string]VMStorage `db:"-" json:"storages"`
+	Created  time.Time            `json:"created"`
+	Updated  time.Time            `json:"updated"`
+	Remarks  string               `json:"remarks"`
+	Domain   models.VM            `json:"-"`
 }
 
 type VMNic struct {
@@ -74,68 +70,6 @@ type VMStorage struct {
 	Remarks string
 }
 
-// Fetch VMs from the DB and Libvirt, marshall them into the HV struct,
-// and check for consistency
-func (hv *HV) InitVMs() error {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	// Get VMs from libvirt
-	libvirtVMs, err := hv.getVMsFromLibvirt()
-	if err != nil {
-		return err
-	}
-
-	// Get VMs from DB
-	dbVMs, err := hv.getVMsFromDB()
-	if err != nil {
-		return err
-	}
-
-	hv.mutex.Lock()
-	defer hv.mutex.Unlock()
-
-	// Marshall the HV.VMs struct in
-	for i := range dbVMs {
-		hv.VMs[dbVMs[i].ID] = &dbVMs[i]
-		hv.VMs[dbVMs[i].ID].Domain = libvirtVMs[dbVMs[i].ID]
-	}
-
-	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
-		return err
-	}
-
-	go consistencyCheck(libvirtVMs, hv)
-	go fetchVMState(hv)
-	go hv.checkUndefinedVMs()
-
-	return nil
-}
-
-// Check if the VMs are consistent
-func consistencyCheck(libvirtVMs map[uuid.UUID]libvirt.Dom, hv *HV) {
-	// Check if the VMs are consistent
-	if err := hv.checkVMConsistency(libvirtVMs, hv.VMs); err != nil {
-		log.Error().Err(err).Msg("VM consistency check failed")
-		return
-	}
-	log.Info().Str("hv", hv.Hostname).Msg("VM consistency check passed")
-}
-
-// Fetch VM state and state reason
-func fetchVMState(hv *HV) {
-	for uuid := range hv.VMs {
-		if err := hv.GetVMState(hv.VMs[uuid]); err != nil {
-			log.Error().Err(err).Msg("failed to get VM state")
-			return
-		}
-	}
-	log.Info().Str("hv", hv.Hostname).Msg("VM state fetched")
-}
-
-// Get the list of VMs from the DB
-// Will be used to check consistency
 func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 	// Query DB
 	rows, queryErr := db.Pool.Query(context.Background(), "SELECT * FROM vm WHERE hv_id = $1", hv.ID)
@@ -155,96 +89,72 @@ func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 	return
 }
 
-// Get the list of VMs from libvirt
-// Will be used to check consistency
-func (hv *HV) getVMsFromLibvirt() (doms map[uuid.UUID]libvirt.Dom, err error) {
-	if err := hv.ensureConn(); err != nil {
-		return nil, err
-	}
-
-	doms, err = hv.Libvirt.GetVMs()
+// Fetch VMs from the DB and Libvirt, marshall them into the HV struct,
+// and check for consistency
+func (hv *HV) InitVMs() error {
+	// Fetch VMs from HV
+	libvirtVMs, err := hv.Auto.GetLibvirtVMs()
 	if err != nil {
-		return nil, err
-	}
-	return
-}
-
-func (hv *HV) checkVMConsistency(libvirt map[uuid.UUID]libvirt.Dom, db map[uuid.UUID]*VM) error {
-	if err := hv.ensureConn(); err != nil {
 		return err
 	}
 
-	for uuid, dom := range libvirt {
+	// Get VMs from DB
+	dbVMs, err := hv.getVMsFromDB()
+	if err != nil {
+		return err
+	}
 
-		// Get the VM specs from libvirt
-		domSpec, err := hv.Libvirt.GetVMSpecs(dom)
-		if err != nil {
-			return err
+	hv.mutex.Lock()
+	defer hv.mutex.Unlock()
+
+	// Marshall the HV.VMs struct in
+	for i := range dbVMs {
+		vm := hv.VMs[dbVMs[i].ID]
+		vm = &dbVMs[i]
+		for i := range libvirtVMs {
+			if libvirtVMs[i].ID == vm.ID {
+				vm.Domain = libvirtVMs[i]
+			}
 		}
+	}
+
+	//go consistencyCheck(libvirtVMs, hv)
+	//go hv.checkUndefinedVMs()
+
+	return nil
+}
+
+// Fetch VM state and state reason
+func (hv *HV) fetchVMState(vm *VM) (models.VMState, error) {
+	//TODO
+	return models.VMState{}, nil
+}
+
+func (hv *HV) checkVMConsistency(domain map[uuid.UUID]models.VM, db map[uuid.UUID]*VM) error {
+	for uuid, dom := range domain {
+
+		_ = dom
+		_ = db
+		_ = uuid
+		// Get the VM specs from libvirt
 
 		// Check if the VM is in the DB
-		if _, ok := db[uuid]; !ok {
-			return fmt.Errorf("VM %s is not in the DB", uuid)
-		}
 
 		// Check for CPU count
-		if domSpec.Vcpu.Text != strconv.Itoa(db[uuid].CPU) {
-			return fmt.Errorf("CPU count mismatch for VM %s", uuid)
-		}
 
 		// Check for memory size
-		lMem, err := strconv.ParseInt(domSpec.Memory.Text, 10, 64)
-		if err != nil {
-			return err
-		}
-
-		switch domSpec.Memory.Unit {
-		case "KiB":
-			lMem = lMem * 1024
-		case "MiB":
-			lMem = lMem * 1024 * 1024
-		case "GiB":
-			lMem = lMem * 1024 * 1024 * 1024
-		}
-
-		if lMem != db[uuid].Memory {
-			return fmt.Errorf("Memory size mismatch for VM %s", uuid)
-		}
 	}
 	return nil
 }
 
 func (hv *HV) checkUndefinedVMs() {
-	if err := hv.ensureConn(); err != nil {
-		log.Error().Err(err).Msg("failed to connect to libvirt while checking for undefined VMs")
-	}
-
-	doms, err := hv.Libvirt.GetUndefinedVMs()
-	if err != nil {
-		log.Error().Err(err).Msg("failed to get undefined VMs")
-	}
-	if len(doms) > 0 {
-		log.Warn().Str("hv", hv.Hostname).Int("count", len(doms)).Msg("undefined VMs found")
-	} else {
-		log.Info().Str("hv", hv.Hostname).Msg("no undefined VMs found")
-	}
-}
-
-func (hv *HV) GetVMState(vm *VM) (err error) {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	vm.mutex.Lock()
-	defer vm.mutex.Unlock()
-
-	stateInt, stateStr, reasonStr, err := hv.Libvirt.GetVMState(vm.Domain)
-	if err != nil {
-		return err
-	}
-
-	vm.State = stateInt
-	vm.StateStr = stateStr
-	vm.StateReason = reasonStr
-	return nil
+	//doms, err := hv.Libvirt.GetUndefinedVMs()
+	//if err != nil {
+	//	log.Error().Err(err).Msg("failed to get undefined VMs")
+	//}
+	//if len(doms) > 0 {
+	//	log.Warn().Str("hv", hv.Hostname).Int("count", len(doms)).Msg("undefined VMs found")
+	//} else {
+	//	log.Info().Str("hv", hv.Hostname).Msg("no undefined VMs found")
+	//}
 }

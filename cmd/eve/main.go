@@ -28,6 +28,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/config"
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/db"
@@ -62,6 +63,7 @@ func init() {
 	log.Info().Msg("Connecting to database")
 
 	db.Init(config.Config.Database.URL)
+	auto.Init()
 }
 
 func main() {
@@ -121,18 +123,6 @@ func main() {
 		// Database pool
 		db.Pool.Close()
 		log.Info().Msg("Database pool shutdown success")
-
-		// Libvirt connections
-		for i := range cloud.HVs {
-			hv := cloud.HVs[i]
-			if err := hv.Libvirt.Close(); err != nil {
-				log.Error().
-					Err(err).
-					Str("hv", hv.Hostname).
-					Msg("Failed to close HV connection")
-			}
-		}
-		log.Info().Msg("Libvirt connections shutdown success")
 
 		srvStopCtx()
 	}()

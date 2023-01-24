@@ -21,61 +21,29 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"net"
 	"sync"
 	"time"
 
+	"github.com/BasedDevelopment/auto/pkg/models"
+	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/db"
-	"github.com/BasedDevelopment/eve/internal/libvirt"
-	"github.com/BasedDevelopment/eve/pkg/status"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
-	"github.com/rs/zerolog/log"
 )
 
 type HV struct {
-	mutex          sync.Mutex            `db:"-" json:"-"`
-	ID             uuid.UUID             `json:"id"`
-	Hostname       string                `json:"hostname"`
-	CPUModel       string                `json:"cpu_model" db:"-"`
-	Arch           string                `json:"arch" db:"-"`
-	RAMTotal       uint64                `json:"total_ram" db:"-"`
-	RAMFree        uint64                `json:"free_ram" db:"-"`
-	CPUCount       int32                 `json:"cpu_count" db:"-"`
-	CPUFrequency   int32                 `json:"cpu_frequency_mhz" db:"-"`
-	NUMANodes      int32                 `json:"numa_nodes" db:"-"`
-	CPUSockets     int32                 `json:"cpu_sockets" db:"-"`
-	CPUCores       int32                 `json:"cpu_cores" db:"-"`
-	CPUThreads     int32                 `json:"cpu_threads" db:"-"`
-	IP             net.IP                `json:"ip"`
-	Port           int                   `json:"port"`
-	Site           string                `json:"site"`
-	Brs            map[string]*HVBr      `json:"-" db:"-"`
-	Storages       map[string]*HVStorage `json:"-" db:"-"`
-	VMs            map[uuid.UUID]*VM     `json:"-" db:"-"`
-	Created        time.Time             `json:"created"`
-	Updated        time.Time             `json:"updated"`
-	Remarks        string                `json:"remarks"`
-	Status         status.Status         `json:"status" db:"-"`
-	StatusReason   string                `json:"status_reason" db:"-"`
-	QemuVersion    string                `json:"qemu_version" db:"-"`
-	LibvirtVersion string                `json:"libvirt_version" db:"-"`
-	Libvirt        *libvirt.Libvirt      `json:"-" db:"-"`
-}
-
-type HVBr struct {
-	Name string
-}
-
-// WIP
-type HVStorage struct {
-	ID        uuid.UUID
-	Size      int
-	Used      int `db:"-"`
-	Available int `db:"-"`
-	Created   time.Time
-	Updated   time.Time
-	Remarks   string
+	ID         uuid.UUID         `json:"id"`
+	Hostname   string            `json:"hostname"`
+	AutoUrl    string            `json:"auto_url" db:"auto_url"`
+	AutoSerial string            `json:"auto_serial" db:"auto_serial"`
+	Site       string            `json:"site"`
+	Created    time.Time         `json:"created"`
+	Updated    time.Time         `json:"updated"`
+	Remarks    string            `json:"remarks"`
+	mutex      sync.Mutex        `json:"-" db:"-"`
+	VMs        map[uuid.UUID]*VM `json:"-" db:"-"`
+	Auto       *auto.Auto        `json:"-" db:"-"`
+	Libvirt    *models.HV        `json:"-" db:"-"`
 }
 
 func getHVs(cloud *HVList) (err error) {
@@ -102,8 +70,10 @@ func getHVs(cloud *HVList) (err error) {
 	cloud.HVs = make(map[uuid.UUID]*HV)
 	for i := range HVs {
 		cloud.HVs[HVs[i].ID] = &HVs[i]
-		HVs[i].Brs = make(map[string]*HVBr)
-		HVs[i].Storages = make(map[string]*HVStorage)
+		HVs[i].Auto = &auto.Auto{
+			Url:    HVs[i].AutoUrl,
+			Serial: HVs[i].AutoSerial,
+		}
 		HVs[i].VMs = make(map[uuid.UUID]*VM)
 	}
 
@@ -112,124 +82,14 @@ func getHVs(cloud *HVList) (err error) {
 
 // Initialize the HV libvirt connection
 func (hv *HV) Init() error {
-	hv.Libvirt = libvirt.Init(hv.IP, hv.Port)
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-	if err := hv.InitVMs(); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Get the HV specs
-func (hv *HV) getHVSpecs() error {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	qemuVer, err := hv.Libvirt.GetHVQemuVersion()
-	if err != nil {
-		return err
-	}
-	hv.QemuVersion = qemuVer
-
-	libvirtVer, err := hv.Libvirt.GetHVLibvirtVersion()
-	if err != nil {
-		return err
-	}
-	hv.LibvirtVersion = libvirtVer
-
-	specs, err := hv.Libvirt.GetHVSpecs()
-	if err != nil {
-		return err
-	}
-
-	for _, spec := range specs.Processor.Entry {
-		if spec.Name == "version" {
-			hv.CPUModel = spec.Text
-		}
-	}
-	if hv.CPUModel == "" {
-		log.Warn().
-			Str("hv", hv.Hostname).
-			Msg("Could not find CPU version")
-	}
-	return nil
-}
-
-// Get HV stats
-func (hv *HV) getHVStats() error {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	arch, memoryTotal, memoryFree, cpus, mhz, nodes, sockets, cores, threads, err := hv.Libvirt.GetHVStats()
-	if err != nil {
-		return err
-	}
-
-	hv.Arch = arch
-	hv.RAMTotal = memoryTotal
-	hv.RAMFree = memoryFree
-	hv.CPUCount = cpus
-	hv.CPUFrequency = mhz
-	hv.NUMANodes = nodes
-	hv.CPUSockets = sockets
-	hv.CPUCores = cores
-	hv.CPUThreads = threads
-
-	return nil
-}
-
-func (hv *HV) getHVBrs() error {
-	if err := hv.ensureConn(); err != nil {
-		return err
-	}
-
-	brs, err := hv.Libvirt.GetHVBrs()
-	if err != nil {
-		return err
-	}
-
-	for _, br := range brs {
-		hv.Brs[br.Name] = &HVBr{
-			Name: br.Name,
-		}
-	}
-	return nil
-}
-
-// Ensure the HV libvirt connection is alive
-func (hv *HV) ensureConn() error {
-	if !hv.Libvirt.IsConnected() {
-		return hv.connect()
-	}
-	return nil
-}
-
-// Connect to the HV libvirt
-func (hv *HV) connect() error {
 	hv.mutex.Lock()
 	defer hv.mutex.Unlock()
 
-	err := hv.Libvirt.Connect()
-	if err != nil {
-		hv.Status = status.StatusUnknown
-		hv.StatusReason = err.Error()
+	if libvirt, err := hv.Auto.GetLibvirt(); err != nil {
 		return err
 	} else {
-		hv.Status = status.StatusRunning
-		hv.StatusReason = "Connected to libvirt"
+		hv.Libvirt = &libvirt
 	}
-	if err := hv.getHVSpecs(); err != nil {
-		return err
-	}
-	if err := hv.getHVStats(); err != nil {
-		return err
-	}
-	if err := hv.getHVBrs(); err != nil {
-		return err
-	}
+
 	return nil
 }

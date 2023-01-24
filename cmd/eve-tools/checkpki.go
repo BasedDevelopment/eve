@@ -55,10 +55,14 @@ func checkPKI() {
 		eveCrt := pki.SignCrt(caCrt, caPriv, eveCSR)
 		util.WriteFile(eveCrtPath, eveCrt)
 	}
-	eveCrt := util.ReadFile(eveCrtPath)
-	eveCrtSum := pki.PemSum(eveCrt)
+	eveCrtBytes := util.ReadFile(eveCrtPath)
+	eveCrtSum := pki.PemSum(eveCrtBytes)
+	eveCrt := pki.ReadCrt(eveCrtBytes)
+	serial := eveCrt.SerialNumber.String()
+
 	log.Info().
 		Str("path", eveCrtPath).
 		Str("SHA1", eveCrtSum).
+		Str("serial", serial).
 		Msg("Eve cert")
 }
