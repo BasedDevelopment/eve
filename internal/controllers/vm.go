@@ -113,11 +113,12 @@ func (hv *HV) InitVMs() error {
 
 	// Marshall the HV.VMs struct in
 	for i := range dbVMs {
-		hv.VMs[dbVMs[i].ID] = &dbVMs[i]
+		id := dbVMs[i].ID
+		hv.VMs[id] = &dbVMs[i]
 		for j := range libvirtVMs {
 			if libvirtVMs[j].ID == dbVMs[i].ID {
-				hv.VMs[dbVMs[i].ID].Domain = libvirtVMs[j]
-				go hv.checkVMConsistency(hv.VMs[dbVMs[i].ID])
+				hv.VMs[id].Domain = libvirtVMs[j]
+				go hv.checkVMConsistency(hv.VMs[id])
 			}
 		}
 	}
