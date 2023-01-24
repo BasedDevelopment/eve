@@ -3,7 +3,7 @@ module github.com/BasedDevelopment/eve
 go 1.18
 
 require (
-	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519
+	github.com/BasedDevelopment/auto v0.0.0-20230123154220-108c4da7aaa1
 	github.com/go-chi/chi/v5 v5.0.8
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v5 v5.2.0
@@ -12,8 +12,8 @@ require (
 )
 
 require (
-	github.com/BasedDevelopment/auto v0.0.0-20230123154220-108c4da7aaa1 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20210307081110-f21760c49a8d // indirect
+	github.com/digitalocean/go-libvirt v0.0.0-20221205150000-2939327a8519 // indirect
 	github.com/lib/pq v1.10.7 // indirect
 )
 
