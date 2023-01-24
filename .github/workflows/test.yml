@@ -28,6 +28,6 @@ jobs:
           cd sql
           ~/go/bin/goose postgres postgres://postgres:password@localhost:5432/postgres up
       - name: Start eve and test
-        run: make start& sleep 10 && make test
+        run: ./bin/eve-tools && make start& sleep 10 && make test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

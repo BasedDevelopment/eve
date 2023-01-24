@@ -1,6 +1,6 @@
 # Move this file to /etc/eve/config.toml
 
-hostname = "eveCI"
+hostname = "ci.github.bns.sh"
 tls_path = "/etc/eve/tls"
 
 [api]
