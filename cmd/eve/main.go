@@ -33,7 +33,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/server"
-	"github.com/BasedDevelopment/eve/pkg/fwdLog"
+	"github.com/BasedDevelopment/eve/pkg/fwdlog"
 
 	"github.com/rs/zerolog/log"
 )
@@ -89,7 +89,7 @@ func main() {
 	srv := &http.Server{
 		Addr:     config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port),
 		Handler:  server.Service(),
-		ErrorLog: fwdLog.Logger(),
+		ErrorLog: fwdlog.Logger(),
 	}
 
 	srvCtx, srvStopCtx := context.WithCancel(context.Background())
