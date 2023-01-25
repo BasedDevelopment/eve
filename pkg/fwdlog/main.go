@@ -1,4 +1,4 @@
-package fwdLog
+package fwdlog
 
 import (
 	llog "log"
