@@ -13,15 +13,15 @@ import (
 )
 
 var (
-	caPool *x509.CertPool
-	cert   *tls.Certificate
+	caPool  *x509.CertPool
+	crtPair *tls.Certificate
 )
 
 // The TLS client that we will use to talk to auto
 var TLSClient http.Client
 
 func Init() {
-	log.Info().Msg("Checking for PKI")
+	log.Info().Msg("Loading PKI")
 
 	tlsPath := config.Config.TLSPath
 
@@ -53,14 +53,23 @@ func Init() {
 	caPool = x509.NewCertPool()
 	caPool.AddCert(ca)
 
-	eveCert, err := tls.LoadX509KeyPair(crtPath, keyPath)
+	eveCrtPair, err := tls.LoadX509KeyPair(crtPath, keyPath)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to load keypair")
 	}
 
-	cert = &eveCert
+	crtPair = &eveCrtPair
 
-	log.Info().Msg("PKI ready")
+	// Loading just the cert to get serial
+	eveCrtBytes := util.ReadFile(crtPath)
+	eveCrt := pki.ReadCrt(eveCrtBytes)
+	serial := eveCrt.SerialNumber.String()
+	eveCrtHash := pki.PemSum(eveCrtBytes)
+
+	log.Info().
+		Str("crt serial", serial).
+		Str("crt hash", eveCrtHash).
+		Msg("PKI loaded")
 }
 
 type Auto struct {
@@ -71,7 +80,7 @@ type Auto struct {
 func (a *Auto) getClient() *http.Client {
 	tlsConfig := &tls.Config{
 		RootCAs:      caPool,
-		Certificates: []tls.Certificate{*cert},
+		Certificates: []tls.Certificate{*crtPair},
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			// Make sure the serial number is correct
 			if verifiedChains[0][0].SerialNumber.String() != a.Serial {

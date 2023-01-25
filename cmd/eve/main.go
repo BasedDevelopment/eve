@@ -33,6 +33,7 @@ import (
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/server"
+	"github.com/BasedDevelopment/eve/pkg/fwdLog"
 
 	"github.com/rs/zerolog/log"
 )
@@ -86,8 +87,9 @@ func main() {
 
 	// Create HTTP server
 	srv := &http.Server{
-		Addr:    config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port),
-		Handler: server.Service(),
+		Addr:     config.Config.API.Host + ":" + strconv.Itoa(config.Config.API.Port),
+		Handler:  server.Service(),
+		ErrorLog: fwdLog.Logger(),
 	}
 
 	srvCtx, srvStopCtx := context.WithCancel(context.Background())
@@ -111,6 +113,7 @@ func main() {
 
 		// Gracefully shut down services
 		log.Info().Msg("Gracefully shutting down services")
+
 		// Webserver
 		if err := srv.Shutdown(shutdownCtx); err != nil {
 			log.Fatal().
