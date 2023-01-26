@@ -31,6 +31,10 @@ import (
 	"golang.org/x/crypto/sha3"
 )
 
+const version = "v1"
+
+var expirey = 24 * time.Hour
+
 func prngString() string {
 	b := make([]byte, 10)
 	_, err := rand.Read(b)
@@ -75,12 +79,12 @@ func NewSession(ctx context.Context, user profile.Profile) (tokens.Token, error)
 	// This is what we store in the database
 	session := Session{
 		Owner:   user.ID,
-		Version: "v1",
+		Version: version,
 		Public:  public,
 		Secret:  fmt.Sprintf("%x", saltedSecret),
 		Salt:    salt,
 		Created: time.Now(),
-		Expires: time.Now().Add(24 * time.Hour), // expires in 1 day
+		Expires: time.Now().Add(expirey),
 	}
 
 	// Push the session to the database
@@ -90,7 +94,7 @@ func NewSession(ctx context.Context, user profile.Profile) (tokens.Token, error)
 
 	// This is the token we want to give to the user
 	return tokens.Token{
-		Version: "v1",
+		Version: version,
 		Public:  public,
 		Secret:  base64.URLEncoding.EncodeToString([]byte(secret)),
 		Salt:    salt,
