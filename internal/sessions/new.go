@@ -36,7 +36,7 @@ const version = "v1"
 var expirey = 24 * time.Hour
 
 func prngString(size int) string {
-	b := make([]byte, size)
+	b := make([]byte, size/2)
 	_, err := rand.Read(b)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to generate random string")
