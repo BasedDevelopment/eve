@@ -1,7 +1,7 @@
 # EVE Virtual Environment
 
-[![Unit Tests](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/unit-tests.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Unit%20Tests&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
 [![Build](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/build.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Build&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
+[![Unit Tests](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/unit-tests.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Unit%20Tests&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
 [![Integration Tests](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/integration-tests.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Integration%20Tests&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
 [![CodeQL](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/codeql.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=CodeQL&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
 [![LICENSE](https://img.shields.io/github/license/BasedDevelopment/eve?colorA=4c566a&colorB=88c0d0&style=for-the-badge&logo=gnu)](COPYING)
