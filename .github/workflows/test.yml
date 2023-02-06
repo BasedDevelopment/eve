@@ -22,7 +22,7 @@ jobs:
         run: sudo mkdir -p /etc/eve/tls && sudo cp build/config.toml.ci /etc/eve/config.toml
       - name: Build
         run: make
-      - name: SQL Migeration
+      - name: sql migration
         run: |
           go install github.com/pressly/goose/v3/cmd/goose@latest
           cd sql
