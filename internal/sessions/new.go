@@ -35,8 +35,8 @@ const version = "v1"
 
 var expirey = 24 * time.Hour
 
-func prngString() string {
-	b := make([]byte, 10)
+func prngString(size int) string {
+	b := make([]byte, size)
 	_, err := rand.Read(b)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to generate random string")
@@ -47,17 +47,9 @@ func prngString() string {
 }
 
 func generateStrings(bits []int) (a, b, c string, err error) {
-	if a = prngString(); err != nil {
-		return "", "", "", err
-	}
-
-	if b = prngString(); err != nil {
-		return "", "", "", err
-	}
-
-	if c = prngString(); err != nil {
-		return "", "", "", err
-	}
+	a = prngString(bits[0])
+	b = prngString(bits[1])
+	c = prngString(bits[2])
 
 	return a, b, c, err
 }
