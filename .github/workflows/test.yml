@@ -30,6 +30,6 @@ jobs:
       - name: Unit test
         run: make unit-test
       - name: Integration test
-        run: sudo ./bin/eve-tools && sudo make start& sleep 10 && make integration-test
+        run: sudo ./bin/eve-tools && sudo make integration-test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
