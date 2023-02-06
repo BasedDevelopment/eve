@@ -1,6 +1,6 @@
 module github.com/BasedDevelopment/eve
 
-go 1.18
+go 1.20
 
 require (
 	github.com/BasedDevelopment/auto v0.0.0-20230125200811-b021f1532551
