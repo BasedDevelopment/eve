@@ -23,11 +23,11 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/tokens"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -39,7 +39,7 @@ func prngString() string {
 	b := make([]byte, 10)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Fatalln("error:", err)
+		log.Fatal().Err(err).Msg("Failed to generate random string")
 		return ""
 	}
 
