@@ -19,7 +19,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -27,9 +26,6 @@ import (
 )
 
 func configureLogger() {
-	// Command line flags
-	flag.Parse()
-
 	if *logFormat == "pretty" {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 	}

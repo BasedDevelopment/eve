@@ -29,37 +29,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	host                  = "http://localhost:3000"
-	dbUrl                 = "postgres://postgres:password@localhost:5432/postgres"
-	testAdminName         = "Admin Test"
-	testAdminEmail        = "admin@testing.com"
-	testAdminPassword     = "adminPasswordTest"
-	testAdminPasswordHash = "$2a$11$MCwHsWkdVATPJ0URdUFg9uvY6UdskKO.Mwc3Y2e9LKi.5GQFOhTCq"
-
-	testUserName     = "User Test"
-	testUserEmail    = "eric@testing.com"
-	testUserPassword = "userPasswordTest"
-)
-
-var (
-	testAdminId = uuid.New()
-)
-
-func TestSetup(t *testing.T) {
-	// Insert test user and hypervisor
-	ctx := context.Background()
-	db.Init(dbUrl)
-	_, err := db.Pool.Exec(
-		ctx,
-		"INSERT INTO profile (id, name, email, password, is_admin) VALUES ($1, $2, $3, $4, $5)",
-		testAdminId, testAdminName, testAdminEmail, testAdminPasswordHash, true,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
-
 func TestHealthCheck(t *testing.T) {
 	resp, err := http.Get(host + "/")
 	if err != nil {
@@ -304,25 +273,4 @@ func TestUserLogout(t *testing.T) {
 	if response["message"] != "logout success" {
 		t.Fatalf("expected %v; got %v", "logout success", response["message"])
 	}
-}
-
-func TestCleanUp(t *testing.T) {
-	ctx := context.Background()
-	_, err := db.Pool.Exec(ctx, "DELETE FROM sessions WHERE owner = $1", testAdminId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = db.Pool.Exec(ctx, "DELETE FROM profile WHERE id = $1", testAdminId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = db.Pool.Exec(ctx, "DELETE FROM sessions WHERE owner = $1", testUserId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = db.Pool.Exec(ctx, "DELETE FROM profile WHERE id = $1", testUserId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	db.Pool.Close()
 }

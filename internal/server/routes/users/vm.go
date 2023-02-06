@@ -36,10 +36,16 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 
 	cloud := controllers.Cloud
 	var response []interface{}
+	cloud.Mutex.Lock()
+	defer cloud.Mutex.Unlock()
 
 	for _, hv := range cloud.HVs {
+		hv.Mutex.Lock()
+		defer hv.Mutex.Unlock()
 		for _, vm := range hv.VMs {
 			if vm.UserID == userID {
+				vm.Mutex.Lock()
+				defer vm.Mutex.Unlock()
 				response = append(response, map[string]interface{}{
 					"hypervisor": hv.Hostname,
 					"name":       vm.Hostname,
@@ -88,6 +94,8 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	// Send response
 	if err := eUtil.WriteResponse(vm, w, http.StatusOK); err != nil {
@@ -100,6 +108,8 @@ func GetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	state, err := hv.Auto.GetVMState(vm.ID.String())
 	if err != nil {
@@ -116,6 +126,8 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	req := new(util.SetStateRequest)
 	if err := util.ParseRequest(r, req); err != nil {

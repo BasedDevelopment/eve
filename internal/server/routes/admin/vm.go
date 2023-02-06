@@ -40,8 +40,12 @@ func GetVMs(w http.ResponseWriter, r *http.Request) {
 	}
 	hv := controllers.Cloud.HVs[hvid]
 
+	hv.Mutex.Lock()
+	defer hv.Mutex.Unlock()
 	var vms []*controllers.VM
 	for _, vm := range hv.VMs {
+		vm.Mutex.Lock()
+		defer vm.Mutex.Unlock()
 		vms = append(vms, vm)
 	}
 
@@ -78,6 +82,8 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	// TODO: polish response json
 
@@ -89,6 +95,11 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 
 func GetVMState(w http.ResponseWriter, r *http.Request) {
 	hv, vm := getVM(w, r)
+	if vm == nil {
+		return
+	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	state, err := hv.Auto.GetVMState(vm.ID.String())
 	if err != nil {
@@ -106,6 +117,8 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+	vm.Mutex.Lock()
+	defer vm.Mutex.Unlock()
 
 	req := new(util.SetStateRequest)
 	if err := util.ParseRequest(r, req); err != nil {

@@ -11,9 +11,11 @@ eve-tools:
 	go mod download
 	go build --ldflags "-s -w" -o bin/eve-tools ./cmd/eve-tools/
 
-test:
-	go clean -testcache
-	go test ./... -v -race -coverprofile=coverage.out -covermode=atomic
+unit-test:
+	go test ./... -v -race -coverprofile=coverage.out -covermode=atomic -count=1
+
+integration-test:
+	go test ./... -v --tags=integration -count=1
 
 # Build and execute Eve program
 start: eve

@@ -40,7 +40,7 @@ type HV struct {
 	Created    time.Time         `json:"created"`
 	Updated    time.Time         `json:"updated"`
 	Remarks    string            `json:"remarks"`
-	mutex      sync.Mutex        `json:"-" db:"-"`
+	Mutex      sync.Mutex        `json:"-" db:"-"`
 	VMs        map[uuid.UUID]*VM `json:"-" db:"-"`
 	Auto       *auto.Auto        `json:"-" db:"-"`
 	Libvirt    *models.HV        `json:"-" db:"-"`
@@ -63,15 +63,15 @@ func getHVs(cloud *HVList) (err error) {
 		return fmt.Errorf("Error collecting hv: %w", collectErr)
 	}
 
-	cloud.mutex.Lock()
-	defer cloud.mutex.Unlock()
+	cloud.Mutex.Lock()
+	defer cloud.Mutex.Unlock()
 
 	// Populate the cloud struct with the HVs with a map of uuids to HVs
 	cloud.HVs = make(map[uuid.UUID]*HV)
 	for i := range HVs {
 		cloud.HVs[HVs[i].ID] = &HVs[i]
 		HVs[i].Auto = &auto.Auto{
-			Url:    HVs[i].AutoUrl,
+			Url:    "https://" + HVs[i].AutoUrl,
 			Serial: HVs[i].AutoSerial,
 		}
 		HVs[i].VMs = make(map[uuid.UUID]*VM)
@@ -82,18 +82,25 @@ func getHVs(cloud *HVList) (err error) {
 
 // Initialize the HV libvirt connection
 func (hv *HV) Init() error {
-	hv.mutex.Lock()
-	defer hv.mutex.Unlock()
-
-	if libvirt, err := hv.Auto.GetLibvirt(); err != nil {
+	if err := hv.Refresh(); err != nil {
 		return err
-	} else {
-		hv.Libvirt = &libvirt
 	}
 
 	if err := hv.InitVMs(); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func (hv *HV) Refresh() error {
+	hv.Mutex.Lock()
+	defer hv.Mutex.Unlock()
+
+	if libvirt, err := hv.Auto.GetLibvirt(); err != nil {
+		return err
+	} else {
+		hv.Libvirt = &libvirt
+	}
 	return nil
 }

@@ -22,12 +22,14 @@ jobs:
         run: sudo mkdir -p /etc/eve/tls && sudo cp build/config.toml.ci /etc/eve/config.toml
       - name: Build
         run: make
-      - name: sql
+      - name: SQL Migeration
         run: |
           go install github.com/pressly/goose/v3/cmd/goose@latest
           cd sql
           ~/go/bin/goose postgres postgres://postgres:password@localhost:5432/postgres up
-      - name: Start eve and test
-        run: sudo ./bin/eve-tools && sudo make start& sleep 10 && make test
+      - name: Unit test
+        run: make unit-test
+      - name: Integration test
+        run: sudo ./bin/eve-tools && sudo make start& sleep 10 && make integration-test
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3

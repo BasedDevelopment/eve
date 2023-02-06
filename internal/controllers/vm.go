@@ -33,7 +33,7 @@ import (
 )
 
 type VM struct {
-	mutex    sync.Mutex           `json:"-" db:"-"`
+	Mutex    sync.Mutex           `json:"-" db:"-"`
 	ID       uuid.UUID            `json:"id"`
 	HV       uuid.UUID            `json:"hv" db:"hv_id"`
 	Hostname string               `json:"hostname"`
@@ -49,7 +49,7 @@ type VM struct {
 }
 
 type VMNic struct {
-	mutex   sync.Mutex `db:"-" json:"-"`
+	Mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
 	name    string
 	MAC     string
@@ -61,7 +61,7 @@ type VMNic struct {
 }
 
 type VMStorage struct {
-	mutex   sync.Mutex `db:"-" json:"-"`
+	Mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
 	Size    int
 	Created time.Time
@@ -115,6 +115,8 @@ func (hv *HV) InitVMs() error {
 			Msg("VM count mismatch")
 	}
 
+	hv.Mutex.Lock()
+	defer hv.Mutex.Unlock()
 	// Load the VMs of a hypervisor into memory
 	for i := range dbVMs {
 		id := dbVMs[i].ID

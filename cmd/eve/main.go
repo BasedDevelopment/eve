@@ -51,6 +51,10 @@ var (
 )
 
 func init() {
+}
+
+func main() {
+	flag.Parse()
 	configureLogger()
 
 	// Load configuration
@@ -65,9 +69,7 @@ func init() {
 
 	db.Init(config.Config.Database.URL)
 	auto.Init()
-}
 
-func main() {
 	// Creating the Cloud
 	cloud := controllers.InitCloud()
 

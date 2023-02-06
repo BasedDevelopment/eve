@@ -74,6 +74,7 @@ func Service() *chi.Mux {
 				//r.Post("/", admin.CreateHV)
 				r.Route("/{hypervisor}", func(r chi.Router) {
 					r.Get("/", admin.GetHV)
+					r.Get("/state", admin.GetHVState)
 					//r.Patch("/", admin.UpdateHV)
 					//r.Delete("/", admin.DeleteHV)
 					r.Route("/virtual_machines", func(r chi.Router) {

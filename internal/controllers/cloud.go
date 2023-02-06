@@ -26,7 +26,7 @@ import (
 )
 
 type HVList struct {
-	mutex sync.Mutex
+	Mutex sync.Mutex
 	HVs   map[uuid.UUID]*HV `json:"hvs"`
 }
 
