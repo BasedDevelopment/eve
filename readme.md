@@ -1,10 +1,13 @@
 # EVE Virtual Environment
 
-[![Tests Status](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/test.yml?label=tests)](https://github.com/BasedDevelopment/eve/actions/)
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/codeql.yml?label=codeql)](https://github.com/BasedDevelopment/eve/actions/)
-[![GitHub](https://img.shields.io/github/license/BasedDevelopment/eve)](COPYING)
-[![codecov](https://codecov.io/gh/BasedDevelopment/eve/branch/main/graph/badge.svg?token=BWEQXELJIR)](https://codecov.io/gh/BasedDevelopment/eve)
-[![Go Report Card](https://goreportcard.com/badge/github.com/BasedDevelopment/eve)](https://goreportcard.com/report/github.com/BasedDevelopment/eve)
+[![Unit Tests](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/unit-tests.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Unit%20Tests&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
+[![Build](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/build.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Build&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
+[![Integration Tests](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/integration-tests.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=Integration%20Tests&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/BasedDevelopment/eve/codeql.yml?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&label=CodeQL&logo=github&style=for-the-badge)](https://github.com/BasedDevelopment/eve/actions/)
+[![LICENSE](https://img.shields.io/github/license/BasedDevelopment/eve?colorA=4c566a&colorB=88c0d0&style=for-the-badge&logo=gnu)](COPYING)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/BasedDevelopment/eve?logoColor=eceff4&colorA=4c566a&colorB=88c0d0&style=for-the-badge?logo=go)](go.mod)
+[![Codecov](https://img.shields.io/codecov/c/github/BasedDevelopment/eve?token=BWEQXELJIR&colorA=4c566a&colorB=88c0d0&style=for-the-badge&logo=codecov)](https://codecov.io/gh/BasedDevelopment/eve)
+[![Go Report Card](https://goreportcard.com/badge/github.com/BasedDevelopment/eve?colorA=4c566a&colorB=88c0d0&style=for-the-badge)](https://goreportcard.com/report/github.com/BasedDevelopment/eve)
 
 > Eve is pre-alpha software and is not currently deployed anywhere, nor should it be. Once it reaches a usable state we will provide documentation on how you can use it for your own purposes.
 
