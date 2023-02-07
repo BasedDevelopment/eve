@@ -8,7 +8,7 @@ import (
 )
 
 func (a *Auto) GetLibvirt() (hv models.HV, err error) {
-	c := a.getClient()
+	c := a.getHttpsClient()
 	url := a.Url + "/libvirt"
 
 	// Make request

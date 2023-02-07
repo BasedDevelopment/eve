@@ -77,7 +77,7 @@ type Auto struct {
 	Serial string
 }
 
-func (a *Auto) getClient() *http.Client {
+func (a *Auto) getHttpsClient() *http.Client {
 	tlsConfig := &tls.Config{
 		RootCAs:      caPool,
 		Certificates: []tls.Certificate{*crtPair},

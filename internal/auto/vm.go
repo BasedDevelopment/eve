@@ -13,7 +13,7 @@ import (
 )
 
 func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
-	c := a.getClient()
+	c := a.getHttpsClient()
 	url := a.Url + "/libvirt/domains"
 
 	// Make request
