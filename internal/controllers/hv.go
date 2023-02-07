@@ -80,7 +80,7 @@ func getHVs(cloud *HVList) (err error) {
 	return
 }
 
-// Initialize the HV libvirt connection
+// Initialize the HV Auto connection
 func (hv *HV) Init() error {
 	if err := hv.Refresh(); err != nil {
 		return err
