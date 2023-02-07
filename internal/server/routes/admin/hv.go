@@ -61,8 +61,6 @@ func getHV(w http.ResponseWriter, r *http.Request) *controllers.HV {
 
 func GetHV(w http.ResponseWriter, r *http.Request) {
 	hv := getHV(w, r)
-	hv.Mutex.Lock()
-	defer hv.Mutex.Unlock()
 	if hv == nil {
 		return
 	}
@@ -72,6 +70,9 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	hv.Mutex.Lock()
+	defer hv.Mutex.Unlock()
+
 	// Send response
 	if err := eUtil.WriteResponse(hv.Specs, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
@@ -80,8 +81,6 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 
 func GetHVState(w http.ResponseWriter, r *http.Request) {
 	hv := getHV(w, r)
-	hv.Mutex.Lock()
-	defer hv.Mutex.Unlock()
 	if hv == nil {
 		return
 	}
@@ -89,6 +88,9 @@ func GetHVState(w http.ResponseWriter, r *http.Request) {
 	if err := hv.Refresh(); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to refresh hypervisor state")
 	}
+
+	hv.Mutex.Lock()
+	defer hv.Mutex.Unlock()
 
 	response := map[string]interface{}{
 		"state":     hv.Specs.Status,

@@ -36,6 +36,7 @@ var Cloud *HVList
 // Initialize the cloud struct that will hold all of the hypervisors
 func InitCloud() *HVList {
 	Cloud = new(HVList)
+	// Mutex will be handled by getHVs
 	if err := getHVs(Cloud); err != nil {
 		log.Fatal().Err(err).Msg("Failed to get HVs")
 	} else {
