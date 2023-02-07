@@ -44,13 +44,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	profile, err := profile.Get(ctx)
 
 	if err != nil {
-		eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
+		eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
 
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(profile.Password), []byte(req.Password)); err != nil {
-		eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Unauthorized")
+		eUtil.WriteError(w, r, nil, http.StatusUnauthorized, "Invalid email or password")
 		return
 	}
 
