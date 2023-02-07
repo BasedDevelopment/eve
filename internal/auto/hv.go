@@ -7,7 +7,7 @@ import (
 	"github.com/BasedDevelopment/auto/pkg/models"
 )
 
-func (a *Auto) GetLibvirt() (hv models.HV, err error) {
+func (a *Auto) GetHVSpecs() (hv models.HV, err error) {
 	c := a.getHttpsClient()
 	url := a.Url + "/libvirt"
 

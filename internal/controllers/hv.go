@@ -43,7 +43,7 @@ type HV struct {
 	Mutex      sync.Mutex        `json:"-" db:"-"`
 	VMs        map[uuid.UUID]*VM `json:"-" db:"-"`
 	Auto       *auto.Auto        `json:"-" db:"-"`
-	Libvirt    *models.HV        `json:"-" db:"-"`
+	Specs      *models.HV        `json:"-" db:"-"`
 }
 
 func getHVs(cloud *HVList) (err error) {
@@ -97,10 +97,10 @@ func (hv *HV) Refresh() error {
 	hv.Mutex.Lock()
 	defer hv.Mutex.Unlock()
 
-	if libvirt, err := hv.Auto.GetLibvirt(); err != nil {
+	if specs, err := hv.Auto.GetHVSpecs(); err != nil {
 		return err
 	} else {
-		hv.Libvirt = &libvirt
+		hv.Specs = &specs
 	}
 	return nil
 }

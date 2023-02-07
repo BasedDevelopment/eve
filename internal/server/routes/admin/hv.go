@@ -73,7 +73,7 @@ func GetHV(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Send response
-	if err := eUtil.WriteResponse(hv.Libvirt, w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(hv.Specs, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
@@ -91,9 +91,9 @@ func GetHVState(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := map[string]interface{}{
-		"state":     hv.Libvirt.Status,
-		"state_str": hv.Libvirt.Status.String(),
-		"reason":    hv.Libvirt.StatusReason,
+		"state":     hv.Specs.Status,
+		"state_str": hv.Specs.Status.String(),
+		"reason":    hv.Specs.StatusReason,
 	}
 
 	if err := eUtil.WriteResponse(response, w, http.StatusOK); err != nil {
