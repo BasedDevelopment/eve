@@ -37,7 +37,7 @@ func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
 }
 
 func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
-	c := a.getClient()
+	c := a.getHttpsClient()
 	url := a.Url + "/libvirt/domains/" + vmid
 
 	// Make request
@@ -61,7 +61,7 @@ func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
 }
 
 func (a *Auto) GetVMState(vmid string) (state models.VMState, err error) {
-	c := a.getClient()
+	c := a.getHttpsClient()
 	url := a.Url + "/libvirt/domains/" + vmid + "/state"
 
 	// Make request
@@ -109,7 +109,7 @@ func stateStr(state uint8) string {
 }
 
 func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, err error) {
-	c := a.getClient()
+	c := a.getHttpsClient()
 	reqUrl := a.Url + "/libvirt/domains/" + vmid + "/state"
 	url, err := url.Parse(reqUrl)
 	if err != nil {
