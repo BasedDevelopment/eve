@@ -15,7 +15,7 @@
 
 Eve is a management toolkit for libvirt-based virtualization servers. It includes many useful tools for running a hosting provider, handles user accounts, and provides a interface for libvirt actions.
 
-Eve deliberately does not include a dashboard. If you need a dashboard check out [vixen](https://github.com/lukewhrit/vixen), which is developed by contributors to Eve and used by [EricNet](https://as206628.net).
+Eve deliberately does not include a dashboard. If you need a dashboard check out [Axiom](https://github.com/BasedDevelopment/axiom), which is developed by contributors to Eve and used by [EricNet](https://as206628.net).
 
 ## License
 
