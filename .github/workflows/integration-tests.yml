@@ -9,9 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        go-version: ["1.19", "1.20"]
     services:
       postgres:
         image: postgres:latest
@@ -20,6 +17,9 @@ jobs:
         ports:
           - 5432:5432
     steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "1.20"
       - uses: actions/checkout@v3
       - name: copy over config
         run: sudo mkdir -p /etc/eve/tls && sudo cp build/config.toml.ci /etc/eve/config.toml
