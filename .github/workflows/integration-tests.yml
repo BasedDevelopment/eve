@@ -31,4 +31,4 @@ jobs:
           cd sql
           ~/go/bin/goose postgres postgres://postgres:password@localhost:5432/postgres up
       - name: Integration test
-        run: sudo ./bin/eve-tools && sudo make integration-test
+        run: ./bin/eve-tools && make integration-test
