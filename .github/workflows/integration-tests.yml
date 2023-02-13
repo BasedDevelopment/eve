@@ -22,7 +22,7 @@ jobs:
           go-version: "1.20"
       - uses: actions/checkout@v3
       - name: copy over config
-        run: sudo mkdir -p /etc/eve/tls && sudo cp build/config.toml.ci /etc/eve/config.toml
+        run: sudo mkdir -p /etc/eve/tls && chown -R $USER:$USER $USER:$USER && cp build/config.toml.ci /etc/eve/config.toml
       - name: Build
         run: make
       - name: sql migration
@@ -31,4 +31,4 @@ jobs:
           cd sql
           ~/go/bin/goose postgres postgres://postgres:password@localhost:5432/postgres up
       - name: Integration test
-        run: sudo ./bin/eve-tools && make integration-test
+        run: ./bin/eve-tools && make integration-test
