@@ -14,7 +14,7 @@ import (
 
 func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
 	c := a.getHttpsClient()
-	url := a.Url + "/libvirt/domains"
+	url := a.Url + "/libvirt/domain"
 
 	// Make request
 	resp, err := c.Get(url)
@@ -38,7 +38,7 @@ func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
 
 func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
 	c := a.getHttpsClient()
-	url := a.Url + "/libvirt/domains/" + vmid
+	url := a.Url + "/libvirt/domain/" + vmid
 
 	// Make request
 	resp, err := c.Get(url)
