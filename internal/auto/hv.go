@@ -2,27 +2,22 @@ package auto
 
 import (
 	"encoding/json"
-	"io/ioutil"
 
 	"github.com/BasedDevelopment/auto/pkg/models"
 )
 
 func (a *Auto) GetHVSpecs() (hv models.HV, err error) {
-	c := a.getHttpsClient()
 	url := a.Url + "/libvirt"
 
-	// Make request
-	resp, err := c.Get(url)
+	respBytes, status, err := a.httpReq("GET", url, nil)
+
 	if err != nil {
-		return
+		return hv, err
 	}
 
-	// Read response
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
+	if status != 200 {
+		return hv, err
 	}
-	defer resp.Body.Close()
 
 	// Unmarshal response
 	err = json.Unmarshal(respBytes, &hv)

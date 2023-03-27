@@ -79,7 +79,7 @@ func Service() *chi.Mux {
 					//r.Delete("/", admin.DeleteHV)
 					r.Route("/virtual_machines", func(r chi.Router) {
 						r.Get("/", admin.GetVMs)
-						//r.Post("/", admin.CreateVM)
+						r.Post("/", admin.CreateVM)
 						r.Route("/{virtual_machine}", func(r chi.Router) {
 							r.Get("/", admin.GetVM)
 							r.Route("/state", func(r chi.Router) {

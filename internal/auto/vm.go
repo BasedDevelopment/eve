@@ -1,86 +1,50 @@
 package auto
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	"github.com/BasedDevelopment/auto/pkg/models"
-	"github.com/BasedDevelopment/eve/pkg/status"
+	"github.com/BasedDevelopment/eve/internal/util"
+	eStatus "github.com/BasedDevelopment/eve/pkg/status"
 )
 
 func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
-	c := a.getHttpsClient()
-	url := a.Url + "/libvirt/domain"
+	url := a.Url + "/libvirt/domains"
+	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	// Make request
-	resp, err := c.Get(url)
-	if err != nil {
+	if (status != http.StatusOK) || (err != nil) {
 		return
 	}
 
-	// Read response
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	// Unmarshal response
 	err = json.Unmarshal(respBytes, &vms)
 
 	return
 }
 
 func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
-	c := a.getHttpsClient()
 	url := a.Url + "/libvirt/domain/" + vmid
+	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	// Make request
-	resp, err := c.Get(url)
-	if err != nil {
+	if (status != http.StatusOK) || (err != nil) {
 		return
 	}
 
-	// Read response
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	// Unmarshal response
 	err = json.Unmarshal(respBytes, &vm)
 
 	return
 }
 
 func (a *Auto) GetVMState(vmid string) (state models.VMState, err error) {
-	c := a.getHttpsClient()
 	url := a.Url + "/libvirt/domains/" + vmid + "/state"
+	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	// Make request
-	resp, err := c.Get(url)
-	if err != nil {
+	if (status != http.StatusOK) || (err != nil) {
 		return
 	}
 
-	// Read response
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return
-	}
-
-	defer resp.Body.Close()
-
-	// Unmarshal response
 	err = json.Unmarshal(respBytes, &state)
-
 	return
 }
 
@@ -109,42 +73,38 @@ func stateStr(state uint8) string {
 }
 
 func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, err error) {
-	c := a.getHttpsClient()
 	reqUrl := a.Url + "/libvirt/domains/" + vmid + "/state"
-	url, err := url.Parse(reqUrl)
-	if err != nil {
-		return
-	}
-
 	reqBody := map[string]string{
 		"state": stateStr(state),
 	}
 
-	reqBodyBytes, err := json.Marshal(reqBody)
+	respBytes, status, err := a.httpReq("POST", reqUrl, reqBody)
 
-	req := http.Request{
-		Method: "PATCH",
-		Header: http.Header{
-			"Content-Type": []string{"application/json"},
-		},
-		URL:  url,
-		Body: ioutil.NopCloser(bytes.NewBuffer(reqBodyBytes)),
-	}
-
-	resp, err := c.Do(&req)
-
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
+	if (status != http.StatusOK) || (err != nil) {
 		return
 	}
 
-	defer resp.Body.Close()
-
 	err = json.Unmarshal(respBytes, &respState)
 
-	if respState.State == status.StatusUnknown {
+	if respState.State == eStatus.StatusUnknown {
 		respStr := string(respBytes)
 		return respState, fmt.Errorf(respStr)
+	}
+
+	return
+}
+
+func (a *Auto) CreateVM(req *util.VMCreateRequest) (err error) {
+	reqUrl := a.Url + "/libvirt/domains"
+	respBytes, status, err := a.httpReq("POST", reqUrl, req)
+
+	if (status != http.StatusCreated) || (err != nil) {
+		return
+	}
+
+	if status != http.StatusCreated {
+		respStr := string(respBytes)
+		return fmt.Errorf(respStr)
 	}
 
 	return

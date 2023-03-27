@@ -150,3 +150,29 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
+
+func CreateVM(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	hvid, err := uuid.Parse(chi.URLParam(r, "hypervisor"))
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Invalid hypervisor ID")
+	}
+	hv := controllers.Cloud.HVs[hvid]
+
+	vm := new(util.VMCreateRequest)
+	if err := util.ParseRequest(r, vm); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusBadRequest, "Failed to parse request")
+		return
+	}
+
+	vmid, err := hv.CreateVM(ctx, vm, hvid)
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to create VM")
+		return
+	}
+
+	if err := eUtil.WriteResponse(vmid, w, http.StatusCreated); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
+}
