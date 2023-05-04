@@ -94,7 +94,7 @@ func (hv *HV) getVMsFromDB() (vms []VM, err error) {
 // Fetch VMs from the DB and Libvirt, marshall them into the HV struct, and
 // check for inconsistencies
 func (hv *HV) InitVMs() error {
-	// Use Auto to
+	// Use Auto to get the VMs from Libvirt
 	vms, err := hv.Auto.GetLibvirtVMs()
 	if err != nil {
 		return err

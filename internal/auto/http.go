@@ -49,6 +49,10 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 		}
 
 		resp, err := c.Do(&req)
+		if err != nil {
+			return nil, -1, err
+		}
+
 		if resp.Body == nil {
 			return nil, -1, errors.New("response body is nil")
 		}

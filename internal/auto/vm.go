@@ -8,14 +8,20 @@ import (
 	"github.com/BasedDevelopment/auto/pkg/models"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eStatus "github.com/BasedDevelopment/eve/pkg/status"
+	"github.com/google/uuid"
 )
 
 func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
-	url := a.Url + "/libvirt/domains"
+	url := a.Url + "/libvirt/domain"
 	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	if (status != http.StatusOK) || (err != nil) {
+	if err != nil {
 		return
+	}
+
+	if status != http.StatusOK {
+		respBody := string(respBytes)
+		return nil, fmt.Errorf("status code %d: %s", status, respBody)
 	}
 
 	err = json.Unmarshal(respBytes, &vms)
@@ -27,8 +33,13 @@ func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
 	url := a.Url + "/libvirt/domain/" + vmid
 	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	if (status != http.StatusOK) || (err != nil) {
+	if err != nil {
 		return
+	}
+
+	if status != http.StatusOK {
+		respBody := string(respBytes)
+		return vm, fmt.Errorf("status code %d: %s", status, respBody)
 	}
 
 	err = json.Unmarshal(respBytes, &vm)
@@ -40,8 +51,13 @@ func (a *Auto) GetVMState(vmid string) (state models.VMState, err error) {
 	url := a.Url + "/libvirt/domains/" + vmid + "/state"
 	respBytes, status, err := a.httpReq("GET", url, nil)
 
-	if (status != http.StatusOK) || (err != nil) {
+	if err != nil {
 		return
+	}
+
+	if status != http.StatusOK {
+		respBody := string(respBytes)
+		return state, fmt.Errorf("status code %d: %s", status, respBody)
 	}
 
 	err = json.Unmarshal(respBytes, &state)
@@ -80,8 +96,13 @@ func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, e
 
 	respBytes, status, err := a.httpReq("POST", reqUrl, reqBody)
 
-	if (status != http.StatusOK) || (err != nil) {
+	if err != nil {
 		return
+	}
+
+	if status != http.StatusOK {
+		respBody := string(respBytes)
+		return respState, fmt.Errorf("status code %d: %s", status, respBody)
 	}
 
 	err = json.Unmarshal(respBytes, &respState)
@@ -94,17 +115,17 @@ func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, e
 	return
 }
 
-func (a *Auto) CreateVM(req *util.VMCreateRequest) (err error) {
-	reqUrl := a.Url + "/libvirt/domains"
-	respBytes, status, err := a.httpReq("POST", reqUrl, req)
+func (a *Auto) CreateVM(req *util.VMCreateRequest, vmid uuid.UUID) (err error) {
+	reqUrl := a.Url + "/libvirt/domain/" + vmid.String()
+	respBytes, status, err := a.httpReq("PUT", reqUrl, req)
 
-	if (status != http.StatusCreated) || (err != nil) {
+	if err != nil {
 		return
 	}
 
 	if status != http.StatusCreated {
-		respStr := string(respBytes)
-		return fmt.Errorf(respStr)
+		respBody := string(respBytes)
+		return fmt.Errorf("status code %d: %s", status, respBody)
 	}
 
 	return

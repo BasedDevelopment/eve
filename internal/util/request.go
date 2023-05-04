@@ -22,7 +22,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/pkg/status"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 	"github.com/google/uuid"
@@ -80,22 +79,21 @@ func (s SetStateRequest) Validate() error {
 }
 
 type VMCreateRequest struct {
-	Id        uuid.UUID     `json:"id"`
-	User      uuid.UUID     `json:"user"`
-	Hostname  string        `json:"hostname"`
-	CPU       int           `json:"cpu"`
-	Memory    int           `json:"memory"`
-	State     status.Status `json:"state"`
-	Image     string        `json:"image"`
-	Cloud     bool          `json:"cloud"`
-	OS        string        `json:"os"`
-	OSVariant string        `json:"os_variant"`
-	userData  string        `json:"userData"`
-	metaData  string        `json:"metaData"`
-	Disk      []struct {
+	User       uuid.UUID `json:"user"`
+	Id         uuid.UUID `json:"id"`
+	Hostname   string    `json:"hostname"`
+	CPU        int       `json:"cpu"`
+	Memory     int       `json:"memory"`
+	Image      string    `json:"image"`
+	Cloud      bool      `json:"cloud"`
+	CloudImage string    `json:"cloud_image"`
+	OSVariant  string    `json:"os_variant"`
+	UserData   string    `json:"user_data"`
+	MetaData   string    `json:"meta_data"`
+	Disk       []struct {
 		Id   int    `json:"id"`
 		Size int    `json:"size"`
-		Disk string `json:"disk"`
+		Path string `json:"path"`
 	} `json:"disk"`
 	Iface []struct {
 		Bridge string `json:"bridge"`
@@ -105,10 +103,9 @@ type VMCreateRequest struct {
 
 func (s VMCreateRequest) Validate() error {
 	return validation.ValidateStruct(&s,
-		validation.Field(&s.Hostname, validation.Required, validation.Length(2, 20)),
+		validation.Field(&s.Hostname, validation.Required, is.Domain),
 		validation.Field(&s.CPU, validation.Required, validation.Min(1)),
 		validation.Field(&s.Memory, validation.Required, validation.Min(1)),
-		//TODO
 	)
 }
 
