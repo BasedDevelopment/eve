@@ -33,5 +33,12 @@ func (hv *HV) CreateVM(ctx context.Context, vm *util.VMCreateRequest, hvid uuid.
 		vm.Memory,
 	)
 
+	if err != nil {
+		return vmid, err
+	}
+
+	//refresh hv's vm list
+	_, err = hv.getVMsFromDB()
+
 	return vmid, err
 }
