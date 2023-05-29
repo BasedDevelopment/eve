@@ -8,7 +8,7 @@ import (
 )
 
 func (a *Auto) WsReq(w http.ResponseWriter, r *http.Request, domid string) http.Handler {
-	wsurl := a.Url + "/libvirt/domain/" + domid + "/console"
+	wsurl := a.Url + "/libvirt/domains/" + domid + "/console"
 	conn, err := a.getWSConn(wsurl)
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")

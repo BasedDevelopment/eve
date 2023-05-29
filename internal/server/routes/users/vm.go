@@ -167,5 +167,6 @@ func GetVMConsole(w http.ResponseWriter, r *http.Request) {
 		eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
 		return
 	}
+
 	hv.Auto.WsReq(w, r, vm.ID.String())
 }
