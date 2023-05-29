@@ -30,7 +30,8 @@ func (hv *HV) CreateVM(ctx context.Context, vm *util.VMCreateRequest, hvid uuid.
 		vm.Hostname,
 		vm.User,
 		vm.CPU,
-		vm.Memory*1024,
+		// req is sent as mb, but we want to store it as bytes
+		vm.Memory*1024*1024,
 	)
 
 	if err != nil {
