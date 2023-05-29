@@ -114,6 +114,7 @@ func (a *Auto) WSProxy(wsUrl *url.URL, w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.URL.Path = ""
+	r.RawQuery = ""
 
 	proxy.ServeHTTP(w, r)
 }
