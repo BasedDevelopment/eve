@@ -113,5 +113,7 @@ func (a *Auto) WSProxy(wsUrl *url.URL, w http.ResponseWriter, r *http.Request) {
 		TLSClientConfig: tlsConfig,
 	}
 
+	r.Path = ""
+
 	proxy.ServeHTTP(w, r)
 }
