@@ -60,13 +60,12 @@ func Logger(next http.Handler) http.Handler {
 		// Prevent logging of token in vnc websocket request
 
 		defer func() {
-			r.URL.RawQuery = ""
 			logger := log.With().
 				Str("reqId", reqId).
 				Str("method", r.Method).
 				Str("host", r.Host).
 				Str("client", r.RemoteAddr).
-				Str("page", r.RequestURI).
+				Str("page", r.URL.Path).
 				Str("protocol", r.Proto).
 				Str("user-agent", r.UserAgent()).
 				Float64("duration(ms)", float64(time.Since(t).Nanoseconds())/1000000.0).
