@@ -11,6 +11,8 @@ type fwdLogger struct {
 	logger *zerolog.Logger
 }
 
+// FwdLogger is a logger that forwards to zerolog from stdlib's http Logger
+// Mainly used to forward tls handshake errors
 func (l *fwdLogger) Write(p []byte) (n int, err error) {
 	log.Error().
 		Str("error", string(p)).
