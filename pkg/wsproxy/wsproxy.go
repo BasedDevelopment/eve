@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 
+	eUtil "github.com/BasedDevelopments/eve/pkg/util"
 	"github.com/rs/zerolog/log"
 )
 
