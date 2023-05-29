@@ -176,3 +176,13 @@ func CreateVM(w http.ResponseWriter, r *http.Request) {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
+
+func GetVMConsole(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getVM(w, r)
+	if vm == nil {
+		eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+		return
+	}
+
+	hv.Auto.WsReq(w, r, vm.ID.String())
+}

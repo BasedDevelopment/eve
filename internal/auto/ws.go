@@ -2,16 +2,14 @@ package auto
 
 import (
 	"net/http"
-
-	eUtil "github.com/BasedDevelopment/eve/pkg/util"
-	"github.com/BasedDevelopment/eve/pkg/wsproxy"
+	"net/url"
 )
 
-func (a *Auto) WsReq(w http.ResponseWriter, r *http.Request, domid string) http.Handler {
-	wsurl := a.Url + "/libvirt/domains/" + domid + "/console"
-	conn, err := a.getWSConn(wsurl)
+func (a *Auto) WsReq(w http.ResponseWriter, r *http.Request, domid string) {
+	wsUrl, err := url.Parse(a.Url)
 	if err != nil {
-		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Internal Server Error")
+		return
 	}
-	return wsproxy.WsProxy(w, r, conn)
+	wsUrl.Path = "/libvirt/domains/" + domid + "/console"
+	a.WSProxy(wsUrl, w, r)
 }

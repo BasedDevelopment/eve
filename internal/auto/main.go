@@ -5,6 +5,8 @@ import (
 	"crypto/x509"
 	"fmt"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
 	"github.com/BasedDevelopment/eve/internal/config"
 	"github.com/BasedDevelopment/eve/pkg/pki"
@@ -103,14 +105,13 @@ func (a *Auto) getHttpsClient() *http.Client {
 	return &TLSClient
 }
 
-func (a *Auto) getWSConn(wsurl string) (*tls.Conn, error) {
+func (a *Auto) WSProxy(wsUrl *url.URL, w http.ResponseWriter, r *http.Request) {
 	tlsConfig := a.getTLSConfig()
 
-	conn, err := tls.Dial("tcp", wsurl, tlsConfig)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to connect to auto ws")
-		return nil, err
+	proxy := httputil.NewSingleHostReverseProxy(wsUrl)
+	proxy.Transport = &http.Transport{
+		TLSClientConfig: tlsConfig,
 	}
 
-	return conn, nil
+	proxy.ServeHTTP(w, r)
 }
