@@ -30,7 +30,7 @@ func (hv *HV) CreateVM(ctx context.Context, vm *util.VMCreateRequest, hvid uuid.
 		vm.Hostname,
 		vm.User,
 		vm.CPU,
-		vm.Memory,
+		vm.Memory*1024,
 	)
 
 	if err != nil {
