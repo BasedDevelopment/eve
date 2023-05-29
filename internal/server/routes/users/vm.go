@@ -124,6 +124,7 @@ func GetVMState(w http.ResponseWriter, r *http.Request) {
 func SetVMState(w http.ResponseWriter, r *http.Request) {
 	hv, vm := getUserVM(w, r)
 	if vm == nil {
+		eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
 		return
 	}
 	vm.Mutex.Lock()
@@ -158,4 +159,13 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 	if err := eUtil.WriteResponse(respState, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
+}
+
+func GetVMConsole(w http.ResponseWriter, r *http.Request) {
+	hv, vm := getUserVM(w, r)
+	if vm == nil {
+		eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
+		return
+	}
+	hv.Auto.WsReq(w, r, vm.ID.String())
 }

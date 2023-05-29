@@ -77,8 +77,8 @@ type Auto struct {
 	Serial string
 }
 
-func (a *Auto) getHttpsClient() *http.Client {
-	tlsConfig := &tls.Config{
+func (a *Auto) getTLSConfig() *tls.Config {
+	return &tls.Config{
 		RootCAs:      caPool,
 		Certificates: []tls.Certificate{*crtPair},
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -89,6 +89,10 @@ func (a *Auto) getHttpsClient() *http.Client {
 			return nil
 		},
 	}
+}
+
+func (a *Auto) getHttpsClient() *http.Client {
+	tlsConfig := a.getTLSConfig()
 
 	TLSClient = http.Client{
 		Transport: &http.Transport{
@@ -97,4 +101,16 @@ func (a *Auto) getHttpsClient() *http.Client {
 	}
 
 	return &TLSClient
+}
+
+func (a *Auto) getWSConn(wsurl string) (*tls.Conn, error) {
+	tlsConfig := a.getTLSConfig()
+
+	conn, err := tls.Dial("tcp", wsurl, tlsConfig)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to connect to auto ws")
+		return nil, err
+	}
+
+	return conn, nil
 }

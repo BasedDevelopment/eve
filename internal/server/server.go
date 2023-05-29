@@ -118,6 +118,7 @@ func Service() *chi.Mux {
 					r.Get("/", users.GetVMState)
 					r.Patch("/", users.SetVMState)
 				})
+				r.Get("/console", users.GetVMConsole)
 				//	r.Patch("/", users.UpdateVM)
 			})
 		})
