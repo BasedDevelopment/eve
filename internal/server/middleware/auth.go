@@ -36,7 +36,7 @@ var (
 	ErrBadToken      = errors.New("invalid token")
 )
 
-func getToken(w http.ResponseWriter, r *http.Request) (tokens.Token, error) {
+func getTokenFromHeader(w http.ResponseWriter, r *http.Request) (tokens.Token, error) {
 	authorizationHeader := r.Header.Get("Authorization")
 
 	if authorizationHeader == "" {
@@ -56,11 +56,33 @@ func getToken(w http.ResponseWriter, r *http.Request) (tokens.Token, error) {
 	return token, nil
 }
 
+func getTokenFromQuery(w http.ResponseWriter, r *http.Request) (tokens.Token, error) {
+	tokenString := r.URL.Query().Get("token")
+	if tokenString == "" {
+		return tokens.Token{}, ErrBadToken
+	}
+
+	token, err := tokens.Parse(tokenString)
+	if err != nil {
+		return tokens.Token{}, ErrBadToken
+	}
+
+	return token, nil
+}
+
 // Auth forces a user to be authenticated before continuing to the route
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		requestToken, err := getToken(w, r)
+
+		// init empty requestToken and err
+		requestToken := tokens.Token{}
+		var err error
+		if r.Header.Get("Authorization") != "" {
+			requestToken, err = getTokenFromHeader(w, r)
+		} else {
+			requestToken, err = getTokenFromQuery(w, r)
+		}
 
 		if err != nil {
 			switch err {

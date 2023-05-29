@@ -24,6 +24,7 @@ import (
 
 	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/sessions"
+	"github.com/BasedDevelopment/eve/internal/tokens"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
 )
 
@@ -38,8 +39,15 @@ func UserContext(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
+		// init empty requestToken and err
+		requestToken := tokens.Token{}
+		var err error
 		// Get session
-		requestToken, err := getToken(w, r) // function from auth middleware; gets token from authorization header
+		if r.Header.Get("Authorization") != "" {
+			requestToken, err = getTokenFromHeader(w, r) // function from auth middleware; gets token from authorization header
+		} else {
+			requestToken, err = getTokenFromQuery(w, r)
+		}
 
 		if err != nil {
 			switch err {
