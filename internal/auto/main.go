@@ -113,7 +113,7 @@ func (a *Auto) WSProxy(wsUrl *url.URL, w http.ResponseWriter, r *http.Request) {
 		TLSClientConfig: tlsConfig,
 	}
 
-	rr := r
+	rr := r.Clone(r.Context())
 	rr.URL.Path = ""
 	rr.URL.RawQuery = ""
 
