@@ -58,9 +58,9 @@ func Logger(next http.Handler) http.Handler {
 		}
 
 		// Prevent logging of token in vnc websocket request
-		r.URL.RawQuery = ""
 
 		defer func() {
+			r.URL.RawQuery = ""
 			logger := log.With().
 				Str("reqId", reqId).
 				Str("method", r.Method).
