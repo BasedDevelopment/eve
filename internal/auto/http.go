@@ -14,19 +14,29 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 
 	switch method {
 	case "GET", "DELETE":
-		resp, err := c.Get(urlStr)
+		resp := &http.Response{}
+		var err error
+		if method == "GET" {
+			resp, err = c.Get(urlStr)
+		}
+		if method == "DELETE" {
+			resp, err = c.Do(&http.Request{
+				Method: "DELETE",
+				URL:    &url.URL{Path: urlStr},
+			})
+		}
 		if err != nil {
 			return nil, -1, err
 		}
 		if resp.Body == nil {
-			return nil, -1, errors.New("response body is nil")
+			return nil, -1, errors.New("eve/auto: response body is nil")
 		}
 		defer resp.Body.Close()
 		respBodyBytes, err = ioutil.ReadAll(resp.Body)
 		status = resp.StatusCode
 	case "POST", "PUT", "PATCH":
 		if data == nil {
-			return nil, -1, errors.New("data is nil")
+			return nil, -1, errors.New("eve/auto: data is nil")
 		}
 
 		url, err := url.Parse(urlStr)
@@ -54,13 +64,13 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 		}
 
 		if resp.Body == nil {
-			return nil, -1, errors.New("response body is nil")
+			return nil, -1, errors.New("eve/auto: response body is nil")
 		}
 		defer resp.Body.Close()
 		respBodyBytes, err = ioutil.ReadAll(resp.Body)
 		status = resp.StatusCode
 	default:
-		return nil, -1, errors.New("invalid method")
+		return nil, -1, errors.New("eve/auto: invalid method")
 	}
 
 	return
