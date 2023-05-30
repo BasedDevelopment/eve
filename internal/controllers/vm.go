@@ -179,6 +179,6 @@ func (hv *HV) DeleteVM(ctx context.Context, vmid string) error {
 		return err
 	}
 
-	_, err := hv.getVMsFromDB()
+	err := hv.InitVMs()
 	return err
 }

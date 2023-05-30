@@ -21,7 +21,6 @@ func (hv *HV) CreateVM(ctx context.Context, vm *util.VMCreateRequest, hvid uuid.
 	}
 
 	//don't use vm.Id here, it's not set
-
 	_, err = db.Pool.Exec(
 		ctx,
 		"INSERT INTO vm (id, hv_id, hostname, profile_id, cpu, memory) VALUES ($1, $2, $3, $4, $5, $6)",
@@ -38,8 +37,6 @@ func (hv *HV) CreateVM(ctx context.Context, vm *util.VMCreateRequest, hvid uuid.
 		return vmid, err
 	}
 
-	//refresh hv's vm list
-	_, err = hv.getVMsFromDB()
-
+	err = hv.InitVMs()
 	return vmid, err
 }
