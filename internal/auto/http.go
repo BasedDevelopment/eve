@@ -22,6 +22,9 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 		if method == "DELETE" {
 			// Parse the urlStr
 			u, err := url.Parse(urlStr)
+			if err != nil {
+				return nil, 0, err
+			}
 			resp, err = c.Do(&http.Request{
 				Method: "DELETE",
 				URL:    u,
