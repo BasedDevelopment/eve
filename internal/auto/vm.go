@@ -30,7 +30,7 @@ func (a *Auto) GetLibvirtVMs() (vms []models.VM, err error) {
 }
 
 func (a *Auto) GetLibvirtVM(vmid string) (vm models.VM, err error) {
-	url := a.Url + "/libvirt/domain/" + vmid
+	url := a.Url + "/libvirt/domains/" + vmid
 	respBytes, status, err := a.httpReq("GET", url, nil)
 
 	if err != nil {
@@ -116,7 +116,7 @@ func (a *Auto) SetVMState(vmid string, state uint8) (respState models.VMState, e
 }
 
 func (a *Auto) CreateVM(req *util.VMCreateRequest, vmid uuid.UUID) (err error) {
-	reqUrl := a.Url + "/libvirt/domain/" + vmid.String()
+	reqUrl := a.Url + "/libvirt/domains/" + vmid.String()
 	respBytes, status, err := a.httpReq("PUT", reqUrl, req)
 
 	if err != nil {
@@ -132,7 +132,7 @@ func (a *Auto) CreateVM(req *util.VMCreateRequest, vmid uuid.UUID) (err error) {
 }
 
 func (a *Auto) DeleteVM(vmid string) error {
-	reqUrl := a.Url + "/libvirt/domain/" + vmid
+	reqUrl := a.Url + "/libvirt/domains/" + vmid
 	respBytes, status, err := a.httpReq("DELETE", reqUrl, nil)
 
 	if err != nil {
