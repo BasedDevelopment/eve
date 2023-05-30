@@ -31,7 +31,7 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 			})
 		}
 		if err != nil {
-			return nil, -1, err
+			return nil, -1, errors.New("eve/auto: http request error: " + err.Error())
 		}
 		if resp.Body == nil {
 			return nil, -1, errors.New("eve/auto: response body is nil")
