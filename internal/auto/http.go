@@ -13,7 +13,7 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 	c := a.getHttpsClient()
 
 	switch method {
-	case "GET":
+	case "GET", "DELETE":
 		resp, err := c.Get(urlStr)
 		if err != nil {
 			return nil, -1, err
