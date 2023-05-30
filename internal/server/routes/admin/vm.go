@@ -175,13 +175,15 @@ func DeleteVM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	vmid := vm.ID.String()
+
 	// destroy and undefine in controller
-	if err := hv.DeleteVM(ctx, vm.ID.String()); err != nil {
+	if err := hv.DeleteVM(ctx, vmid); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to delete VM")
 		return
 	}
 
-	if err := eUtil.WriteResponse("", w, http.StatusOK); err != nil {
+	if err := eUtil.WriteResponse(vmid, w, http.StatusOK); err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
 	}
 }
