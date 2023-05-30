@@ -20,9 +20,11 @@ func (a *Auto) httpReq(method string, urlStr string, data any) (respBodyBytes []
 			resp, err = c.Get(urlStr)
 		}
 		if method == "DELETE" {
+			// Parse the urlStr
+			u, err := url.Parse(urlStr)
 			resp, err = c.Do(&http.Request{
 				Method: "DELETE",
-				URL:    &url.URL{Path: urlStr},
+				URL:    u,
 			})
 		}
 		if err != nil {
