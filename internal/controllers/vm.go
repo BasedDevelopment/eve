@@ -142,11 +142,6 @@ func (hv *HV) InitVMs() error {
 	return nil
 }
 
-func (hv *HV) fetchVMState(vm *VM) (models.VMState, error) {
-	id := vm.ID.String()
-	return hv.Auto.GetVMState(id)
-}
-
 func (hv *HV) checkVMConsistency(dbvm *VM) {
 	dom := dbvm.Domain
 
@@ -171,15 +166,19 @@ func (hv *HV) checkVMConsistency(dbvm *VM) {
 	}
 }
 
-// TODO
-func (hv *HV) checkUndefinedVMs() {
-	//doms, err := hv.Libvirt.GetUndefinedVMs()
-	//if err != nil {
-	//	log.Error().Err(err).Msg("failed to get undefined VMs")
-	//}
-	//if len(doms) > 0 {
-	//	log.Warn().Str("hv", hv.Hostname).Int("count", len(doms)).Msg("undefined VMs found")
-	//} else {
-	//	log.Info().Str("hv", hv.Hostname).Msg("no undefined VMs found")
-	//}
+func (hv *HV) DeleteVM(ctx context.Context, vmid string) error {
+	if err := hv.Auto.DeleteVM(vmid); err != nil {
+		return err
+	}
+
+	if _, err := db.Pool.Exec(
+		ctx,
+		"DELETE FROM vm WHERE id = $1",
+		vmid,
+	); err != nil {
+		return err
+	}
+
+	_, err := hv.getVMsFromDB()
+	return err
 }

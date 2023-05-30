@@ -130,3 +130,19 @@ func (a *Auto) CreateVM(req *util.VMCreateRequest, vmid uuid.UUID) (err error) {
 
 	return
 }
+
+func (a *Auto) DeleteVM(vmid string) error {
+	reqUrl := a.Url + "/libvirt/domain/" + vmid
+	respBytes, status, err := a.httpReq("DELETE", reqUrl, nil)
+
+	if err != nil {
+		return err
+	}
+
+	if status != http.StatusOK {
+		respBody := string(respBytes)
+		return fmt.Errorf("status code %d: %s", status, respBody)
+	}
+
+	return nil
+}

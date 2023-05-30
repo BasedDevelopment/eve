@@ -21,7 +21,6 @@ package users
 import (
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
@@ -94,6 +93,7 @@ func GetVM(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
+
 	vm.Mutex.Lock()
 	defer vm.Mutex.Unlock()
 
@@ -108,10 +108,8 @@ func GetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
-	vm.Mutex.Lock()
-	defer vm.Mutex.Unlock()
 
-	state, err := hv.Auto.GetVMState(vm.ID.String())
+	state, err := hv.GetVMState(vm)
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to get VM state")
 	}
@@ -127,8 +125,6 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 		eUtil.WriteError(w, r, nil, http.StatusNotFound, "virtual machine not found")
 		return
 	}
-	vm.Mutex.Lock()
-	defer vm.Mutex.Unlock()
 
 	req := new(util.SetStateRequest)
 	if err := util.ParseRequest(r, req); err != nil {
@@ -136,21 +132,7 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var status uint8
-	switch req.State {
-	case "start":
-		status = auto.Start
-	case "reboot":
-		status = auto.Reboot
-	case "poweroff":
-		status = auto.Poweroff
-	case "stop":
-		status = auto.Stop
-	case "reset":
-		status = auto.Reset
-	}
-
-	respState, err := hv.Auto.SetVMState(vm.ID.String(), status)
+	respState, err := hv.SetVMState(vm, req.State)
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to set VM state")
 		return

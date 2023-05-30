@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/BasedDevelopment/eve/internal/auto"
 	"github.com/BasedDevelopment/eve/internal/controllers"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
@@ -98,10 +97,8 @@ func GetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
-	vm.Mutex.Lock()
-	defer vm.Mutex.Unlock()
 
-	state, err := hv.Auto.GetVMState(vm.ID.String())
+	state, err := hv.GetVMState(vm)
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to get VM state")
 		return
@@ -117,8 +114,6 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 	if vm == nil {
 		return
 	}
-	vm.Mutex.Lock()
-	defer vm.Mutex.Unlock()
 
 	req := new(util.SetStateRequest)
 	if err := util.ParseRequest(r, req); err != nil {
@@ -126,21 +121,7 @@ func SetVMState(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var status uint8
-	switch req.State {
-	case "start":
-		status = auto.Start
-	case "reboot":
-		status = auto.Reboot
-	case "poweroff":
-		status = auto.Poweroff
-	case "stop":
-		status = auto.Stop
-	case "reset":
-		status = auto.Reset
-	}
-
-	respState, err := hv.Auto.SetVMState(vm.ID.String(), status)
+	respState, err := hv.SetVMState(vm, req.State)
 	if err != nil {
 		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to set VM state")
 		return
@@ -185,4 +166,22 @@ func GetVMConsole(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hv.Auto.WsReq(w, r, vm.ID.String())
+}
+
+func DeleteVM(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	hv, vm := getVM(w, r)
+	if vm == nil {
+		return
+	}
+
+	// destroy and undefine in controller
+	if err := hv.DeleteVM(ctx, vm.ID.String()); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to delete VM")
+		return
+	}
+
+	if err := eUtil.WriteResponse("", w, http.StatusOK); err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to marshall/send response")
+	}
 }

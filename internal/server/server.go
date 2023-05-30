@@ -88,7 +88,7 @@ func Service() *chi.Mux {
 								r.Patch("/", admin.SetVMState)
 							})
 							//r.Patch("/", admin.UpdateVM)
-							//r.Delete("/", admin.DeleteVM)
+							r.Delete("/", admin.DeleteVM)
 						})
 					})
 				})
