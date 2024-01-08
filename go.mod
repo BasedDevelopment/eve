@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/BasedDevelopment/auto v0.0.0-20230125200811-b021f1532551
-	github.com/georgysavva/scany/v2 v2.0.0
+	github.com/georgysavva/scany/v2 v2.1.0
 	github.com/go-chi/chi/v5 v5.0.11
 	github.com/go-chi/cors v1.2.1
 	github.com/go-chi/httprate v0.8.0
@@ -14,7 +14,7 @@ require (
 	github.com/knadh/koanf v1.5.0
 	github.com/rs/zerolog v1.31.0
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/crypto v0.16.0
+	golang.org/x/crypto v0.17.0
 )
 
 require (
