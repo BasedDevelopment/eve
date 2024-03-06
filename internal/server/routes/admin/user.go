@@ -19,11 +19,14 @@
 package admin
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/BasedDevelopment/eve/internal/db"
 	"github.com/BasedDevelopment/eve/internal/profile"
 	"github.com/BasedDevelopment/eve/internal/util"
 	eUtil "github.com/BasedDevelopment/eve/pkg/util"
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -73,4 +76,21 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	eUtil.WriteResponse(resp, w, http.StatusCreated)
+}
+
+func GetUsers(w http.ResponseWriter, r *http.Request) {
+	rows, err := db.Pool.Query(context.Background(), "SELECT * FROM profile")
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to list users")
+		return
+	}
+	defer rows.Close()
+
+	users, err := pgx.CollectRows(rows, pgx.RowToStructByName[profile.Profile])
+	if err != nil {
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to collect users")
+		return
+	}
+
+	eUtil.WriteResponse(users, w, http.StatusOK)
 }

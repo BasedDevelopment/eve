@@ -95,7 +95,7 @@ func Service() *chi.Mux {
 			})
 			r.Route("/users", func(r chi.Router) {
 				r.Post("/", admin.CreateUser)
-				//r.Get("/", admin.GetUsers)
+				r.Get("/", admin.GetUsers)
 				//r.Route("/{user}", func(r chi.Router) {
 				//r.Get("/", admin.GetUser)
 				//r.Patch("/", admin.UpdateUser)

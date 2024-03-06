@@ -62,6 +62,7 @@ func getHV(w http.ResponseWriter, r *http.Request) *controllers.HV {
 func GetHV(w http.ResponseWriter, r *http.Request) {
 	hv := getHV(w, r)
 	if hv == nil {
+		//TODO: write http resp
 		return
 	}
 
