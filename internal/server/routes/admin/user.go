@@ -81,7 +81,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 func GetUsers(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Pool.Query(context.Background(), "SELECT * FROM profile")
 	if err != nil {
-		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to list users")
+		eUtil.WriteError(w, r, err, http.StatusInternalServerError, "Failed to get users")
 		return
 	}
 	defer rows.Close()

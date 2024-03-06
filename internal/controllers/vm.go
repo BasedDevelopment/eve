@@ -119,6 +119,8 @@ func (hv *HV) InitVMs() error {
 
 	hv.Mutex.Lock()
 	defer hv.Mutex.Unlock()
+	// Clear VMs
+	hv.VMs = make(map[uuid.UUID]*VM)
 	// Load the VMs of a hypervisor into memory
 	for i := range dbVMs {
 		id := dbVMs[i].ID
