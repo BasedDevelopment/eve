@@ -28,7 +28,7 @@ const (
 	adminPasswordHash = "$2a$11$MCwHsWkdVATPJ0URdUFg9uvY6UdskKO.Mwc3Y2e9LKi.5GQFOhTCq"
 
 	userName     = "User Test"
-	userEmail    = "eric@testing.com"
+	userEmail    = "me@ezrizhu.com"
 	userPassword = "userPasswordTest"
 )
 
