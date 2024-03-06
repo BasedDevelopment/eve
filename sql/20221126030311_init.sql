@@ -34,6 +34,22 @@ CREATE TABLE public.hv (
     remarks text NOT NULL DEFAULT ''
 );
 
+CREATE TABLE public.hv_storage (
+    id uuid NOT NULL PRIMARY KEY,
+    hv_id uuid NOT NULL REFERENCES hv (id),
+    name character varying(255) NOT NULL,
+    path character varying(255) NOT NULL,
+    remarks text NOT NULL DEFAULT ''
+);
+
+CREATE TABLE public.hv_network (
+    id uuid NOT NULL PRIMARY KEY,
+    hv_id uuid NOT NULL REFERENCES hv (id),
+    name character varying(255) NOT NULL,
+    bridge character varying(255) NOT NULL,
+    remarks text NOT NULL DEFAULT ''
+);
+
 CREATE TABLE public.vm (
     id uuid NOT NULL PRIMARY KEY,
     hv_id uuid NOT NULL REFERENCES hv (id),

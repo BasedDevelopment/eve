@@ -31,19 +31,22 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// This is the HV struct that will be stored in the DB.
 type HV struct {
-	ID         uuid.UUID         `json:"id"`
-	Hostname   string            `json:"hostname"`
-	AutoUrl    string            `json:"auto_url" db:"auto_url"`
-	AutoSerial string            `json:"auto_serial" db:"auto_serial"`
-	Site       string            `json:"site"`
-	Created    time.Time         `json:"created"`
-	Updated    time.Time         `json:"updated"`
-	Remarks    string            `json:"remarks"`
-	Mutex      sync.Mutex        `json:"-" db:"-"`
-	VMs        map[uuid.UUID]*VM `json:"-" db:"-"`
-	Auto       *auto.Auto        `json:"-" db:"-"`
-	Specs      *models.HV        `json:"-" db:"-"`
+	ID         uuid.UUID              `json:"id"`
+	Hostname   string                 `json:"hostname"`
+	AutoUrl    string                 `json:"auto_url" db:"auto_url"`
+	AutoSerial string                 `json:"auto_serial" db:"auto_serial"`
+	Site       string                 `json:"site"`
+	Created    time.Time              `json:"created"`
+	Updated    time.Time              `json:"updated"`
+	Remarks    string                 `json:"remarks"`
+	Mutex      sync.Mutex             `json:"-" db:"-"`
+	VMs        map[uuid.UUID]*VM      `json:"-" db:"-"`
+	Storages   map[uuid.UUID]*Storage `json:"-" db:"-"` // storage places for VM disks, isos, backups
+	Bridges    map[uuid.UUID]*Bridge  `json:"-" db:"-"` // bridges for VMs
+	Auto       *auto.Auto             `json:"-" db:"-"` // auto conn details
+	Specs      *models.HV             `json:"-" db:"-"` // specs fetched from auto
 }
 
 func getHVs(cloud *HVList) (err error) {

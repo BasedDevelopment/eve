@@ -45,12 +45,13 @@ type VM struct {
 	Created  time.Time            `json:"created"`
 	Updated  time.Time            `json:"updated"`
 	Remarks  string               `json:"remarks"`
-	Domain   models.VM            `json:"-" db:"-"`
+	Domain   models.VM            `json:"-" db:"-"` // data from libvirt
 }
 
 type VMNic struct {
 	Mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
+	Bridge  uuid.UUID
 	name    string
 	MAC     string
 	IP      []net.IP `db:"-"`
@@ -63,6 +64,7 @@ type VMNic struct {
 type VMStorage struct {
 	Mutex   sync.Mutex `db:"-" json:"-"`
 	ID      uuid.UUID
+	Storage uuid.UUID
 	Size    int
 	Created time.Time
 	Updated time.Time
