@@ -13,7 +13,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.4
 	github.com/knadh/koanf v1.5.0
 	github.com/rs/zerolog v1.32.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.21.0
 )
 
